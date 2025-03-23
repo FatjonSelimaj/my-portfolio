@@ -18,25 +18,36 @@ export default function Register() {
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-
+  
     if (!isValidPassword(password)) {
       alert("La password deve contenere almeno 8 caratteri, un numero e un carattere speciale.");
       return;
     }
-
+  
     try {
-      const res = await fetch("/pagesapi/register", {
+      const res = await fetch("/api/register", { // ✅ usa /api/register, non /pages/api/register
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password, name }),
       });
-
-      if (!res.ok) {
-        const errorData = await res.json();
-        alert(`Errore: ${errorData.message || "Registrazione fallita"}`);
+  
+      const responseText = await res.text();  // 👈 Debug qui: prendi il testo della risposta
+      console.log("Risposta completa:", responseText); // 👈 Debug: stampa la risposta
+  
+      let data;
+      try {
+        data = JSON.parse(responseText);
+      } catch (error) {
+        console.error("Risposta non valida JSON:", responseText);
+        alert("Errore: la risposta non è JSON valido. Controlla la console per i dettagli.");
         return;
       }
-
+  
+      if (!res.ok) {
+        alert(`Errore: ${data.message || "Registrazione fallita"}`);
+        return;
+      }
+  
       alert("Registrazione completata con successo!");
       router.push("/auth/login");
     } catch (error) {
@@ -44,6 +55,7 @@ export default function Register() {
       console.error("Errore nella registrazione:", error);
     }
   };
+  
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-500 to-purple-700">
