@@ -38,7 +38,7 @@ export default function Register() {
       }
 
       alert("Registrazione completata con successo!");
-      router.push("login");
+      router.push("/auth/login");
     } catch (error) {
       alert("Errore di rete. Riprova più tardi.");
       console.error("Errore nella registrazione:", error);
@@ -122,7 +122,7 @@ export default function Register() {
           {/* Testo + bottone per il login */}
           <p className="text-lg font-semibold text-gray-800">Sei già registrato/a?</p>
           <button
-            onClick={() => router.push("login")}
+            onClick={() => router.push("/auth/login")}
             className="flex items-center text-green-600 hover:text-green-700 text-lg font-medium transition-all"
           >
             <FaSignInAlt className="mr-2 text-2xl" />
