@@ -26,7 +26,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       firstName: userDetails.firstName || "",
       lastName: userDetails.lastName || "",
       about: userDetails.bio || "",
-      paintings: userDetails.paintings.map((p) => ({
+      paintings: userDetails.paintings.map((p: { title: any; content: any; }) => ({
         title: p.title,
         content: p.content,
       })),
