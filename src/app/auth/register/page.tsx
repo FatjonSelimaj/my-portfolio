@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { FaUser, FaEnvelope, FaLock, FaEye, FaEyeSlash, FaArrowCircleLeft, FaUserPlus, FaSignInAlt } from "react-icons/fa";
-import { FormEvent } from "react";
 
 export default function Register() {
   const [email, setEmail] = useState("");
@@ -17,48 +16,35 @@ export default function Register() {
     return /^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,}$/.test(password);
   };
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    setErrorMessage("");
+  
+    if (!isValidPassword(password)) {
+      alert("La password deve contenere almeno 8 caratteri, un numero e un carattere speciale.");
+      return;
+    }
   
     try {
-      const res = await fetch("/api/login", { // ✅ CORRETTO
+      const res = await fetch("/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password, name }),
       });
   
-      const responseText = await res.text();
-      console.log("Risposta completa:", responseText);
-  
-      let data;
-      try {
-        data = JSON.parse(responseText);
-      } catch (error) {
-        console.error("Risposta non JSON:", responseText);
-        alert("Errore imprevisto: risposta non JSON. Controlla la console per dettagli.");
-        return;
-      }
-  
       if (!res.ok) {
-        setErrorMessage(data.message || "Credenziali errate. Riprova.");
+        const errorData = await res.json();
+        alert(`Errore: ${errorData.message || "Registrazione fallita"}`);
         return;
       }
   
-      localStorage.setItem("token", data.token);
-      router.push("/hompage");
-  
+      alert("Registrazione completata con successo!");
+      router.push("/auth/login"); // ✅ Corretto qui
     } catch (error) {
-      setErrorMessage("Si è verificato un errore di rete. Riprova più tardi.");
-      console.error("Errore nel login:", error);
+      alert("Errore di rete. Riprova più tardi.");
+      console.error("Errore nella registrazione:", error);
     }
   };
   
-  
-
-  function handleRegister(event: FormEvent<HTMLFormElement>): void {
-    throw new Error("Function not implemented.");
-  }
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-500 to-purple-700">
@@ -148,7 +134,3 @@ export default function Register() {
     </div>
   );
 }
-function setErrorMessage(arg0: string) {
-  throw new Error("Function not implemented.");
-}
-
