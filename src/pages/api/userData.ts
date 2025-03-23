@@ -35,10 +35,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       about: dataFromDb?.bio || "",
       services: "Qui potresti mettere i servizi se li hai salvati da qualche parte",
       articles: "Qui potresti mettere gli articoli",
-      paintings: dataFromDb?.paintings?.map((p) => ({
+      paintings: dataFromDb?.paintings?.map((p: { title: string; content: string }) => ({
         title: p.title,
         content: p.content,
-      })) || [],
+      })) || [],      
       contact: {
         phone: dataFromDb?.phone || "",
         email: user.email,
