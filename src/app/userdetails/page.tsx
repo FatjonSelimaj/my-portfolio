@@ -1,0 +1,211 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import {
+  FaSignOutAlt, FaCog, FaSave, FaPhone
+} from "react-icons/fa";
+import Link from "next/link";
+
+export default function UserDetails() {
+  const router = useRouter();
+  const [modalMessage, setModalMessage] = useState<string | null>(null);
+
+  const [userDetails, setUserDetails] = useState({
+    firstName: "",
+    lastName: "",
+    bio: "",
+    phone: "",
+    paintings: Array(8).fill({ title: "", content: "" }),
+  });
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      setModalMessage("Sessione scaduta. Effettua nuovamente il login.");
+      router.replace("/login");
+      return;
+    }
+
+    fetch("/api/userDetails", {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("Errore nella richiesta");
+        return res.json();
+      })
+      .then((data) => {
+        setUserDetails({
+          firstName: data.firstName || "",
+          lastName: data.lastName || "",
+          bio: data.bio || "",
+          phone: data.phone || "",
+          paintings: data.paintings?.length
+            ? data.paintings
+            : Array(8).fill({ title: "", content: "" }),
+        });
+      })
+      .catch(() => setModalMessage("Errore nel recupero dei dati utente."));
+  }, [router]);
+
+  const handleSaveDetails = () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setModalMessage("Token mancante. Effettua nuovamente il login.");
+      return;
+    }
+
+    fetch("/api/userDetails", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(userDetails),
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("Errore durante il salvataggio");
+        return res.json();
+      })
+      .then(() => setModalMessage("Dati salvati con successo!"))
+      .catch(() => setModalMessage("Errore durante il salvataggio dei dati."));
+  };
+
+  return (
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-indigo-500 to-purple-700 text-white">
+      <header className="w-full p-6 flex justify-between items-center bg-white shadow-lg">
+        <h1 className="text-2xl font-bold text-gray-900">Profilo Utente</h1>
+        <div className="flex gap-4">
+          <Link href="/hompage">
+            <button className="flex items-center gap-2 bg-gray-500 text-white px-4 py-2 rounded-lg shadow hover:bg-gray-600 transition-all">
+              <FaCog /> Torna alla Dashboard
+            </button>
+          </Link>
+          <button
+            onClick={() => {
+              localStorage.removeItem("token");
+              router.push("/");
+            }}
+            className="flex items-center gap-2 bg-red-500 text-white px-4 py-2 rounded-lg shadow hover:bg-red-600 transition-all"
+          >
+            <FaSignOutAlt /> Logout
+          </button>
+        </div>
+      </header>
+
+      <main className="flex flex-col items-center justify-center flex-grow text-center px-6">
+        <h2 className="text-3xl font-semibold mb-6">Modifica i tuoi dati</h2>
+
+        <div className="bg-white p-6 rounded-lg shadow-lg text-gray-900 w-full max-w-2xl">
+          {/* Nome e Cognome */}
+          <div className="flex gap-4">
+            <div className="w-1/2">
+              <label className="block mb-2">Nome</label>
+              <input
+                type="text"
+                value={userDetails.firstName}
+                onChange={(e) =>
+                  setUserDetails({ ...userDetails, firstName: e.target.value })
+                }
+                className="w-full p-2 border rounded mb-2"
+              />
+            </div>
+            <div className="w-1/2">
+              <label className="block mb-2">Cognome</label>
+              <input
+                type="text"
+                value={userDetails.lastName}
+                onChange={(e) =>
+                  setUserDetails({ ...userDetails, lastName: e.target.value })
+                }
+                className="w-full p-2 border rounded mb-2"
+              />
+            </div>
+          </div>
+
+          {/* Bio */}
+          <label className="block mb-2">Chi Sono</label>
+          <textarea
+            value={userDetails.bio}
+            onChange={(e) =>
+              setUserDetails({ ...userDetails, bio: e.target.value })
+            }
+            className="w-full p-2 border rounded mb-2"
+            rows={3}
+          />
+
+          {/* Telefono */}
+          <label className="block mb-2">Numero di Telefono</label>
+          <div className="relative">
+            <FaPhone className="absolute left-3 top-3 text-gray-500" />
+            <input
+              type="text"
+              value={userDetails.phone}
+              onChange={(e) =>
+                setUserDetails({ ...userDetails, phone: e.target.value })
+              }
+              className="w-full p-2 pl-10 border rounded mb-2"
+            />
+          </div>
+
+          {/* Quadri */}
+          <h3 className="text-xl font-semibold text-gray-900 mt-6">Quadri</h3>
+          <div className="grid grid-cols-2 gap-4 mt-2">
+            {userDetails.paintings.map((painting, index) => (
+              <div key={index} className="p-4 border rounded shadow-md bg-gray-50">
+                <input
+                  type="text"
+                  placeholder="Titolo"
+                  value={painting.title}
+                  onChange={(e) => {
+                    const updatedPaintings = [...userDetails.paintings];
+                    updatedPaintings[index] = { ...painting, title: e.target.value };
+                    setUserDetails({ ...userDetails, paintings: updatedPaintings });
+                  }}
+                  className="w-full p-2 border rounded mb-2"
+                />
+                <textarea
+                  placeholder="Descrizione"
+                  value={painting.content}
+                  onChange={(e) => {
+                    const updatedPaintings = [...userDetails.paintings];
+                    updatedPaintings[index] = { ...painting, content: e.target.value };
+                    setUserDetails({ ...userDetails, paintings: updatedPaintings });
+                  }}
+                  className="w-full p-2 border rounded"
+                  rows={2}
+                />
+              </div>
+            ))}
+          </div>
+
+          {/* Salva Dati */}
+          <div className="flex justify-end gap-2 mt-4">
+            <button
+              onClick={handleSaveDetails}
+              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 flex items-center gap-2"
+            >
+              <FaSave /> Salva Dati
+            </button>
+          </div>
+        </div>
+      </main>
+
+      {/* Modale Messaggi */}
+      {modalMessage && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg text-gray-900 w-96">
+            <p className="text-center mb-4">{modalMessage}</p>
+            <button
+              onClick={() => setModalMessage(null)}
+              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 w-full"
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

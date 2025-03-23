@@ -1,0 +1,193 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import {
+  FaSignOutAlt, FaCog, FaTimes, FaSave, FaUser
+} from "react-icons/fa";
+import Link from "next/link";
+
+// Definizione delle sezioni per l'admin e per il sito
+type SectionType = "settings" | "about" | "services" | "articles" | "contact";
+
+export default function Dashboard() {
+  const router = useRouter();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedSection, setSelectedSection] = useState<SectionType | null>(null);
+  const [modalMessage, setModalMessage] = useState<string | null>(null);
+  const [userData, setUserData] = useState({
+    name: "",
+    email: "",
+    password: "",
+    gender: "male",
+  });
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setModalMessage("Sessione scaduta. Effettua nuovamente il login.");
+      router.replace("auth/login");
+    }
+  }, [router]);
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("userData");
+    router.push("/");
+  };
+
+  const handleOpenModal = (section: SectionType) => {
+    setSelectedSection(section);
+    setIsModalOpen(true);
+
+    if (section === "settings") {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        setModalMessage("Token mancante. Effettua nuovamente il login.");
+        return;
+      }
+
+      fetch("/api/user", {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+        .then(res => res.json())
+        .then(data => {
+          setUserData({
+            name: data.name || userData.name,
+            email: data.email || userData.email,
+            password: "",
+            gender: data.gender || userData.gender,
+          });
+          localStorage.setItem("userData", JSON.stringify(data));
+        })
+        .catch(() => {
+          setModalMessage("Errore nel recupero dei dati utente.");
+        });
+    }
+  };
+
+  const handleSaveSettings = () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setModalMessage("Token mancante. Effettua nuovamente il login.");
+      return;
+    }
+
+    fetch("/api/user", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(userData),
+    })
+      .then(res => res.json())
+      .then(() => {
+        setModalMessage("Impostazioni aggiornate con successo!");
+        localStorage.setItem("userData", JSON.stringify(userData));
+        setIsModalOpen(false);
+      })
+      .catch(() => {
+        setModalMessage("Errore nell'aggiornamento delle impostazioni.");
+      });
+  };
+
+  return (
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-indigo-500 to-purple-700 text-white">
+      {/* HEADER */}
+      <header className="w-full p-6 flex justify-between items-center bg-white shadow-lg">
+        <h1 className="text-2xl font-bold text-gray-900">Dashboard Admin</h1>
+        <div className="flex gap-4">
+          <button onClick={() => handleOpenModal("settings")} className="flex items-center gap-2 bg-gray-500 text-white px-4 py-2 rounded-lg shadow hover:bg-gray-600 transition-all">
+            <FaCog /> Impostazioni
+          </button>
+          <button onClick={handleLogout} className="flex items-center gap-2 bg-red-500 text-white px-4 py-2 rounded-lg shadow hover:bg-red-600 transition-all">
+            <FaSignOutAlt /> Logout
+          </button>
+        </div>
+      </header>
+
+      {/* MAIN CONTENT */}
+      <main className="flex flex-col items-center justify-center flex-grow text-center px-6">
+        <Link href="public_page" className="text-white hover:text-gray-300">Area Pubblica</Link>
+        <h2 className="text-3xl font-semibold mb-4">{userData.name}, {userData.gender === "female" ? "Benvenuta" : "Benvenuto"} nella tua Dashboard! 🎉</h2>
+        <p className="text-lg text-gray-200">Modifica le sezioni del sito e gestisci le impostazioni amministrative.</p>
+
+        {/* CARD PER ACCEDERE A USER DETAILS */}
+        <div className="mt-8">
+          <Link href="/userdetails">
+            <div className="cursor-pointer flex flex-col items-center p-6 bg-white text-gray-900 shadow-lg rounded-lg hover:bg-gray-200 transition-all">
+              <FaUser className="text-4xl text-blue-600 mb-2" />
+              <span className="text-lg font-semibold">Gestisci il tuo Profilo</span>
+            </div>
+          </Link>
+        </div>
+      </main>
+
+      {/* Modale Impostazioni */}
+      {isModalOpen && selectedSection === "settings" && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg text-gray-900 w-96">
+            <h2 className="text-xl font-semibold mb-4">Modifica Impostazioni</h2>
+
+            <label className="block mb-2">Nome</label>
+            <input
+              type="text"
+              value={userData.name}
+              onChange={(e) => setUserData({ ...userData, name: e.target.value })}
+              className="w-full p-2 border rounded mb-2"
+            />
+
+            <label className="block mb-2">Email</label>
+            <input
+              type="email"
+              value={userData.email}
+              onChange={(e) => setUserData({ ...userData, email: e.target.value })}
+              className="w-full p-2 border rounded mb-2"
+            />
+
+            <label className="block mb-2">Genere</label>
+            <select
+              value={userData.gender}
+              onChange={(e) => setUserData({ ...userData, gender: e.target.value })}
+              className="w-full p-2 border rounded mb-2"
+            >
+              <option value="male">Maschio</option>
+              <option value="female">Femmina</option>
+            </select>
+
+            <div className="flex justify-end gap-2 mt-4">
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+              >
+                <FaTimes />
+              </button>
+              <button
+                onClick={handleSaveSettings}
+                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+              >
+                <FaSave />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modale Messaggi */}
+      {modalMessage && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg text-gray-900 w-96">
+            <p className="text-center mb-4">{modalMessage}</p>
+            <button
+              onClick={() => setModalMessage(null)}
+              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 w-full"
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
