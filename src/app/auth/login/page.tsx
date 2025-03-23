@@ -17,38 +17,41 @@ export default function Login() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setErrorMessage(""); // Reset errore
-
+    setErrorMessage("");
+  
     try {
-      const res = await fetch("/api/login", {
+      const res = await fetch("/api/login", { // ✅ CORRETTO
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
-
-      if (!res.ok) {
-        const errorData = await res.json();
-        setErrorMessage(errorData.message || "Credenziali errate. Riprova.");
+  
+      const responseText = await res.text();
+      console.log("Risposta completa:", responseText);
+  
+      let data;
+      try {
+        data = JSON.parse(responseText);
+      } catch (error) {
+        console.error("Risposta non JSON:", responseText);
+        alert("Errore imprevisto: risposta non JSON. Controlla la console per dettagli.");
         return;
       }
-
-      const { token }: { token: string } = await res.json();
-
-      if (typeof window !== "undefined") {
-        localStorage.setItem("token", token); // Salva il token JWT
+  
+      if (!res.ok) {
+        setErrorMessage(data.message || "Credenziali errate. Riprova.");
+        return;
       }
-
-      // Mostra il messaggio di successo e poi reindirizza
-      setSuccessMessage(true);
-      setTimeout(() => {
-        setSuccessMessage(false);
-        router.push("../hompage");
-      }, 2000);
+  
+      localStorage.setItem("token", data.token);
+      router.push("/hompage");
+  
     } catch (error) {
       setErrorMessage("Si è verificato un errore di rete. Riprova più tardi.");
       console.error("Errore nel login:", error);
     }
   };
+  
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-indigo-500 to-purple-700">
