@@ -38,7 +38,7 @@ export default function Register() {
       }
 
       alert("Registrazione completata con successo!");
-      router.push("/login");
+      router.push("login");
     } catch (error) {
       alert("Errore di rete. Riprova più tardi.");
       console.error("Errore nella registrazione:", error);
