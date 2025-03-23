@@ -2,9 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import {
-  FaSignOutAlt, FaCog, FaSave, FaPhone
-} from "react-icons/fa";
+import { FaSignOutAlt, FaCog, FaSave, FaPhone } from "react-icons/fa";
 import Link from "next/link";
 
 export default function UserDetails() {

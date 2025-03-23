@@ -26,10 +26,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       firstName: userDetails.firstName || "",
       lastName: userDetails.lastName || "",
       about: userDetails.bio || "",
-      paintings: userDetails.paintings.map((p: { title: any; content: any; }) => ({
+      paintings: userDetails.paintings.map((p: { title: string; content: string; }) => ({
         title: p.title,
         content: p.content,
-      })),
+      })),      
       contact: {
         phone: userDetails.phone || "",
         email: userDetails.user?.email || "",  // Se la mail è salvata in user
