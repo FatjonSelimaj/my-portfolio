@@ -18,32 +18,33 @@ export default function Register() {
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-
+  
     if (!isValidPassword(password)) {
       alert("La password deve contenere almeno 8 caratteri, un numero e un carattere speciale.");
       return;
     }
-
+  
     try {
       const res = await fetch("/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password, name }),
       });
-
+  
       if (!res.ok) {
         const errorData = await res.json();
         alert(`Errore: ${errorData.message || "Registrazione fallita"}`);
         return;
       }
-
+  
       alert("Registrazione completata con successo!");
-      router.push("login");
+      router.push("/auth/login"); // ✅ Corretto qui
     } catch (error) {
       alert("Errore di rete. Riprova più tardi.");
       console.error("Errore nella registrazione:", error);
     }
   };
+  
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-500 to-purple-700">
@@ -122,7 +123,7 @@ export default function Register() {
           {/* Testo + bottone per il login */}
           <p className="text-lg font-semibold text-gray-800">Sei già registrato/a?</p>
           <button
-            onClick={() => router.push("login")}
+            onClick={() => router.push("/auth/login")}
             className="flex items-center text-green-600 hover:text-green-700 text-lg font-medium transition-all"
           >
             <FaSignInAlt className="mr-2 text-2xl" />
