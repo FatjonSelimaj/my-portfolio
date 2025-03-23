@@ -10,9 +10,11 @@ const isValidPassword = (password: string) => {
 };
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== "POST") {
-    res.setHeader("Allow", ["POST"]);
-    return res.status(405).json({ message: `Metodo ${req.method} non consentito.` });
+  if (req.method === 'POST') {
+    // Logica per gestire la registrazione
+  } else {
+    res.setHeader('Allow', ['POST']);
+    res.status(405).end(`Metodo ${req.method} non consentito`);
   }
 
   const { email, password, name } = req.body;
