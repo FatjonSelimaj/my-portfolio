@@ -1,44 +1,46 @@
-import type { NextApiRequest, NextApiResponse } from "next";
+import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
 const prisma = new PrismaClient();
-const JWT_SECRET = process.env.JWT_SECRET || "default_secret_for_local";
+const JWT_SECRET = process.env.JWT_SECRET!;
 
-if (!process.env.JWT_SECRET) {
-  console.warn("⚠️ ATTENZIONE: JWT_SECRET non è definito nelle variabili d'ambiente. Usando un valore predefinito!");
-}
-
-
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== "POST") {
-    res.setHeader("Allow", ["POST"]);
-    return res.status(405).end(`Metodo ${req.method} non consentito.`);
-  }
-
-  const { email, password } = req.body;
-
-  if (!email || !password) {
-    return res.status(400).json({ message: "Email e password sono obbligatori." });
-  }
-
+export async function POST(request: Request) {
   try {
-    const user = await prisma.user.findUnique({ where: { email } });
+    const { email, password } = await request.json();
 
-    if (!user || !(await bcrypt.compare(password, user.password))) {
-      return res.status(401).json({ message: "Credenziali non valide" });
+    if (!email || !password) {
+      return NextResponse.json(
+        { message: "Email e password sono obbligatori." },
+        { status: 400 }
+      );
     }
 
-    // Genera il token JWT
-    const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, {
-      expiresIn: "1h",
-    });
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user || !(await bcrypt.compare(password, user.password))) {
+      return NextResponse.json(
+        { message: "Credenziali non valide" },
+        { status: 401 }
+      );
+    }
 
-    return res.status(200).json({ token, message: "Login effettuato con successo!" });
+    const token = jwt.sign(
+      { id: user.id, email: user.email },
+      JWT_SECRET,
+      { expiresIn: "1h" }
+    );
+
+    return NextResponse.json(
+      { token, message: "Login effettuato con successo!" },
+      { status: 200 }
+    );
   } catch (error) {
     console.error("Errore nel login:", error);
-    return res.status(500).json({ message: "Errore interno al server. Riprova più tardi." });
+    return NextResponse.json(
+      { message: "Errore interno al server. Riprova più tardi." },
+      { status: 500 }
+    );
   } finally {
     await prisma.$disconnect();
   }
