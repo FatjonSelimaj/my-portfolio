@@ -47,7 +47,7 @@ export default function Dashboard() {
         return;
       }
 
-      fetch("/api/user", {
+      fetch("/api/userData", {
         headers: { Authorization: `Bearer ${token}` },
       })
         .then(res => res.json())
