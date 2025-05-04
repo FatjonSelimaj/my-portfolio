@@ -7,7 +7,7 @@ import {
 } from "react-icons/fa";
 import Link from "next/link";
 
-// Definizione delle sezioni per l'admin e per il sito
+// Tipi delle sezioni disponibili
 type SectionType = "settings" | "about" | "services" | "articles" | "contact";
 
 export default function Dashboard() {
@@ -25,7 +25,7 @@ export default function Dashboard() {
   useEffect(() => {
     const token = localStorage.getItem("token");
     const savedUser = localStorage.getItem("userData");
-  
+
     if (!token) {
       setModalMessage("Sessione scaduta. Effettua nuovamente il login.");
       router.replace("auth/login");
@@ -37,12 +37,11 @@ export default function Dashboard() {
           ...parsed,
           password: "",
         }));
-      } catch (e) {
-        console.warn("userData malformato nel localStorage");
+      } catch (err) {
+        console.warn("userData malformato nel localStorage", err);
       }
     }
   }, [router]);
-  
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -73,7 +72,7 @@ export default function Dashboard() {
             gender: data.gender ?? prev.gender,
             password: "",
           }));
-        
+
           localStorage.setItem(
             "userData",
             JSON.stringify({
@@ -83,8 +82,8 @@ export default function Dashboard() {
             })
           );
         })
-        
-        .catch(() => {
+        .catch((err) => {
+          console.error("Errore nel recupero dei dati utente:", err);
           setModalMessage("Errore nel recupero dei dati utente.");
         });
     }
@@ -111,14 +110,14 @@ export default function Dashboard() {
         localStorage.setItem("userData", JSON.stringify(userData));
         setIsModalOpen(false);
       })
-      .catch(() => {
+      .catch((err) => {
+        console.error("Errore nell'aggiornamento delle impostazioni:", err);
         setModalMessage("Errore nell'aggiornamento delle impostazioni.");
       });
   };
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-indigo-500 to-purple-700 text-white">
-      {/* HEADER */}
       <header className="w-full p-6 flex justify-between items-center bg-white shadow-lg">
         <h1 className="text-2xl font-bold text-gray-900">Dashboard Admin</h1>
         <div className="flex gap-4">
@@ -131,13 +130,13 @@ export default function Dashboard() {
         </div>
       </header>
 
-      {/* MAIN CONTENT */}
       <main className="flex flex-col items-center justify-center flex-grow text-center px-6">
-        <Link href="public_page" className="text-white hover:text-gray-300">Area Pubblica</Link>
-        <h2 className="text-3xl font-semibold mb-4">{userData.name}, {userData.gender === "female" ? "Benvenuta" : "Benvenuto"} nella tua Dashboard! 🎉</h2>
+        <Link href="/public_page" className="text-white hover:text-gray-300">Area Pubblica</Link>
+        <h2 className="text-3xl font-semibold mb-4">
+          {userData.name}, {userData.gender === "female" ? "Benvenuta" : "Benvenuto"} nella tua Dashboard! 🎉
+        </h2>
         <p className="text-lg text-gray-200">Modifica le sezioni del sito e gestisci le impostazioni amministrative.</p>
 
-        {/* CARD PER ACCEDERE A USER DETAILS */}
         <div className="mt-8">
           <Link href="/userdetails">
             <div className="cursor-pointer flex flex-col items-center p-6 bg-white text-gray-900 shadow-lg rounded-lg hover:bg-gray-200 transition-all">
@@ -148,7 +147,6 @@ export default function Dashboard() {
         </div>
       </main>
 
-      {/* Modale Impostazioni */}
       {isModalOpen && selectedSection === "settings" && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white p-6 rounded-lg shadow-lg text-gray-900 w-96">
@@ -181,16 +179,10 @@ export default function Dashboard() {
             </select>
 
             <div className="flex justify-end gap-2 mt-4">
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
-              >
+              <button onClick={() => setIsModalOpen(false)} className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">
                 <FaTimes />
               </button>
-              <button
-                onClick={handleSaveSettings}
-                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-              >
+              <button onClick={handleSaveSettings} className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
                 <FaSave />
               </button>
             </div>
@@ -198,15 +190,11 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* Modale Messaggi */}
       {modalMessage && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white p-6 rounded-lg shadow-lg text-gray-900 w-96">
             <p className="text-center mb-4">{modalMessage}</p>
-            <button
-              onClick={() => setModalMessage(null)}
-              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 w-full"
-            >
+            <button onClick={() => setModalMessage(null)} className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 w-full">
               OK
             </button>
           </div>
