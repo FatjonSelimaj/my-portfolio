@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { 
-  FaEnvelope, FaLock, FaEye, FaEyeSlash, 
-  FaArrowCircleLeft, FaSignInAlt, FaUserPlus, FaCheckCircle, FaExclamationTriangle 
+import {
+  FaEnvelope, FaLock, FaEye, FaEyeSlash,
+  FaArrowCircleLeft, FaSignInAlt, FaUserPlus, FaCheckCircle, FaExclamationTriangle
 } from "react-icons/fa";
 
 export default function Login() {
@@ -32,11 +32,13 @@ export default function Login() {
         return;
       }
 
-      const { token }: { token: string } = await res.json();
+      const { token, user }: { token: string, user: { name: string, email: string, gender?: string } } = await res.json();
 
       if (typeof window !== "undefined") {
-        localStorage.setItem("token", token); // Salva il token JWT
+        localStorage.setItem("token", token);
+        localStorage.setItem("userData", JSON.stringify(user));
       }
+
 
       // Mostra il messaggio di successo e poi reindirizza
       setSuccessMessage(true);
@@ -52,7 +54,7 @@ export default function Login() {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-indigo-500 to-purple-700">
-      
+
       {/* Messaggio di successo (Modale) */}
       {successMessage && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
@@ -77,7 +79,7 @@ export default function Login() {
 
         {/* Form */}
         <form onSubmit={handleLogin} className="flex flex-col gap-4">
-          
+
           {/* Email */}
           <div className="relative">
             <FaEnvelope className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-lg" />
@@ -123,7 +125,7 @@ export default function Login() {
 
         {/* Link di navigazione */}
         <div className="mt-6 flex flex-col items-center gap-4">
-          
+
           {/* Bottone Torna Indietro */}
           <button
             onClick={() => router.push("/")}

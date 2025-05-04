@@ -32,9 +32,18 @@ export async function POST(request: Request) {
     );
 
     return NextResponse.json(
-      { token, message: "Login effettuato con successo!" },
+      {
+        token,
+        message: "Login effettuato con successo!",
+        user: {
+          name: user.name,
+          email: user.email,
+          gender: user.gender || "male",
+        }
+      },
       { status: 200 }
     );
+    
   } catch (error) {
     console.error("Errore nel login:", error);
     return NextResponse.json(

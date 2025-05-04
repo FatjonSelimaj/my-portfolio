@@ -24,11 +24,25 @@ export default function Dashboard() {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
+    const savedUser = localStorage.getItem("userData");
+  
     if (!token) {
       setModalMessage("Sessione scaduta. Effettua nuovamente il login.");
       router.replace("auth/login");
+    } else if (savedUser) {
+      try {
+        const parsed = JSON.parse(savedUser);
+        setUserData(prev => ({
+          ...prev,
+          ...parsed,
+          password: "",
+        }));
+      } catch (e) {
+        console.warn("userData malformato nel localStorage");
+      }
     }
   }, [router]);
+  
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -52,14 +66,24 @@ export default function Dashboard() {
       })
         .then(res => res.json())
         .then(data => {
-          setUserData({
-            name: data.name || userData.name,
-            email: data.email || userData.email,
+          setUserData(prev => ({
+            ...prev,
+            name: data.name ?? prev.name,
+            email: data.email ?? prev.email,
+            gender: data.gender ?? prev.gender,
             password: "",
-            gender: data.gender || userData.gender,
-          });
-          localStorage.setItem("userData", JSON.stringify(data));
+          }));
+        
+          localStorage.setItem(
+            "userData",
+            JSON.stringify({
+              name: data.name ?? userData.name,
+              email: data.email ?? userData.email,
+              gender: data.gender ?? userData.gender,
+            })
+          );
         })
+        
         .catch(() => {
           setModalMessage("Errore nel recupero dei dati utente.");
         });
@@ -73,7 +97,7 @@ export default function Dashboard() {
       return;
     }
 
-    fetch("/api/user", {
+    fetch("/api/userData", {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
