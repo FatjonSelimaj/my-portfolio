@@ -2,12 +2,16 @@
   "name": "portfolio-personalee",
   "version": "0.1.0",
   "private": true,
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
-  },
+  
+    "scripts": {
+      "dev": "next dev",
+     "build": "next build",
+     "prisma:generate": "prisma generate",
+     "vercel-build": "npm run prisma:generate && next build",
+      "start": "next start",
+      "lint": "next lint"
+    },
+  
   "dependencies": {
     "@prisma/client": "^6.7.0",
     "@tailwindcss/postcss": "^4.0.15",
