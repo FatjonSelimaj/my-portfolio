@@ -4,10 +4,8 @@ import jwt from "jsonwebtoken";
 
 export async function GET(req: Request) {
   try {
-    //console.log("✅ API /publicData chiamata");
 
     const authHeader = req.headers.get("authorization");
-   // console.log("📥 Header authorization:", authHeader);
 
     if (!authHeader) {
       return NextResponse.json({ error: "Token mancante" }, { status: 401 });
