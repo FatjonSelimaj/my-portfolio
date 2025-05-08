@@ -1,60 +1,64 @@
-// src/app/api/userData/route.ts
-import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
-import jwt from "jsonwebtoken";
+import { NextResponse } from "next/server";
+import { IncomingForm, File } from "formidable";
+import fs from "fs";
+import path from "path";
+import { Readable } from "stream";
 
-const JWT_SECRET = process.env.JWT_SECRET || "default_secret_for_local";
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
 
-// GET: recupera i dati dell'utente autenticato
-export async function GET(req: NextRequest) {
-  const token = req.headers.get("authorization")?.split(" ")[1];
-  if (!token) return NextResponse.json({ error: "Token mancante" }, { status: 401 });
+export async function POST(req: Request): Promise<Response> {
+  const uploadDir = path.join(process.cwd(), "public/uploads");
+  fs.mkdirSync(uploadDir, { recursive: true });
 
-  try {
-    const decoded = jwt.verify(token, JWT_SECRET) as { id: string };
-    const user = await prisma.user.findUnique({ where: { id: decoded.id } });
-    if (!user) return NextResponse.json({ error: "Utente non trovato" }, { status: 404 });
-
-    const details = await prisma.userDetails.findUnique({
-      where: { userId: user.id },
-      include: { paintings: true },
-    });
-
-    return NextResponse.json({
-      name: user.name,
-      email: user.email,
-      gender: user.gender,
-      bio: details?.bio,
-      phone: details?.phone,
-      paintings: details?.paintings.map(p => ({ title: p.title, content: p.content })) || [],
-    });
-  } catch (err) {
-    console.error("Errore GET:", err);
-    return NextResponse.json({ error: "Errore interno del server" }, { status: 500 });
+  const reader = req.body?.getReader();
+  if (!reader) {
+    return NextResponse.json({ error: "Nessun corpo nella richiesta" }, { status: 400 });
   }
-}
 
-// PUT: aggiorna nome, email e genere dell'utente
-export async function PUT(req: NextRequest) {
-  const token = req.headers.get("authorization")?.split(" ")[1];
-  if (!token) return NextResponse.json({ error: "Token mancante" }, { status: 401 });
+  const stream = new Readable({
+    async read() {
+      const { done, value } = await reader.read();
+      this.push(done ? null : value);
+    },
+  });
 
-  try {
-    const decoded = jwt.verify(token, JWT_SECRET) as { id: string };
-    const body = await req.json();
+  const fakeReq = Object.assign(stream, {
+    headers: Object.fromEntries(req.headers.entries()),
+  });
 
-    await prisma.user.update({
-      where: { id: decoded.id },
-      data: {
-        name: body.name,
-        email: body.email,
-        gender: body.gender,
-      },
+  const form = new IncomingForm({ uploadDir, keepExtensions: true });
+
+  return await new Promise<Response>((resolve) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    form.parse(fakeReq as any, async (err, fields, files) => {
+      if (err) {
+        console.error("Errore parsing:", err);
+        return resolve(NextResponse.json({ error: "Errore nell'upload" }, { status: 500 }));
+      }
+
+      const file = Array.isArray(files.image) ? files.image[0] : files.image;
+      const oldImageUrl = Array.isArray(fields.oldImageUrl)
+        ? fields.oldImageUrl[0]
+        : fields.oldImageUrl;
+
+      if (!file || !("newFilename" in file)) {
+        return resolve(NextResponse.json({ error: "File non valido" }, { status: 400 }));
+      }
+
+      if (oldImageUrl) {
+        const oldPath = path.join(process.cwd(), "public", oldImageUrl);
+        if (fs.existsSync(oldPath)) {
+          fs.unlinkSync(oldPath);
+        }
+      }
+
+      const filename = (file as File).newFilename;
+      const imageUrl = `/uploads/${filename}`;
+      return resolve(NextResponse.json({ imageUrl }));
     });
-
-    return NextResponse.json({ message: "Dati aggiornati con successo" });
-  } catch (err) {
-    console.error("Errore PUT:", err);
-    return NextResponse.json({ error: "Errore interno del server" }, { status: 500 });
-  }
+  });
 }

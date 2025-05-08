@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { FaPhone, FaEnvelope } from "react-icons/fa";
-
+import Image from "next/image";
 
 interface Painting {
   title: string;
@@ -13,7 +13,7 @@ interface ApiData {
   firstName: string;
   lastName: string;
   about: string;
-  imageUrl?: string; // ✅ aggiunto
+  imageUrl?: string;
   paintings: Painting[];
   contact: {
     phone: string;
@@ -77,10 +77,11 @@ export default function PublicPage() {
         <nav className="flex gap-2 sm:gap-4 overflow-x-auto whitespace-nowrap">
           <button
             onClick={() => setSelected("about")}
-            className={`px-3 py-2 sm:px-4 sm:py-2 rounded font-semibold ${selected === "about"
-              ? "bg-green-500 text-white"
-              : "bg-blue-300 hover:bg-blue-800 text-white"
-              }`}
+            className={`px-3 py-2 sm:px-4 sm:py-2 rounded font-semibold ${
+              selected === "about"
+                ? "bg-green-500 text-white"
+                : "bg-blue-300 hover:bg-blue-800 text-white"
+            }`}
           >
             Chi Sono
           </button>
@@ -88,10 +89,11 @@ export default function PublicPage() {
             <button
               key={idx}
               onClick={() => setSelected(`painting-${idx}`)}
-              className={`px-3 py-2 sm:px-4 sm:py-2 rounded font-semibold ${selected === `painting-${idx}`
-                ? "bg-green-500 text-white"
-                : "bg-blue-300 hover:bg-blue-800 text-white"
-                }`}
+              className={`px-3 py-2 sm:px-4 sm:py-2 rounded font-semibold ${
+                selected === `painting-${idx}`
+                  ? "bg-green-500 text-white"
+                  : "bg-blue-300 hover:bg-blue-800 text-white"
+              }`}
             >
               {painting.title}
             </button>
@@ -103,22 +105,23 @@ export default function PublicPage() {
         <div className="bg-white p-4 sm:p-6 rounded shadow max-w-3xl mx-auto text-black">
           {selected === "about" ? (
             <div>
-
               <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mb-2 text-center">
                 {data.firstName} {data.lastName}
               </h1>
 
-              {/* ✅ Immagine profilo centrata */}
+              {/* ✅ Immagine profilo centrata e ottimizzata */}
               {data.imageUrl && (
                 <div className="flex justify-center mb-4">
-                  <img
+                  <Image
                     src={data.imageUrl}
                     alt="Foto profilo"
-                    className="w-32 h-32 rounded-full object-cover border border-gray-300 shadow"
+                    width={128}
+                    height={128}
+                    className="rounded-full object-cover border border-gray-300 shadow"
+                    unoptimized // evita errori in build se non si usa un dominio esterno
                   />
                 </div>
               )}
-
 
               <h2 className="text-lg sm:text-xl md:text-2xl font-semibold mb-4 text-center">
                 Chi Sono
@@ -143,7 +146,9 @@ export default function PublicPage() {
             </div>
           ) : paintingToShow ? (
             <div>
-              <h1 className="text-xl sm:text-2xl font-bold mb-4">{paintingToShow.title}</h1>
+              <h1 className="text-xl sm:text-2xl font-bold mb-4">
+                {paintingToShow.title}
+              </h1>
               <p>{paintingToShow.content}</p>
             </div>
           ) : (
