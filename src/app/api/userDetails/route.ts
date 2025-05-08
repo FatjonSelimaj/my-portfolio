@@ -86,8 +86,13 @@ export async function PUT(req: NextRequest) {
     });
 
     return NextResponse.json({ message: "Dati aggiornati con successo" });
-  } catch (error) {
-    console.error("Errore PUT userDetails:", error);
-    return NextResponse.json({ message: "Errore durante l'aggiornamento" }, { status: 500 });
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      console.error("❌ Errore:", err.message);
+    } else {
+      console.error("❌ Errore sconosciuto:", err);
+    }
+    return NextResponse.json({ error: "Errore interno" }, { status: 500 });
   }
+  
 }

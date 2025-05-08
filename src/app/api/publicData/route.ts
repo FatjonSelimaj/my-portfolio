@@ -1,10 +1,9 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import jwt from "jsonwebtoken";
 
-export async function GET(req: Request) {
+export async function GET(req: NextRequest) {
   try {
-
     const authHeader = req.headers.get("authorization");
 
     if (!authHeader) {
@@ -12,13 +11,13 @@ export async function GET(req: Request) {
     }
 
     const token = authHeader.split(" ")[1];
-    const secret = process.env.JWT_SECRET; // ✅ correggi riferimento alla variabile JWT_SECRET
+    const secret = process.env.JWT_SECRET;
     if (!secret) throw new Error("JWT_SECRET non definito");
 
     const decoded = jwt.verify(token, secret) as { id: string; email: string };
 
     const userDetails = await prisma.userDetails.findUnique({
-      where: { userId: decoded.id }, // ✅ uso corretto del campo "id" decodificato
+      where: { userId: decoded.id },
       include: {
         paintings: true,
         user: true,
@@ -44,7 +43,12 @@ export async function GET(req: Request) {
     };
 
     return NextResponse.json(response);
-  } catch (error: any) {
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      console.error("Errore API /publicData:", err.message);
+    } else {
+      console.error("Errore sconosciuto:", err);
+    }
     return NextResponse.json({ error: "Errore interno" }, { status: 500 });
   }
 }
