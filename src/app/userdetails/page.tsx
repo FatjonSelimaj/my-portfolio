@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { FaSignOutAlt, FaSave, FaPhone, FaArrowLeft } from "react-icons/fa";
 import Link from "next/link";
+import Image from "next/image";
+
 
 export default function UserDetails() {
   const router = useRouter();
@@ -183,11 +185,14 @@ export default function UserDetails() {
           {userDetails.imageUrl && (
             <div className="my-4">
               <p className="mb-2 font-medium text-gray-700">Immagine del Profilo</p>
-              <img
+              <Image
                 src={userDetails.imageUrl}
                 alt="Foto profilo"
-                className="rounded-full w-32 h-32 object-cover mx-auto border"
+                width={128}
+                height={128}
+                className="rounded-full object-cover mx-auto"
               />
+
             </div>
           )}
 

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { FaPhone, FaEnvelope } from "react-icons/fa";
 
+
 interface Painting {
   title: string;
   content: string;
@@ -77,8 +78,8 @@ export default function PublicPage() {
           <button
             onClick={() => setSelected("about")}
             className={`px-3 py-2 sm:px-4 sm:py-2 rounded font-semibold ${selected === "about"
-                ? "bg-green-500 text-white"
-                : "bg-blue-300 hover:bg-blue-800 text-white"
+              ? "bg-green-500 text-white"
+              : "bg-blue-300 hover:bg-blue-800 text-white"
               }`}
           >
             Chi Sono
@@ -88,8 +89,8 @@ export default function PublicPage() {
               key={idx}
               onClick={() => setSelected(`painting-${idx}`)}
               className={`px-3 py-2 sm:px-4 sm:py-2 rounded font-semibold ${selected === `painting-${idx}`
-                  ? "bg-green-500 text-white"
-                  : "bg-blue-300 hover:bg-blue-800 text-white"
+                ? "bg-green-500 text-white"
+                : "bg-blue-300 hover:bg-blue-800 text-white"
                 }`}
             >
               {painting.title}
@@ -117,6 +118,7 @@ export default function PublicPage() {
                   />
                 </div>
               )}
+
 
               <h2 className="text-lg sm:text-xl md:text-2xl font-semibold mb-4 text-center">
                 Chi Sono
