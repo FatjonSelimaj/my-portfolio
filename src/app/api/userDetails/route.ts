@@ -9,7 +9,7 @@ interface PaintingInput {
   content: string;
 }
 
-// ✅ GET: restituisce i dati utente
+// ✅ GET: restituisce i dati utente inclusa l'immagine
 export async function GET(req: NextRequest) {
   const token = req.headers.get("authorization")?.split(" ")[1];
 
@@ -37,6 +37,7 @@ export async function GET(req: NextRequest) {
       lastName: userDetails.lastName,
       bio: userDetails.bio,
       phone: userDetails.phone,
+      imageUrl: userDetails.imageUrl, // 👈 Aggiunto
       paintings: userDetails.paintings,
       contact: {
         email: userDetails.user.email,
@@ -44,16 +45,12 @@ export async function GET(req: NextRequest) {
       },
     });
   } catch (err) {
-    if (err instanceof Error) {
-      console.error("Errore GET userDetails:", err.message);
-    } else {
-      console.error("Errore sconosciuto GET userDetails:", err);
-    }
+    console.error("Errore GET userDetails:", err);
     return NextResponse.json({ message: "Errore interno" }, { status: 500 });
   }
 }
 
-// ✅ PUT: aggiorna i dati utente
+// ✅ PUT: aggiorna i dati utente incluso imageUrl
 export async function PUT(req: NextRequest) {
   const token = req.headers.get("authorization")?.split(" ")[1];
 
@@ -68,6 +65,7 @@ export async function PUT(req: NextRequest) {
       lastName: string;
       bio: string;
       phone: string;
+      imageUrl?: string; // 👈 Campo opzionale
       paintings: PaintingInput[];
     };
 
@@ -78,6 +76,7 @@ export async function PUT(req: NextRequest) {
         lastName: body.lastName,
         bio: body.bio,
         phone: body.phone,
+        imageUrl: body.imageUrl, // 👈 aggiornamento opzionale
       },
       create: {
         userId: decoded.id,
@@ -85,26 +84,25 @@ export async function PUT(req: NextRequest) {
         lastName: body.lastName,
         bio: body.bio,
         phone: body.phone,
+        imageUrl: body.imageUrl,
       },
     });
 
     await prisma.painting.deleteMany({ where: { userId: updatedDetails.id } });
 
-    await prisma.painting.createMany({
-      data: body.paintings.map((p) => ({
-        title: p.title,
-        content: p.content,
-        userId: updatedDetails.id,
-      })),
-    });
+    if (body.paintings.length > 0) {
+      await prisma.painting.createMany({
+        data: body.paintings.map((p) => ({
+          title: p.title,
+          content: p.content,
+          userId: updatedDetails.id,
+        })),
+      });
+    }
 
     return NextResponse.json({ message: "Dati aggiornati con successo" });
   } catch (err) {
-    if (err instanceof Error) {
-      console.error("Errore PUT userDetails:", err.message);
-    } else {
-      console.error("Errore sconosciuto PUT userDetails:", err);
-    }
+    console.error("Errore PUT userDetails:", err);
     return NextResponse.json({ error: "Errore interno" }, { status: 500 });
   }
 }

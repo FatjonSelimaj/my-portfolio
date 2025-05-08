@@ -38,6 +38,7 @@ model UserDetails {
   lastName  String
   bio       String?
   phone     String?
+  imageUrl String? 
   paintings Painting[]
 } 
 

@@ -32,6 +32,7 @@ export async function GET(req: NextRequest) {
       firstName: userDetails.firstName,
       lastName: userDetails.lastName,
       about: userDetails.bio || "",
+      imageUrl: userDetails.imageUrl || "", // ✅ aggiunto
       paintings: userDetails.paintings.map((p) => ({
         title: p.title,
         content: p.content,

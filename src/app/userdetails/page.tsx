@@ -14,6 +14,7 @@ export default function UserDetails() {
     lastName: "",
     bio: "",
     phone: "",
+    imageUrl: "",
     paintings: Array(8).fill({ title: "", content: "" }),
   });
 
@@ -39,6 +40,7 @@ export default function UserDetails() {
           lastName: data.lastName || "",
           bio: data.bio || "",
           phone: data.phone || "",
+          imageUrl: data.imageUrl || "",
           paintings: data.paintings?.length
             ? data.paintings
             : Array(8).fill({ title: "", content: "" }),
@@ -46,6 +48,36 @@ export default function UserDetails() {
       })
       .catch(() => setModalMessage("Errore nel recupero dei dati utente."));
   }, [router]);
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("image", file);
+    formData.append("oldImageUrl", userDetails.imageUrl); // ✅ passa il vecchio path
+
+    try {
+      const res = await fetch("/api/uploadImage", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await res.json();
+
+      if (data.imageUrl) {
+        setUserDetails((prev) => ({
+          ...prev,
+          imageUrl: data.imageUrl,
+        }));
+        setModalMessage("Immagine aggiornata con successo!");
+      } else {
+        setModalMessage("Errore nel caricamento della nuova immagine.");
+      }
+    } catch {
+      setModalMessage("Errore durante l'upload dell'immagine.");
+    }
+  };
 
   const handleSaveDetails = () => {
     const token = localStorage.getItem("token");
@@ -72,7 +104,6 @@ export default function UserDetails() {
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-indigo-500 to-purple-700 text-white">
-      {/* Header */}
       <header className="w-full px-4 py-6 flex flex-col gap-4 sm:flex-row justify-between items-center bg-white shadow-lg">
         <h1 className="text-2xl font-bold text-gray-900">Profilo Utente</h1>
         <div className="flex flex-col sm:flex-row gap-3">
@@ -93,7 +124,6 @@ export default function UserDetails() {
         </div>
       </header>
 
-      {/* Main */}
       <main className="flex flex-col items-center justify-center flex-grow text-center px-4 sm:px-6 lg:px-12 py-8">
         <h2 className="text-2xl sm:text-3xl font-semibold mb-6">Modifica i tuoi dati</h2>
 
@@ -149,6 +179,26 @@ export default function UserDetails() {
             />
           </div>
 
+          {/* Immagine */}
+          {userDetails.imageUrl && (
+            <div className="my-4">
+              <p className="mb-2 font-medium text-gray-700">Immagine del Profilo</p>
+              <img
+                src={userDetails.imageUrl}
+                alt="Foto profilo"
+                className="rounded-full w-32 h-32 object-cover mx-auto border"
+              />
+            </div>
+          )}
+
+          <label className="block mt-4 mb-2">Carica nuova immagine</label>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleImageUpload}
+            className="w-full p-2 border rounded"
+          />
+
           {/* Quadri */}
           <h3 className="text-xl font-semibold text-gray-900 mt-6 mb-2">Quadri</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -180,7 +230,7 @@ export default function UserDetails() {
             ))}
           </div>
 
-          {/* Pulsante Salva */}
+          {/* Salva */}
           <div className="flex justify-end mt-6">
             <button
               onClick={handleSaveDetails}

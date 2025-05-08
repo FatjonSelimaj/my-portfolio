@@ -12,6 +12,7 @@ interface ApiData {
   firstName: string;
   lastName: string;
   about: string;
+  imageUrl?: string; // ✅ aggiunto
   paintings: Painting[];
   contact: {
     phone: string;
@@ -75,11 +76,10 @@ export default function PublicPage() {
         <nav className="flex gap-2 sm:gap-4 overflow-x-auto whitespace-nowrap">
           <button
             onClick={() => setSelected("about")}
-            className={`px-3 py-2 sm:px-4 sm:py-2 rounded font-semibold ${
-              selected === "about"
+            className={`px-3 py-2 sm:px-4 sm:py-2 rounded font-semibold ${selected === "about"
                 ? "bg-green-500 text-white"
                 : "bg-blue-300 hover:bg-blue-800 text-white"
-            }`}
+              }`}
           >
             Chi Sono
           </button>
@@ -87,11 +87,10 @@ export default function PublicPage() {
             <button
               key={idx}
               onClick={() => setSelected(`painting-${idx}`)}
-              className={`px-3 py-2 sm:px-4 sm:py-2 rounded font-semibold ${
-                selected === `painting-${idx}`
+              className={`px-3 py-2 sm:px-4 sm:py-2 rounded font-semibold ${selected === `painting-${idx}`
                   ? "bg-green-500 text-white"
                   : "bg-blue-300 hover:bg-blue-800 text-white"
-              }`}
+                }`}
             >
               {painting.title}
             </button>
@@ -103,14 +102,31 @@ export default function PublicPage() {
         <div className="bg-white p-4 sm:p-6 rounded shadow max-w-3xl mx-auto text-black">
           {selected === "about" ? (
             <div>
-              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mb-2">
+
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mb-2 text-center">
                 {data.firstName} {data.lastName}
               </h1>
-              <h2 className="text-lg sm:text-xl md:text-2xl font-semibold mb-4">Chi Sono</h2>
+
+              {/* ✅ Immagine profilo centrata */}
+              {data.imageUrl && (
+                <div className="flex justify-center mb-4">
+                  <img
+                    src={data.imageUrl}
+                    alt="Foto profilo"
+                    className="w-32 h-32 rounded-full object-cover border border-gray-300 shadow"
+                  />
+                </div>
+              )}
+
+              <h2 className="text-lg sm:text-xl md:text-2xl font-semibold mb-4 text-center">
+                Chi Sono
+              </h2>
+
               <div
                 className="mb-4"
                 dangerouslySetInnerHTML={{ __html: data.about }}
               />
+
               <div className="border border-green-400 rounded p-2 sm:p-3 md:p-4 bg-green-100">
                 <h3 className="font-semibold mb-2">Contatti</h3>
                 <p className="flex items-center gap-2 mb-1">
