@@ -4,6 +4,11 @@ import jwt from "jsonwebtoken";
 
 const JWT_SECRET = process.env.JWT_SECRET || "default_secret_for_local";
 
+interface PaintingInput {
+  title: string;
+  content: string;
+}
+
 // ✅ GET: restituisce i dati utente
 export async function GET(req: NextRequest) {
   const token = req.headers.get("authorization")?.split(" ")[1];
@@ -38,8 +43,12 @@ export async function GET(req: NextRequest) {
         phone: userDetails.phone || "",
       },
     });
-  } catch (error) {
-    console.error("Errore GET userDetails:", error);
+  } catch (err) {
+    if (err instanceof Error) {
+      console.error("Errore GET userDetails:", err.message);
+    } else {
+      console.error("Errore sconosciuto GET userDetails:", err);
+    }
     return NextResponse.json({ message: "Errore interno" }, { status: 500 });
   }
 }
@@ -54,7 +63,13 @@ export async function PUT(req: NextRequest) {
 
   try {
     const decoded = jwt.verify(token, JWT_SECRET) as { id: string };
-    const body = await req.json();
+    const body = await req.json() as {
+      firstName: string;
+      lastName: string;
+      bio: string;
+      phone: string;
+      paintings: PaintingInput[];
+    };
 
     const updatedDetails = await prisma.userDetails.upsert({
       where: { userId: decoded.id },
@@ -73,12 +88,10 @@ export async function PUT(req: NextRequest) {
       },
     });
 
-    // ❌ Prima cancelli i quadri dell'utente
     await prisma.painting.deleteMany({ where: { userId: updatedDetails.id } });
 
-    // ✅ Poi ricrei quelli nuovi con chiave corretta: userId
     await prisma.painting.createMany({
-      data: body.paintings.map((p: any) => ({
+      data: body.paintings.map((p) => ({
         title: p.title,
         content: p.content,
         userId: updatedDetails.id,
@@ -86,13 +99,12 @@ export async function PUT(req: NextRequest) {
     });
 
     return NextResponse.json({ message: "Dati aggiornati con successo" });
-  } catch (err: unknown) {
+  } catch (err) {
     if (err instanceof Error) {
-      console.error("❌ Errore:", err.message);
+      console.error("Errore PUT userDetails:", err.message);
     } else {
-      console.error("❌ Errore sconosciuto:", err);
+      console.error("Errore sconosciuto PUT userDetails:", err);
     }
     return NextResponse.json({ error: "Errore interno" }, { status: 500 });
   }
-  
 }
