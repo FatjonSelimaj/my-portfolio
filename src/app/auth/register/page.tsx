@@ -13,8 +13,8 @@ export default function Register() {
 
   // Funzione per validare la password lato client
   const isValidPassword = (password: string) => {
-    return /^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,}$/.test(password);
-  };
+    return /^(?=.*[0-9])(?=.*[!@#$%^&*()_\-+=\[{\]};:'"\\|,.<>/?`~])[a-zA-Z0-9!@#$%^&*()_\-+=\[{\]};:'"\\|,.<>/?`~]{8,}$/.test(password);
+  };  
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();

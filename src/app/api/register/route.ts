@@ -7,7 +7,7 @@ const prisma = new PrismaClient();
 
 // Regex: almeno 8 caratteri, 1 cifra, 1 carattere speciale
 const PASSWORD_REGEX =
-  /^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,}$/;
+  /^(?=.*[0-9])(?=.*[!@#$%^&*()_\-+=\[{\]};:'"\\|,.<>/?`~])[a-zA-Z0-9!@#$%^&*()_\-+=\[{\]};:'"\\|,.<>/?`~]{8,}$/;
 
 export async function POST(request: Request) {
   try {
