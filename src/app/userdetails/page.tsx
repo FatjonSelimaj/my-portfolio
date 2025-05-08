@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { FaSignOutAlt, FaCog, FaSave, FaPhone } from "react-icons/fa";
+import { FaSignOutAlt, FaCog, FaSave, FaPhone, FaArrowLeft } from "react-icons/fa";
 import Link from "next/link";
 
 export default function UserDetails() {
@@ -72,12 +72,13 @@ export default function UserDetails() {
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-indigo-500 to-purple-700 text-white">
-      <header className="w-full p-6 flex justify-between items-center bg-white shadow-lg">
+      {/* Header */}
+      <header className="w-full px-4 py-6 flex flex-col gap-4 sm:flex-row justify-between items-center bg-white shadow-lg">
         <h1 className="text-2xl font-bold text-gray-900">Profilo Utente</h1>
-        <div className="flex gap-4">
+        <div className="flex flex-col sm:flex-row gap-3">
           <Link href="/hompage">
-            <button className="flex items-center gap-2 bg-gray-500 text-white px-4 py-2 rounded-lg shadow hover:bg-gray-600 transition-all">
-              <FaCog /> Torna alla Dashboard
+            <button className="flex items-center gap-2 border border-blue-700 text-blue-700 px-4 py-2 rounded-lg shadow hover:bg-blue-100 transition-all">
+              <FaArrowLeft className="text-blue-700" /> Torna alla Dashboard
             </button>
           </Link>
           <button
@@ -85,20 +86,21 @@ export default function UserDetails() {
               localStorage.removeItem("token");
               router.push("/");
             }}
-            className="flex items-center gap-2 bg-red-500 text-white px-4 py-2 rounded-lg shadow hover:bg-red-600 transition-all"
+            className="flex items-center gap-2 bg-red-500 text-white px-4 py-2 rounded-lg shadow hover:bg-red-600 transition-all w-full sm:w-auto"
           >
             <FaSignOutAlt /> Logout
           </button>
         </div>
       </header>
 
-      <main className="flex flex-col items-center justify-center flex-grow text-center px-6">
-        <h2 className="text-3xl font-semibold mb-6">Modifica i tuoi dati</h2>
+      {/* Main */}
+      <main className="flex flex-col items-center justify-center flex-grow text-center px-4 sm:px-6 lg:px-12 py-8">
+        <h2 className="text-2xl sm:text-3xl font-semibold mb-6">Modifica i tuoi dati</h2>
 
-        <div className="bg-white p-6 rounded-lg shadow-lg text-gray-900 w-full max-w-2xl">
+        <div className="bg-white p-4 sm:p-6 rounded-lg shadow-lg text-gray-900 w-full max-w-3xl">
           {/* Nome e Cognome */}
-          <div className="flex gap-4">
-            <div className="w-1/2">
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="w-full sm:w-1/2">
               <label className="block mb-2">Nome</label>
               <input
                 type="text"
@@ -109,7 +111,7 @@ export default function UserDetails() {
                 className="w-full p-2 border rounded mb-2"
               />
             </div>
-            <div className="w-1/2">
+            <div className="w-full sm:w-1/2">
               <label className="block mb-2">Cognome</label>
               <input
                 type="text"
@@ -123,7 +125,7 @@ export default function UserDetails() {
           </div>
 
           {/* Bio */}
-          <label className="block mb-2">Chi Sono</label>
+          <label className="block mt-4 mb-2">Chi Sono</label>
           <textarea
             value={userDetails.bio}
             onChange={(e) =>
@@ -134,8 +136,8 @@ export default function UserDetails() {
           />
 
           {/* Telefono */}
-          <label className="block mb-2">Numero di Telefono</label>
-          <div className="relative">
+          <label className="block mt-4 mb-2">Numero di Telefono</label>
+          <div className="relative mb-4">
             <FaPhone className="absolute left-3 top-3 text-gray-500" />
             <input
               type="text"
@@ -143,23 +145,23 @@ export default function UserDetails() {
               onChange={(e) =>
                 setUserDetails({ ...userDetails, phone: e.target.value })
               }
-              className="w-full p-2 pl-10 border rounded mb-2"
+              className="w-full p-2 pl-10 border rounded"
             />
           </div>
 
           {/* Quadri */}
-          <h3 className="text-xl font-semibold text-gray-900 mt-6">Quadri</h3>
-          <div className="grid grid-cols-2 gap-4 mt-2">
+          <h3 className="text-xl font-semibold text-gray-900 mt-6 mb-2">Quadri</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {userDetails.paintings.map((painting, index) => (
-              <div key={index} className="p-4 border rounded shadow-md bg-gray-50">
+              <div key={index} className="p-4 border rounded shadow-sm bg-gray-50">
                 <input
                   type="text"
                   placeholder="Titolo"
                   value={painting.title}
                   onChange={(e) => {
-                    const updatedPaintings = [...userDetails.paintings];
-                    updatedPaintings[index] = { ...painting, title: e.target.value };
-                    setUserDetails({ ...userDetails, paintings: updatedPaintings });
+                    const updated = [...userDetails.paintings];
+                    updated[index] = { ...painting, title: e.target.value };
+                    setUserDetails({ ...userDetails, paintings: updated });
                   }}
                   className="w-full p-2 border rounded mb-2"
                 />
@@ -167,9 +169,9 @@ export default function UserDetails() {
                   placeholder="Descrizione"
                   value={painting.content}
                   onChange={(e) => {
-                    const updatedPaintings = [...userDetails.paintings];
-                    updatedPaintings[index] = { ...painting, content: e.target.value };
-                    setUserDetails({ ...userDetails, paintings: updatedPaintings });
+                    const updated = [...userDetails.paintings];
+                    updated[index] = { ...painting, content: e.target.value };
+                    setUserDetails({ ...userDetails, paintings: updated });
                   }}
                   className="w-full p-2 border rounded"
                   rows={2}
@@ -178,8 +180,8 @@ export default function UserDetails() {
             ))}
           </div>
 
-          {/* Salva Dati */}
-          <div className="flex justify-end gap-2 mt-4">
+          {/* Pulsante Salva */}
+          <div className="flex justify-end mt-6">
             <button
               onClick={handleSaveDetails}
               className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 flex items-center gap-2"
@@ -192,8 +194,8 @@ export default function UserDetails() {
 
       {/* Modale Messaggi */}
       {modalMessage && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg text-gray-900 w-96">
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg text-gray-900 w-[90%] max-w-md">
             <p className="text-center mb-4">{modalMessage}</p>
             <button
               onClick={() => setModalMessage(null)}

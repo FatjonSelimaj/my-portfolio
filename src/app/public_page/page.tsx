@@ -9,9 +9,9 @@ interface Painting {
 }
 
 interface ApiData {
-  firstName: string;   
-  lastName: string;    
-  about: string;       
+  firstName: string;
+  lastName: string;
+  about: string;
   paintings: Painting[];
   contact: {
     phone: string;
@@ -22,39 +22,47 @@ interface ApiData {
 export default function PublicPage() {
   const [data, setData] = useState<ApiData | null>(null);
   const [selected, setSelected] = useState<string>("about");
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch("/api/publicData")
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setError("Devi essere loggato per visualizzare l'area pubblica.");
+      return;
+    }
+
+    fetch("/api/publicData", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
       .then((res) => {
-        if (!res.ok) {
-          throw new Error("Errore nella richiesta");
-        }
+        if (!res.ok) throw new Error("Errore caricamento dati pubblici");
         return res.json();
       })
-      .then((fetchedData: ApiData) => {
-        setData({
-          firstName: fetchedData.firstName || "",
-          lastName: fetchedData.lastName || "",
-          about: fetchedData.about || "",
-          paintings: fetchedData.paintings || [],
-          contact: fetchedData.contact || { phone: "", email: "" },
-        });
-      })
-      .catch((error) => {
-        console.error("Errore nel caricamento dei dati:", error);
+      .then((fetchedData: ApiData) => setData(fetchedData))
+      .catch((err) => {
+        console.error("Errore:", err);
+        setError("Impossibile caricare i tuoi dati pubblici.");
       });
   }, []);
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white text-red-600 text-center px-4">
+        <p>{error}</p>
+      </div>
+    );
+  }
 
   if (!data) {
     return <p className="text-center text-black">Caricamento...</p>;
   }
 
-  // Filtra i painting non vuoti
   const validPaintings = data.paintings.filter(
     (p) => p.title.trim() !== "" && p.content.trim() !== ""
   );
 
-  // Se "selected" è "painting-X"
   let paintingToShow = null;
   if (selected.startsWith("painting-")) {
     const index = parseInt(selected.split("-")[1], 10);
@@ -63,14 +71,14 @@ export default function PublicPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
-      <header className="bg-white shadow p-4">
-        <nav className="flex gap-4">
+      <header className="bg-white shadow px-4 py-3 sm:p-4">
+        <nav className="flex gap-2 sm:gap-4 overflow-x-auto whitespace-nowrap">
           <button
             onClick={() => setSelected("about")}
-            className={`px-4 py-2 rounded font-semibold ${
+            className={`px-3 py-2 sm:px-4 sm:py-2 rounded font-semibold ${
               selected === "about"
                 ? "bg-green-500 text-white"
-                : "bg-blue-300 hover:bg-blue-800"
+                : "bg-blue-300 hover:bg-blue-800 text-white"
             }`}
           >
             Chi Sono
@@ -79,10 +87,10 @@ export default function PublicPage() {
             <button
               key={idx}
               onClick={() => setSelected(`painting-${idx}`)}
-              className={`px-4 py-2 rounded font-semibold ${
+              className={`px-3 py-2 sm:px-4 sm:py-2 rounded font-semibold ${
                 selected === `painting-${idx}`
                   ? "bg-green-500 text-white"
-                  : "bg-blue-300 hover:bg-blue-800"
+                  : "bg-blue-300 hover:bg-blue-800 text-white"
               }`}
             >
               {painting.title}
@@ -91,23 +99,19 @@ export default function PublicPage() {
         </nav>
       </header>
 
-      <main className="flex-grow p-6">
-        <div className="bg-white p-6 rounded shadow max-w-3xl mx-auto text-black">
+      <main className="flex-grow px-4 py-6 sm:px-6 md:px-10">
+        <div className="bg-white p-4 sm:p-6 rounded shadow max-w-3xl mx-auto text-black">
           {selected === "about" ? (
             <div>
-              {/* Nome e Cognome */}
-              <h1 className="text-2xl font-bold mb-2">
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mb-2">
                 {data.firstName} {data.lastName}
               </h1>
-              <h2 className="text-xl font-semibold mb-4">Chi Sono</h2>
-
+              <h2 className="text-lg sm:text-xl md:text-2xl font-semibold mb-4">Chi Sono</h2>
               <div
                 className="mb-4"
                 dangerouslySetInnerHTML={{ __html: data.about }}
               />
-
-              {/* Sezione Contatti */}
-              <div className="border border-green-400 rounded p-3 bg-green-100">
+              <div className="border border-green-400 rounded p-2 sm:p-3 md:p-4 bg-green-100">
                 <h3 className="font-semibold mb-2">Contatti</h3>
                 <p className="flex items-center gap-2 mb-1">
                   <FaPhone />
@@ -121,7 +125,7 @@ export default function PublicPage() {
             </div>
           ) : paintingToShow ? (
             <div>
-              <h1 className="text-2xl font-bold mb-4">{paintingToShow.title}</h1>
+              <h1 className="text-xl sm:text-2xl font-bold mb-4">{paintingToShow.title}</h1>
               <p>{paintingToShow.content}</p>
             </div>
           ) : (
@@ -130,8 +134,8 @@ export default function PublicPage() {
         </div>
       </main>
 
-      <footer className="bg-white shadow p-4 text-center">
-        <p className="text-sm">© 2025 Portfolio Creator</p>
+      <footer className="bg-white shadow p-4 text-center text-sm">
+        <p>© 2025 Portfolio Creator</p>
       </footer>
     </div>
   );
