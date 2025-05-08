@@ -121,6 +121,10 @@ export default function Login() {
             <FaSignInAlt />
             Accedi
           </button>
+
+          <button onClick={() => router.push("/forgot-password")} className="text-sm text-blue-600 underline">
+            Password dimenticata?
+          </button>
         </form>
 
         {/* Link di navigazione */}
