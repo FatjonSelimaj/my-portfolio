@@ -43,7 +43,6 @@ export async function GET(req: Request) {
       },
     };
 
-    console.log("✅ Dati pronti da inviare:", response);
     return NextResponse.json(response);
   } catch (error: any) {
     return NextResponse.json({ error: "Errore interno" }, { status: 500 });
