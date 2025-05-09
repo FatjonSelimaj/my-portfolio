@@ -5,7 +5,7 @@ import path from "path";
 
 export const config = {
   api: {
-    bodyParser: false, // obbligatorio per upload
+    bodyParser: false,
   },
 };
 
