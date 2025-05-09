@@ -56,10 +56,10 @@ export default function UserDetails() {
 
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("upload_preset", "portfolio_upload"); // Cambia con il tuo preset
+    formData.append("upload_preset", "portfolio_upload");
 
     try {
-      const res = await fetch("https://api.cloudinary.com/v1_1/tuo_cloud_name/image/upload", {
+      const res = await fetch("https://api.cloudinary.com/v1_1/daoemswti/image/upload", {
         method: "POST",
         body: formData,
       });
