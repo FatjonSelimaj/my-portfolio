@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { FaSignOutAlt, FaSave, FaPhone, FaArrowLeft } from "react-icons/fa";
 import Link from "next/link";
 
-
 export default function UserDetails() {
   const router = useRouter();
   const [modalMessage, setModalMessage] = useState<string | null>(null);
@@ -56,7 +55,7 @@ export default function UserDetails() {
 
     const formData = new FormData();
     formData.append("image", file);
-    formData.append("oldImageUrl", userDetails.imageUrl); // ✅ passa il vecchio path
+    formData.append("oldImageUrl", userDetails.imageUrl);
 
     try {
       const res = await fetch("/api/uploadImage", {
@@ -129,16 +128,13 @@ export default function UserDetails() {
         <h2 className="text-2xl sm:text-3xl font-semibold mb-6">Modifica i tuoi dati</h2>
 
         <div className="bg-white p-4 sm:p-6 rounded-lg shadow-lg text-gray-900 w-full max-w-3xl">
-          {/* Nome e Cognome */}
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="w-full sm:w-1/2">
               <label className="block mb-2">Nome</label>
               <input
                 type="text"
                 value={userDetails.firstName}
-                onChange={(e) =>
-                  setUserDetails({ ...userDetails, firstName: e.target.value })
-                }
+                onChange={(e) => setUserDetails({ ...userDetails, firstName: e.target.value })}
                 className="w-full p-2 border rounded mb-2"
               />
             </div>
@@ -147,40 +143,31 @@ export default function UserDetails() {
               <input
                 type="text"
                 value={userDetails.lastName}
-                onChange={(e) =>
-                  setUserDetails({ ...userDetails, lastName: e.target.value })
-                }
+                onChange={(e) => setUserDetails({ ...userDetails, lastName: e.target.value })}
                 className="w-full p-2 border rounded mb-2"
               />
             </div>
           </div>
 
-          {/* Bio */}
           <label className="block mt-4 mb-2">Chi Sono</label>
           <textarea
             value={userDetails.bio}
-            onChange={(e) =>
-              setUserDetails({ ...userDetails, bio: e.target.value })
-            }
+            onChange={(e) => setUserDetails({ ...userDetails, bio: e.target.value })}
             className="w-full p-2 border rounded mb-2"
             rows={3}
           />
 
-          {/* Telefono */}
           <label className="block mt-4 mb-2">Numero di Telefono</label>
           <div className="relative mb-4">
             <FaPhone className="absolute left-3 top-3 text-gray-500" />
             <input
               type="text"
               value={userDetails.phone}
-              onChange={(e) =>
-                setUserDetails({ ...userDetails, phone: e.target.value })
-              }
+              onChange={(e) => setUserDetails({ ...userDetails, phone: e.target.value })}
               className="w-full p-2 pl-10 border rounded"
             />
           </div>
 
-          {/* Immagine */}
           {userDetails.imageUrl && (
             <div className="my-4">
               <p className="mb-2 font-medium text-gray-700">Immagine del Profilo</p>
@@ -193,6 +180,7 @@ export default function UserDetails() {
               />
             </div>
           )}
+
           <label className="block mt-4 mb-2">Carica nuova immagine</label>
           <input
             type="file"
@@ -201,7 +189,6 @@ export default function UserDetails() {
             className="w-full p-2 border rounded"
           />
 
-          {/* Quadri */}
           <h3 className="text-xl font-semibold text-gray-900 mt-6 mb-2">Quadri</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {userDetails.paintings.map((painting, index) => (
@@ -232,7 +219,6 @@ export default function UserDetails() {
             ))}
           </div>
 
-          {/* Salva */}
           <div className="flex justify-end mt-6">
             <button
               onClick={handleSaveDetails}
@@ -244,7 +230,6 @@ export default function UserDetails() {
         </div>
       </main>
 
-      {/* Modale Messaggi */}
       {modalMessage && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg text-gray-900 w-[90%] max-w-md">
