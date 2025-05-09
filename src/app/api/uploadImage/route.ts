@@ -1,69 +1,47 @@
-import { NextResponse } from "next/server";
+import type { NextApiRequest, NextApiResponse } from "next";
 import { IncomingForm, File } from "formidable";
 import fs from "fs";
 import path from "path";
-import { Readable } from "stream";
 
-// 🔁 Disattiva il bodyParser per App Router solo a scopo informativo
 export const config = {
   api: {
-    bodyParser: false,
+    bodyParser: false, // obbligatorio per upload
   },
 };
 
-export async function POST(req: Request): Promise<Response> {
+export default function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Metodo non consentito" });
+  }
+
   const uploadDir = path.join(process.cwd(), "public/uploads");
   fs.mkdirSync(uploadDir, { recursive: true });
 
-  const reader = req.body?.getReader();
-  if (!reader) {
-    return NextResponse.json({ error: "Nessun corpo nella richiesta" }, { status: 400 });
-  }
-
-  const stream = new Readable({
-    async read() {
-      const { done, value } = await reader.read();
-      if (done) this.push(null);
-      else this.push(value);
-    },
-  });
-
-  const fakeReq = Object.assign(stream, {
-    headers: Object.fromEntries(req.headers.entries()),
-  });
-
   const form = new IncomingForm({ uploadDir, keepExtensions: true });
 
-  return await new Promise<Response>((resolve) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    form.parse(fakeReq as any, async (err, fields, files) => {
-      if (err) {
-        console.error("Errore parsing:", err);
-        resolve(NextResponse.json({ error: "Errore nell'upload" }, { status: 500 }));
-        return;
+  form.parse(req, async (err, fields, files) => {
+    if (err) {
+      console.error("Errore parsing:", err);
+      return res.status(500).json({ error: "Errore durante l'upload" });
+    }
+
+    const file = Array.isArray(files.image) ? files.image[0] : files.image;
+    const oldImageUrl = Array.isArray(fields.oldImageUrl)
+      ? fields.oldImageUrl[0]
+      : fields.oldImageUrl;
+
+    if (!file || !("newFilename" in file)) {
+      return res.status(400).json({ error: "File non valido" });
+    }
+
+    if (oldImageUrl) {
+      const oldPath = path.join(process.cwd(), "public", oldImageUrl);
+      if (fs.existsSync(oldPath)) {
+        fs.unlinkSync(oldPath);
       }
+    }
 
-      const file = Array.isArray(files.image) ? files.image[0] : files.image;
-      const oldImageUrl = Array.isArray(fields.oldImageUrl)
-        ? fields.oldImageUrl[0]
-        : fields.oldImageUrl;
-
-      if (!file || !("newFilename" in file)) {
-        resolve(NextResponse.json({ error: "File non valido" }, { status: 400 }));
-        return;
-      }
-
-      // ✅ Elimina la vecchia immagine, se presente
-      if (oldImageUrl) {
-        const oldPath = path.join(process.cwd(), "public", oldImageUrl);
-        if (fs.existsSync(oldPath)) {
-          fs.unlinkSync(oldPath);
-        }
-      }
-
-      const filename = (file as File).newFilename;
-      const imageUrl = `/uploads/${filename}`;
-      resolve(NextResponse.json({ imageUrl }, { status: 200 }));
-    });
+    const imageUrl = `/uploads/${(file as File).newFilename}`;
+    return res.status(200).json({ imageUrl });
   });
 }
