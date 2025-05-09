@@ -4,14 +4,14 @@ import fs from "fs";
 import path from "path";
 import { Readable } from "stream";
 
-// Disattiva il body parser di Next.js
+// 🔁 Disattiva il bodyParser per App Router solo a scopo informativo
 export const config = {
   api: {
     bodyParser: false,
   },
 };
 
-export async function POST(req: Request) {
+export async function POST(req: Request): Promise<Response> {
   const uploadDir = path.join(process.cwd(), "public/uploads");
   fs.mkdirSync(uploadDir, { recursive: true });
 
@@ -30,18 +30,17 @@ export async function POST(req: Request) {
 
   const fakeReq = Object.assign(stream, {
     headers: Object.fromEntries(req.headers.entries()),
-    method: "POST",
-    url: "",
   });
 
   const form = new IncomingForm({ uploadDir, keepExtensions: true });
 
   return await new Promise<Response>((resolve) => {
-    // @ts-expect-error: form.parse non accetta tipo `Readable` direttamente
-    form.parse(fakeReq, async (err, fields, files) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    form.parse(fakeReq as any, async (err, fields, files) => {
       if (err) {
         console.error("Errore parsing:", err);
-        return resolve(NextResponse.json({ error: "Errore durante l'upload" }, { status: 500 }));
+        resolve(NextResponse.json({ error: "Errore nell'upload" }, { status: 500 }));
+        return;
       }
 
       const file = Array.isArray(files.image) ? files.image[0] : files.image;
@@ -50,9 +49,11 @@ export async function POST(req: Request) {
         : fields.oldImageUrl;
 
       if (!file || !("newFilename" in file)) {
-        return resolve(NextResponse.json({ error: "File non valido" }, { status: 400 }));
+        resolve(NextResponse.json({ error: "File non valido" }, { status: 400 }));
+        return;
       }
 
+      // ✅ Elimina la vecchia immagine, se presente
       if (oldImageUrl) {
         const oldPath = path.join(process.cwd(), "public", oldImageUrl);
         if (fs.existsSync(oldPath)) {
@@ -60,8 +61,9 @@ export async function POST(req: Request) {
         }
       }
 
-      const imageUrl = `/uploads/${(file as File).newFilename}`;
-      return resolve(NextResponse.json({ imageUrl }, { status: 200 }));
+      const filename = (file as File).newFilename;
+      const imageUrl = `/uploads/${filename}`;
+      resolve(NextResponse.json({ imageUrl }, { status: 200 }));
     });
   });
 }
