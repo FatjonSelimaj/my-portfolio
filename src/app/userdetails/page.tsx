@@ -168,7 +168,7 @@ export default function UserDetails() {
             />
           </div>
 
-          {userDetails.imageUrl && (
+          {userDetails.imageUrl && userDetails.imageUrl.startsWith("http") && (
             <div className="my-4">
               <p className="mb-2 font-medium text-gray-700">Immagine del Profilo</p>
               <Image
@@ -180,7 +180,6 @@ export default function UserDetails() {
               />
             </div>
           )}
-
           <label className="block mt-4 mb-2">Carica nuova immagine</label>
           <input
             type="file"
