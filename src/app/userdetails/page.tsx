@@ -55,28 +55,27 @@ export default function UserDetails() {
     if (!file) return;
 
     const formData = new FormData();
-    formData.append("image", file);
-    formData.append("oldImageUrl", userDetails.imageUrl);
+    formData.append("file", file);
+    formData.append("upload_preset", "portfolio_upload"); // Cambia con il tuo preset
 
     try {
-      const res = await fetch("/api/uploadImage", {
+      const res = await fetch("https://api.cloudinary.com/v1_1/tuo_cloud_name/image/upload", {
         method: "POST",
         body: formData,
       });
 
       const data = await res.json();
-
-      if (data.imageUrl) {
+      if (data.secure_url) {
         setUserDetails((prev) => ({
           ...prev,
-          imageUrl: data.imageUrl,
+          imageUrl: data.secure_url,
         }));
         setModalMessage("Immagine aggiornata con successo!");
       } else {
-        setModalMessage("Errore nel caricamento della nuova immagine.");
+        setModalMessage("Errore nel caricamento su Cloudinary.");
       }
     } catch {
-      setModalMessage("Errore durante l'upload dell'immagine.");
+      setModalMessage("Errore durante l'upload su Cloudinary.");
     }
   };
 
@@ -173,7 +172,7 @@ export default function UserDetails() {
             <div className="my-4">
               <p className="mb-2 font-medium text-gray-700">Immagine del Profilo</p>
               <Image
-                src={userDetails.imageUrl.startsWith("/") ? userDetails.imageUrl : `/${userDetails.imageUrl}`}
+                src={userDetails.imageUrl}
                 alt="Foto profilo"
                 width={128}
                 height={128}
