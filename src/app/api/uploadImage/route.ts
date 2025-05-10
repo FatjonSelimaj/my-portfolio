@@ -60,7 +60,10 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     console.error("Errore durante l'upload:", error);
 
     return NextResponse.json(
-      { error: "Errore interno del server", dettagli: (error as any)?.message || String(error) },
+      {
+        error: "Errore interno del server",
+        dettagli: error instanceof Error ? error.message : "Errore sconosciuto",
+      },
       { status: 500 }
     );
   }
