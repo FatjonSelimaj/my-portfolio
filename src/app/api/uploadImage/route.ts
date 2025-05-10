@@ -4,6 +4,7 @@ import fs from "fs";
 import path from "path";
 import { Readable } from "stream";
 
+// Disabilita il body parser per usare stream in modalità App Router
 export const config = {
   api: {
     bodyParser: false,
@@ -11,6 +12,7 @@ export const config = {
 };
 
 export async function POST(req: Request): Promise<Response> {
+  // ❌ Disabilita completamente in produzione (usa Cloudinary)
   if (process.env.NODE_ENV === "production") {
     return NextResponse.json({ error: "Upload locale disattivato in produzione" }, { status: 403 });
   }
@@ -38,10 +40,9 @@ export async function POST(req: Request): Promise<Response> {
   const form = new IncomingForm({ uploadDir, keepExtensions: true });
 
   return await new Promise<Response>((resolve) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     form.parse(fakeReq as any, async (err, fields, files) => {
       if (err) {
-        console.error("Errore parsing:", err);
+        console.error("❌ Errore parsing:", err);
         resolve(NextResponse.json({ error: "Errore nell'upload" }, { status: 500 }));
         return;
       }
@@ -52,12 +53,12 @@ export async function POST(req: Request): Promise<Response> {
         : fields.oldImageUrl;
 
       if (!file || !("newFilename" in file)) {
-        console.warn("File non valido o assente");
+        console.warn("⚠️ File non valido o assente");
         resolve(NextResponse.json({ error: "File non valido" }, { status: 400 }));
         return;
       }
 
-      // Elimina immagine vecchia se presente
+      // 🔄 Elimina vecchia immagine se presente
       if (oldImageUrl) {
         const oldPath = path.join(process.cwd(), "public", oldImageUrl);
         if (fs.existsSync(oldPath)) {
@@ -67,7 +68,7 @@ export async function POST(req: Request): Promise<Response> {
 
       const filename = (file as File).newFilename;
       const imageUrl = `/uploads/${filename}`;
-      console.log("✅ Immagine salvata:", imageUrl);
+      console.log("✅ Immagine salvata in:", imageUrl);
       resolve(NextResponse.json({ imageUrl }, { status: 200 }));
     });
   });
