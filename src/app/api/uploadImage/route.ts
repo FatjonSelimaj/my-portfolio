@@ -58,6 +58,10 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ imageUrl }, { status: 200 });
   } catch (error) {
     console.error("Errore durante l'upload:", error);
-    return NextResponse.json({ error: "Errore interno del server" }, { status: 500 });
+
+    return NextResponse.json(
+      { error: "Errore interno del server", dettagli: (error as any)?.message || String(error) },
+      { status: 500 }
+    );
   }
 }
