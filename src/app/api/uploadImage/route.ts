@@ -6,48 +6,57 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 const JWT_SECRET = process.env.JWT_SECRET!;
 
-type CloudinaryUploadResult = { secure_url: string };
+type CloudinaryUploadResult = {
+  secure_url: string;
+};
 
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
-    const token = req.headers.get("authorization")?.split(" ")[1];
+    // ✅ Recupera token JWT
+    const authHeader = req.headers.get("authorization");
+    const token = authHeader?.split(" ")[1];
+
     if (!token) {
       return NextResponse.json({ error: "Token mancante" }, { status: 401 });
     }
 
     const decoded = jwt.verify(token, JWT_SECRET) as { id: string };
+    const userId = decoded.id;
 
+    // ✅ Estrai file dal form
     const formData = await req.formData();
-    const file = formData.get('file') as File;
+    const file = formData.get("file");
 
-    if (!file) {
-      return NextResponse.json({ error: 'File mancante' }, { status: 400 });
+    if (!file || !(file instanceof Blob)) {
+      return NextResponse.json({ error: "File mancante o non valido" }, { status: 400 });
     }
 
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    const result = await new Promise<CloudinaryUploadResult>((resolve, reject) => {
-      const stream = cloudinary.uploader.upload_stream(
-        { folder: 'uploads' },
+    // ✅ Carica su Cloudinary
+    const result: CloudinaryUploadResult = await new Promise((resolve, reject) => {
+      const uploadStream = cloudinary.uploader.upload_stream(
+        { folder: "uploads" },
         (error, result) => {
-          if (error || !result) return reject(error || new Error("Upload fallito"));
-          resolve(result as CloudinaryUploadResult);
+          if (error || !result) return reject(error || new Error("Errore upload"));
+          resolve({ secure_url: result.secure_url });
         }
       );
-      stream.end(buffer);
+      uploadStream.end(buffer);
     });
 
     const imageUrl = result.secure_url;
 
+    // ✅ Salva nel DB
     await prisma.userDetails.update({
-      where: { userId: decoded.id },
+      where: { userId },
       data: { imageUrl },
     });
 
     return NextResponse.json({ imageUrl }, { status: 200 });
   } catch (error) {
     console.error("Errore durante l'upload:", error);
-    return NextResponse.json({ error: 'Errore interno del server' }, { status: 500 });
+    return NextResponse.json({ error: "Errore interno del server" }, { status: 500 });
   }
 }

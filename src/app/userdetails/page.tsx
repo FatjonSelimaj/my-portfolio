@@ -65,15 +65,21 @@ export default function UserDetails() {
     formData.append("file", file);
 
     try {
-      const res = await fetch("/api/uploadImage", {
+      const response = await fetch("/api/uploadImage", {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${token}`, // ✅ aggiunto
+          Authorization: `Bearer ${token}`, // ✅ Essenziale
         },
         body: formData,
       });
 
-      const data = await res.json();
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.error || "Errore upload");
+      }
+
+      const data = await response.json();
+
       if (data.imageUrl) {
         setUserDetails((prev) => ({
           ...prev,
@@ -83,7 +89,8 @@ export default function UserDetails() {
       } else {
         setModalMessage("Errore nel caricamento dell'immagine.");
       }
-    } catch {
+    } catch (error) {
+      console.error("Upload fallito:", error);
       setModalMessage("Errore durante l'upload dell'immagine.");
     }
   };
