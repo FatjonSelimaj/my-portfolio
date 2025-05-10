@@ -188,6 +188,7 @@ export default function UserDetails() {
             <div className="my-4">
               <p className="mb-2 font-medium text-gray-700">Immagine del Profilo</p>
               <Image
+                unoptimized
                 src={userDetails.imageUrl}
                 alt="Foto profilo"
                 width={128}
