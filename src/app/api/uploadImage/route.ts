@@ -1,20 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
 import cloudinary from '@/lib/cloudinary';
-import { getToken } from 'next-auth/jwt'; // o usa tu `jwt.verify` se usi jwt manuale
+import jwt from 'jsonwebtoken';
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 const JWT_SECRET = process.env.JWT_SECRET!;
 
+type CloudinaryUploadResult = { secure_url: string };
+
 export async function POST(req: NextRequest) {
   try {
     const token = req.headers.get("authorization")?.split(" ")[1];
-
     if (!token) {
       return NextResponse.json({ error: "Token mancante" }, { status: 401 });
     }
 
-    const jwt = require("jsonwebtoken");
     const decoded = jwt.verify(token, JWT_SECRET) as { id: string };
 
     const formData = await req.formData();
@@ -27,20 +27,19 @@ export async function POST(req: NextRequest) {
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    const result = await new Promise((resolve, reject) => {
+    const result = await new Promise<CloudinaryUploadResult>((resolve, reject) => {
       const stream = cloudinary.uploader.upload_stream(
         { folder: 'uploads' },
         (error, result) => {
-          if (error) return reject(error);
-          resolve(result);
+          if (error || !result) return reject(error || new Error("Upload fallito"));
+          resolve(result as CloudinaryUploadResult);
         }
       );
       stream.end(buffer);
     });
 
-    const imageUrl = (result as any).secure_url;
+    const imageUrl = result.secure_url;
 
-    // ✅ Salva nel DB
     await prisma.userDetails.update({
       where: { userId: decoded.id },
       data: { imageUrl },
