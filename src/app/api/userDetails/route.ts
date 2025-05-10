@@ -1,3 +1,4 @@
+// src/app/api/userDetails/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import jwt from "jsonwebtoken";
@@ -9,35 +10,31 @@ interface PaintingInput {
   content: string;
 }
 
-// ✅ GET: restituisce i dati utente inclusa l'immagine
-export async function GET(req: NextRequest) {
-  const token = req.headers.get("authorization")?.split(" ")[1];
-
+// ————————— GET handler —————————
+export async function GET(req: NextRequest): Promise<NextResponse> {
+  const authHeader = req.headers.get("authorization");
+  const token = authHeader?.split(" ")[1];
   if (!token) {
-    return NextResponse.json({ message: "Token mancante" }, { status: 401 });
+    return NextResponse.json({ error: "Token mancante" }, { status: 401 });
   }
 
   try {
     const decoded = jwt.verify(token, JWT_SECRET) as { id: string };
-
     const userDetails = await prisma.userDetails.findUnique({
       where: { userId: decoded.id },
-      include: {
-        user: true,
-        paintings: true,
-      },
+      include: { user: true, paintings: true },
     });
 
     if (!userDetails) {
-      return NextResponse.json({ message: "Utente non trovato" }, { status: 404 });
+      return NextResponse.json({ error: "Utente non trovato" }, { status: 404 });
     }
 
     return NextResponse.json({
       firstName: userDetails.firstName,
-      lastName: userDetails.lastName,
-      bio: userDetails.bio,
-      phone: userDetails.phone,
-      imageUrl: userDetails.imageUrl, // 👈 Aggiunto
+      lastName:  userDetails.lastName,
+      bio:       userDetails.bio,
+      phone:     userDetails.phone,
+      imageUrl:  userDetails.imageUrl,
       paintings: userDetails.paintings,
       contact: {
         email: userDetails.user.email,
@@ -46,56 +43,63 @@ export async function GET(req: NextRequest) {
     });
   } catch (err) {
     console.error("Errore GET userDetails:", err);
-    return NextResponse.json({ message: "Errore interno" }, { status: 500 });
+    return NextResponse.json(
+      {
+        error:   "Errore interno",
+        dettagli: err instanceof Error ? err.message : "Errore sconosciuto",
+      },
+      { status: 500 }
+    );
   }
 }
 
-// ✅ PUT: aggiorna i dati utente incluso imageUrl
-export async function PUT(req: NextRequest) {
-  const token = req.headers.get("authorization")?.split(" ")[1];
-
+// ————————— PUT handler —————————
+export async function PUT(req: NextRequest): Promise<NextResponse> {
+  const authHeader = req.headers.get("authorization");
+  const token = authHeader?.split(" ")[1];
   if (!token) {
-    return NextResponse.json({ message: "Token mancante" }, { status: 401 });
+    return NextResponse.json({ error: "Token mancante" }, { status: 401 });
   }
 
   try {
     const decoded = jwt.verify(token, JWT_SECRET) as { id: string };
-    const body = await req.json() as {
+    const body = (await req.json()) as {
       firstName: string;
-      lastName: string;
-      bio: string;
-      phone: string;
-      imageUrl?: string; // 👈 Campo opzionale
+      lastName:  string;
+      bio:       string;
+      phone:     string;
+      imageUrl?: string;
       paintings: PaintingInput[];
     };
 
-    const updatedDetails = await prisma.userDetails.upsert({
-      where: { userId: decoded.id },
+    // Upsert userDetails
+    const details = await prisma.userDetails.upsert({
+      where:  { userId: decoded.id },
       update: {
         firstName: body.firstName,
-        lastName: body.lastName,
-        bio: body.bio,
-        phone: body.phone,
-        imageUrl: body.imageUrl, // 👈 aggiornamento opzionale
+        lastName:  body.lastName,
+        bio:       body.bio,
+        phone:     body.phone,
+        imageUrl:  body.imageUrl,
       },
       create: {
-        userId: decoded.id,
+        userId:    decoded.id,
         firstName: body.firstName,
-        lastName: body.lastName,
-        bio: body.bio,
-        phone: body.phone,
-        imageUrl: body.imageUrl,
+        lastName:  body.lastName,
+        bio:       body.bio,
+        phone:     body.phone,
+        imageUrl:  body.imageUrl,
       },
     });
 
-    await prisma.painting.deleteMany({ where: { userId: updatedDetails.id } });
-
-    if (body.paintings.length > 0) {
+    // Replace paintings
+    await prisma.painting.deleteMany({ where: { userId: details.id } });
+    if (body.paintings.length) {
       await prisma.painting.createMany({
         data: body.paintings.map((p) => ({
-          title: p.title,
+          title:   p.title,
           content: p.content,
-          userId: updatedDetails.id,
+          userId:  details.id,
         })),
       });
     }
@@ -103,6 +107,12 @@ export async function PUT(req: NextRequest) {
     return NextResponse.json({ message: "Dati aggiornati con successo" });
   } catch (err) {
     console.error("Errore PUT userDetails:", err);
-    return NextResponse.json({ error: "Errore interno" }, { status: 500 });
+    return NextResponse.json(
+      {
+        error:   "Errore interno",
+        dettagli: err instanceof Error ? err.message : "Errore sconosciuto",
+      },
+      { status: 500 }
+    );
   }
 }
