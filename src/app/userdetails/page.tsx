@@ -51,33 +51,32 @@ export default function UserDetails() {
   }, [router]);
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-  const file = e.target.files?.[0];
-  if (!file) return;
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-  const formData = new FormData();
-  formData.append('file', file);
+    const formData = new FormData();
+    formData.append("file", file);
 
-  try {
-    const res = await fetch('/api/uploadImage', {
-      method: 'POST',
-      body: formData,
-    });
+    try {
+      const res = await fetch("/api/uploadImage", {
+        method: "POST",
+        body: formData,
+      });
 
-    const data = await res.json();
-    if (data.secure_url) {
-      setUserDetails((prev) => ({
-        ...prev,
-        imageUrl: data.secure_url,
-      }));
-      setModalMessage('Immagine aggiornata con successo!');
-    } else {
-      setModalMessage('Errore nel caricamento su Cloudinary.');
+      const data = await res.json();
+      if (data.imageUrl) {
+        setUserDetails((prev) => ({
+          ...prev,
+          imageUrl: data.imageUrl,
+        }));
+        setModalMessage("Immagine aggiornata con successo!");
+      } else {
+        setModalMessage("Errore nel caricamento dell'immagine.");
+      }
+    } catch {
+      setModalMessage("Errore durante l'upload dell'immagine.");
     }
-  } catch {
-    setModalMessage('Errore durante l\'upload su Cloudinary.');
-  }
-};
-
+  };
 
   const handleSaveDetails = () => {
     const token = localStorage.getItem("token");

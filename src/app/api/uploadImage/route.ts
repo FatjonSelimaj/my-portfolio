@@ -1,3 +1,4 @@
+// src/app/api/uploadImage/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import cloudinary from '@/lib/cloudinary';
 
@@ -7,26 +8,27 @@ export async function POST(req: NextRequest) {
     const file = formData.get('file') as File;
 
     if (!file) {
-      return NextResponse.json({ error: 'Nessun file fornito' }, { status: 400 });
+      return NextResponse.json({ error: 'File mancante' }, { status: 400 });
     }
 
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    const uploadResponse = await new Promise((resolve, reject) => {
+    const result = await new Promise((resolve, reject) => {
       const stream = cloudinary.uploader.upload_stream(
         { folder: 'uploads' },
-        (error, result) => {
+        (error: any, result: unknown) => {
           if (error) return reject(error);
           resolve(result);
         }
       );
+
       stream.end(buffer);
     });
 
-    return NextResponse.json(uploadResponse);
+    return NextResponse.json({ imageUrl: (result as any).secure_url }, { status: 200 });
   } catch (error) {
     console.error('Errore durante l\'upload:', error);
-    return NextResponse.json({ error: 'Errore durante l\'upload' }, { status: 500 });
+    return NextResponse.json({ error: 'Errore interno del server' }, { status: 500 });
   }
 }
