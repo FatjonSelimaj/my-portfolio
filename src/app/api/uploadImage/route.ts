@@ -4,7 +4,6 @@ import fs from "fs";
 import path from "path";
 import { Readable } from "stream";
 
-// 🔁 Disattiva il bodyParser per App Router solo a scopo informativo
 export const config = {
   api: {
     bodyParser: false,
@@ -12,6 +11,10 @@ export const config = {
 };
 
 export async function POST(req: Request): Promise<Response> {
+  if (process.env.NODE_ENV === "production") {
+    return NextResponse.json({ error: "Upload locale disattivato in produzione" }, { status: 403 });
+  }
+
   const uploadDir = path.join(process.cwd(), "public/uploads");
   fs.mkdirSync(uploadDir, { recursive: true });
 
@@ -49,11 +52,12 @@ export async function POST(req: Request): Promise<Response> {
         : fields.oldImageUrl;
 
       if (!file || !("newFilename" in file)) {
+        console.warn("File non valido o assente");
         resolve(NextResponse.json({ error: "File non valido" }, { status: 400 }));
         return;
       }
 
-      // ✅ Elimina la vecchia immagine, se presente
+      // Elimina immagine vecchia se presente
       if (oldImageUrl) {
         const oldPath = path.join(process.cwd(), "public", oldImageUrl);
         if (fs.existsSync(oldPath)) {
@@ -63,6 +67,7 @@ export async function POST(req: Request): Promise<Response> {
 
       const filename = (file as File).newFilename;
       const imageUrl = `/uploads/${filename}`;
+      console.log("✅ Immagine salvata:", imageUrl);
       resolve(NextResponse.json({ imageUrl }, { status: 200 }));
     });
   });
