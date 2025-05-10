@@ -54,12 +54,22 @@ export default function UserDetails() {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setModalMessage("Sessione scaduta. Effettua nuovamente il login.");
+      router.replace("/login");
+      return;
+    }
+
     const formData = new FormData();
     formData.append("file", file);
 
     try {
       const res = await fetch("/api/uploadImage", {
         method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`, // ✅ aggiunto
+        },
         body: formData,
       });
 
