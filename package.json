@@ -16,6 +16,7 @@
     "autoprefixer": "^10.4.21",
     "bcryptjs": "^3.0.2",
     "cloudinary": "^2.6.1",
+    "firebase": "^11.7.1",
     "formidable": "^3.5.4",
     "jsonwebtoken": "^9.0.2",
     "next": "^15.2.1",
