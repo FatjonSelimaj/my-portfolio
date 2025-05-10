@@ -1,10 +1,9 @@
+// src/lib/cloudinary.ts
 import { v2 as cloudinary } from 'cloudinary';
 
-cloudinary.config({
-  cloud_name: process.env.API_ENVIRONMENT_VARIABLE!,
-  api_key: process.env.API_KEY!,
-  api_secret: process.env.API_SECRET!,
-});
-
+// Se in .env (o su Vercel) hai definito:
+// CLOUDINARY_URL=cloudinary://API_KEY:API_SECRET@CLOUD_NAME
+// allora basta chiamare config() senza parametri:
+cloudinary.config();
 
 export default cloudinary;
