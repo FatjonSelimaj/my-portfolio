@@ -9,23 +9,31 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: "Token mancante" }, { status: 401 });
   }
 
-  // Rimuovo il prefisso 'Bearer '
   const token = authHeader.replace(/^Bearer\s+/, "");
-
-  // Verifica secret
   const secret = process.env.JWT_SECRET;
   if (!secret) {
     console.error("JWT_SECRET non definito");
     return NextResponse.json({ error: "Errore interno" }, { status: 500 });
   }
 
-  // Verifica token e cattura payload
-  let payload: { id: string; email: string };
+  // Verifica il token senza provare a usare un overload generico inesistente
+  let decoded: unknown;
   try {
-    payload = jwt.verify(token, secret) as unknown as { id: string; email: string };
+    decoded = jwt.verify(token, secret);
   } catch {
     return NextResponse.json({ error: "Token non valido" }, { status: 401 });
   }
+
+  // Controlla che decoded sia un oggetto con id ed email
+  if (
+    typeof decoded !== "object" ||
+    decoded === null ||
+    !("id" in decoded) ||
+    !("email" in decoded)
+  ) {
+    return NextResponse.json({ error: "Token non valido" }, { status: 401 });
+  }
+  const payload = decoded as { id: string; email: string };
 
   try {
     // 1) Carico UserDetails con pitture
@@ -40,13 +48,16 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       return NextResponse.json({ error: "Utente non trovato" }, { status: 404 });
     }
 
-    // 2) Carico progetti da Project e Portfolio
+    // 2) Carico progetti da Project e Portfolio in parallelo
     const [projectModels, portfolioModels] = await Promise.all([
       prisma.project.findMany({ where: { userDetailsId: userDetails.id } }),
-      prisma.portfolio.findMany({ where: { userId: payload.id }, orderBy: { createdAt: "desc" } }),
+      prisma.portfolio.findMany({
+        where: { userId: payload.id },
+        orderBy: { createdAt: "desc" },
+      }),
     ]);
 
-    // 3) Unisco i due array in 'projects'
+    // 3) Unisco i due array in un unico “projects”
     const projects = [
       ...projectModels.map(pr => ({
         id: pr.id,
@@ -60,25 +71,28 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
         title: pf.title,
         content: pf.content,
         url: pf.url,
-        logoUrl: "",
+        logoUrl: "", // aggiungi pf.logoUrl se lo renderai disponibile
       })),
     ];
 
-    // 4) Costruisco e restituisco la risposta
+    // 4) Restituisco la risposta JSON completa
     return NextResponse.json({
       firstName: userDetails.firstName,
       lastName:  userDetails.lastName,
       about:     userDetails.bio      ?? "",
       imageUrl:  userDetails.imageUrl ?? "",
-      paintings: userDetails.paintings.map(p => ({ title: p.title, content: p.content })),
+      paintings: userDetails.paintings.map(p => ({
+        title:   p.title,
+        content: p.content,
+      })),
       projects,
       contact: {
         phone: userDetails.phone ?? "",
         email: userDetails.user.email,
       },
     });
-  } catch (err) {
-    console.error("Errore API /publicData:", err);
+  } catch (error: unknown) {
+    console.error("Errore API /publicData:", error);
     return NextResponse.json({ error: "Errore interno" }, { status: 500 });
   }
 }
