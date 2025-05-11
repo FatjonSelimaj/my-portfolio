@@ -1,4 +1,3 @@
-// src/app/api/publicData/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import jwt from "jsonwebtoken";
@@ -16,15 +15,15 @@ export async function GET(req: NextRequest) {
 
     const decoded = jwt.verify(token, secret) as { id: string; email: string };
 
-    // Recupera dettagli utente con pitture E progetti dal modello Project
+    // Recupera dettagli utente con pitture
     const userDetails = await prisma.userDetails.findUnique({
       where: { userId: decoded.id },
       include: {
         paintings: true,
-        projects: true,          // <— includo i Project
         user: { select: { email: true } },
       },
     });
+
     if (!userDetails) {
       return NextResponse.json({ error: "Utente non trovato" }, { status: 404 });
     }
@@ -32,28 +31,8 @@ export async function GET(req: NextRequest) {
     // Recupera progetti dal modello Portfolio
     const portfolios = await prisma.portfolio.findMany({
       where: { userId: decoded.id },
-      orderBy: { createdAt: "desc" },
+      orderBy: { createdAt: 'desc' }
     });
-
-    // Unisco i due insiemi di “progetti”
-    const projects = [
-      // progetti dal modello Project
-      ...userDetails.projects.map(pr => ({
-        id: pr.id,
-        title: pr.title,
-        content: pr.content,
-        url: pr.url,
-        logoUrl: pr.logoUrl,  // qui c’è già il logoUrl
-      })),
-      // progetti dal modello Portfolio
-      ...portfolios.map(pf => ({
-        id: pf.id,
-        title: pf.title,
-        content: pf.content,
-        url: pf.url,
-        logoUrl: "",         // Portfolio non ha il logoUrl, lo lascio vuoto
-      })),
-    ];
 
     const response = {
       firstName: userDetails.firstName,
@@ -64,7 +43,13 @@ export async function GET(req: NextRequest) {
         title:   p.title,
         content: p.content,
       })),
-      projects,   // ora contiene sia Project che Portfolio
+      projects: portfolios.map(p => ({  // mappo i portfolio come progetti
+        id:      p.id,
+        title:   p.title,
+        content: p.content,
+        url:     p.url,
+        logoUrl: "",                    // Portfolio non ha logoUrl
+      })),
       contact: {
         phone: userDetails.phone || "",
         email: userDetails.user.email,
