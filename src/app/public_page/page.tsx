@@ -15,6 +15,7 @@ interface Project {
   title: string;
   content: string;
   url: string;
+  logoUrl?: string; // ora opzionale
 }
 
 interface ApiData {
@@ -27,7 +28,7 @@ interface ApiData {
     phone: string;
     email: string;
   };
-  projects?: Project[];
+  projects?: Project[];  
 }
 
 export default function PublicPage() {
@@ -84,8 +85,9 @@ export default function PublicPage() {
         <nav className="flex gap-2 sm:gap-4 overflow-x-auto whitespace-nowrap">
           <button
             onClick={() => setSelected('about')}
-            className={`px-3 py-2 sm:px-4 sm:py-2 rounded font-semibold ${selected === 'about' ? 'bg-green-500 text-white' : 'bg-blue-300 hover:bg-blue-800 text-white'
-              }`}
+            className={`px-3 py-2 sm:px-4 sm:py-2 rounded font-semibold ${
+              selected === 'about' ? 'bg-green-500 text-white' : 'bg-blue-300 hover:bg-blue-800 text-white'
+            }`}
           >
             Chi Sono
           </button>
@@ -93,8 +95,9 @@ export default function PublicPage() {
             <button
               key={i}
               onClick={() => setSelected(`painting-${i}`)}
-              className={`px-3 py-2 sm:px-4 sm:py-2 rounded font-semibold ${selected === `painting-${i}` ? 'bg-green-500 text-white' : 'bg-blue-300 hover:bg-blue-800 text-white'
-                }`}
+              className={`px-3 py-2 sm:px-4 sm:py-2 rounded font-semibold ${
+                selected === `painting-${i}` ? 'bg-green-500 text-white' : 'bg-blue-300 hover:bg-blue-800 text-white'
+              }`}
             >
               {p.title}
             </button>
@@ -102,8 +105,9 @@ export default function PublicPage() {
           {validProjects.length > 0 && (
             <button
               onClick={() => setSelected('projects')}
-              className={`px-3 py-2 sm:px-4 sm:py-2 rounded font-semibold ${selected === 'projects' ? 'bg-green-500 text-white' : 'bg-blue-300 hover:bg-blue-800 text-white'
-                }`}
+              className={`px-3 py-2 sm:px-4 sm:py-2 rounded font-semibold ${
+                selected === 'projects' ? 'bg-green-500 text-white' : 'bg-blue-300 hover:bg-blue-800 text-white'
+              }`}
             >
               Progetti
             </button>
@@ -130,7 +134,9 @@ export default function PublicPage() {
                   />
                 </div>
               )}
-              <h2 className="text-lg sm:text-xl md:text-2xl font-semibold mb-4 text-center">Chi Sono</h2>
+              <h2 className="text-lg sm:text-xl md:text-2xl font-semibold mb-4 text-center">
+                Chi Sono
+              </h2>
               <div className="mb-4" dangerouslySetInnerHTML={{ __html: data.about }} />
               <div className="border border-green-400 rounded p-2 sm:p-3 md:p-4 bg-green-100 mb-6">
                 <h3 className="font-semibold mb-2">Contatti</h3>
@@ -158,41 +164,34 @@ export default function PublicPage() {
                 <p className="text-center text-gray-500">Nessun progetto disponibile.</p>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-                  {validProjects.map(pr => {
-                    // Derivo il logo dal dominio del progetto
-                    let logoSrc = '';
-                    try {
-                      const origin = new URL(pr.url).origin;
-                      logoSrc = origin + '/favicon.ico';
-                    } catch {
-                      logoSrc = '';
-                    }
-                    return (
-                      <Link key={pr.id} href={pr.url} className="block group">
-                        <div className="overflow-hidden rounded-2xl shadow-lg transform transition-transform group-hover:scale-105 bg-white p-4 flex items-center justify-center">
-                          {logoSrc ? (
-                            <Image
-                              src={logoSrc}
-                              alt={`Logo ${pr.title}`}
-                              width={160}
-                              height={160}
-                              style={{ width: 'auto', height: 'auto' }}
-                              className="object-contain"
-                              unoptimized
-                            />
-
-                          ) : (
-                            <div className="text-gray-400">No logo</div>
-                          )}
-                        </div>
-                        <h2 className="mt-3 text-lg font-semibold text-center text-black">{pr.title}</h2>
-                        <p className="mt-1 text-sm text-gray-700 text-center">{pr.content}</p>
-                      </Link>
-                    );
-                  })}
+                  {validProjects.map(pr => (
+                    <Link key={pr.id} href={pr.url} className="block group">
+                      <div className="overflow-hidden rounded-2xl shadow-lg transform transition-transform group-hover:scale-105 bg-white p-4 flex items-center justify-center">
+                        {pr.logoUrl
+                          ? <Image src={pr.logoUrl} alt={`Logo ${pr.title}`} width={160} height={160} className="object-contain" unoptimized />
+                          : <div className="text-gray-400">No logo</div>
+                        }
+                      </div>
+                      <h2 className="mt-3 text-lg font-semibold text-center text-black">{pr.title}</h2>
+                    </Link>
+                  ))}
                 </div>
               )}
             </div>
+          )}
+
+          {selected === 'about' && validProjects.length > 0 && (
+            <>
+              <h3 className="text-xl font-semibold mb-4">I miei Progetti</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                {validProjects.map(pr => (
+                  <Link key={pr.id} href={pr.url} className="block p-4 bg-gray-50 rounded-lg shadow hover:shadow-md transition text-left">
+                    <h4 className="text-lg font-semibold mb-1">{pr.title}</h4>
+                    <p className="line-clamp-2 mb-2">{pr.content}</p>
+                  </Link>
+                ))}
+              </div>
+            </>
           )}
         </div>
       </main>

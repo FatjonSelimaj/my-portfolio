@@ -6,7 +6,7 @@ import { FaSignOutAlt, FaSave, FaPhone, FaArrowLeft } from "react-icons/fa";
 import Link from "next/link";
 import Image from "next/image";
 
-// Interfacce per i dati di painting e progetto
+// Estendiamo lo stato per includere anche i progetti (link, titolo, descrizione)
 interface Painting {
   title: string;
   content: string;
@@ -21,23 +21,15 @@ export default function UserDetails() {
   const router = useRouter();
   const [modalMessage, setModalMessage] = useState<string | null>(null);
 
-  // Stato iniziale con fallback e array precompilati
-  const [userDetails, setUserDetails] = useState<{
-    firstName: string;
-    lastName: string;
-    bio: string;
-    phone: string;
-    imageUrl: string;
-    paintings: Painting[];
-    projects: ProjectInput[];
-  }>({
+  // Aggiungiamo `projects` allo stato
+  const [userDetails, setUserDetails] = useState({
     firstName: "",
     lastName: "",
     bio: "",
     phone: "",
     imageUrl: "",
-    paintings: Array(8).fill({ title: "", content: "" }),
-    projects: Array(5).fill({ title: "", content: "", url: "" }),
+    paintings: Array(8).fill({ title: "", content: "" }) as Painting[],
+    projects: Array(5).fill({ title: "", content: "", url: "" }) as ProjectInput[]
   });
 
   useEffect(() => {
@@ -58,24 +50,16 @@ export default function UserDetails() {
       .then((data) => {
         setUserDetails((prev) => ({
           ...prev,
-          firstName: data.firstName ?? prev.firstName,
-          lastName: data.lastName ?? prev.lastName,
-          bio: data.bio ?? prev.bio,
-          phone: data.phone ?? prev.phone,
-          imageUrl: data.imageUrl ?? prev.imageUrl,
-          paintings: Array(8)
-            .fill(null)
-            .map((_, i) => ({
-              title: data.paintings?.[i]?.title ?? prev.paintings[i].title,
-              content: data.paintings?.[i]?.content ?? prev.paintings[i].content,
-            })),
-          projects: Array(5)
-            .fill(null)
-            .map((_, i) => ({
-              title: data.projects?.[i]?.title ?? prev.projects[i].title,
-              content: data.projects?.[i]?.content ?? prev.projects[i].content,
-              url: data.projects?.[i]?.url ?? prev.projects[i].url,
-            })),
+          firstName: data.firstName || prev.firstName,
+          lastName: data.lastName || prev.lastName,
+          bio: data.bio || prev.bio,
+          phone: data.phone || prev.phone,
+          imageUrl: data.imageUrl || prev.imageUrl,
+          paintings: data.paintings?.length
+            ? data.paintings
+            : prev.paintings,
+          // manteniamo i progetti eventualmente già impostati
+          projects: prev.projects
         }));
       })
       .catch(() => setModalMessage("Errore nel recupero dei dati utente."));
@@ -119,6 +103,7 @@ export default function UserDetails() {
       return;
     }
 
+    // Salviamo tutti i dati inclusi i progetti
     fetch("/api/userDetails", {
       method: "PUT",
       headers: {
@@ -146,10 +131,7 @@ export default function UserDetails() {
             </button>
           </Link>
           <button
-            onClick={() => {
-              localStorage.removeItem("token");
-              router.push("/");
-            }}
+            onClick={() => { localStorage.removeItem("token"); router.push("/"); }}
             className="flex items-center gap-2 bg-red-500 text-white px-4 py-2 rounded-lg shadow hover:bg-red-600 transition-all w-full sm:w-auto"
           >
             <FaSignOutAlt /> Logout
@@ -166,7 +148,8 @@ export default function UserDetails() {
             <div className="w-full sm:w-1/2">
               <label className="block mb-2">Nome</label>
               <input
-                type="text" value={userDetails.firstName ?? ""}
+                type="text"
+                value={userDetails.firstName}
                 onChange={(e) => setUserDetails({ ...userDetails, firstName: e.target.value })}
                 className="w-full p-2 border rounded mb-2"
               />
@@ -174,7 +157,8 @@ export default function UserDetails() {
             <div className="w-full sm:w-1/2">
               <label className="block mb-2">Cognome</label>
               <input
-                type="text" value={userDetails.lastName ?? ""}
+                type="text"
+                value={userDetails.lastName}
                 onChange={(e) => setUserDetails({ ...userDetails, lastName: e.target.value })}
                 className="w-full p-2 border rounded mb-2"
               />
@@ -183,16 +167,18 @@ export default function UserDetails() {
 
           <label className="block mt-4 mb-2">Chi Sono</label>
           <textarea
-            value={userDetails.bio ?? ""}
+            value={userDetails.bio}
             onChange={(e) => setUserDetails({ ...userDetails, bio: e.target.value })}
-            className="w-full p-2 border rounded mb-2" rows={3}
+            className="w-full p-2 border rounded mb-2"
+            rows={3}
           />
 
           <label className="block mt-4 mb-2">Numero di Telefono</label>
           <div className="relative mb-4">
             <FaPhone className="absolute left-3 top-3 text-gray-500" />
             <input
-              type="text" value={userDetails.phone ?? ""}
+              type="text"
+              value={userDetails.phone}
               onChange={(e) => setUserDetails({ ...userDetails, phone: e.target.value })}
               className="w-full p-2 pl-10 border rounded"
             />
@@ -201,9 +187,24 @@ export default function UserDetails() {
           {userDetails.imageUrl && userDetails.imageUrl.startsWith("http") && (
             <div className="my-4">
               <p className="mb-2 font-medium text-gray-700">Immagine del Profilo</p>
-              <Image unoptimized src={userDetails.imageUrl} alt="Foto profilo" width={128} height={128} className="rounded-full object-cover mx-auto" />
+              <Image
+                unoptimized
+                src={userDetails.imageUrl}
+                alt="Foto profilo"
+                width={128}
+                height={128}
+                className="rounded-full object-cover mx-auto"
+              />
             </div>
           )}
+
+          <label className="block mt-4 mb-2">Carica nuova immagine</label>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleImageUpload}
+            className="w-full p-2 border rounded mb-6"
+          />
 
           {/* Quadri */}
           <h3 className="text-xl font-semibold text-gray-900 mt-6 mb-2">Quadri</h3>
