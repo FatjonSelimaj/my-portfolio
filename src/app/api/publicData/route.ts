@@ -3,96 +3,81 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import jwt from "jsonwebtoken";
 
-export async function GET(req: NextRequest): Promise<NextResponse> {
-  const authHeader = req.headers.get("authorization");
-  if (!authHeader) {
-    return NextResponse.json({ error: "Token mancante" }, { status: 401 });
-  }
-
-  const token = authHeader.replace(/^Bearer\s+/, "");
-  const secret = process.env.JWT_SECRET;
-  if (!secret) {
-    console.error("JWT_SECRET non definito");
-    return NextResponse.json({ error: "Errore interno" }, { status: 500 });
-  }
-
-  // Verifica il token senza provare a usare un overload generico inesistente
-  let decoded: unknown;
+export async function GET(req: NextRequest) {
   try {
-    decoded = jwt.verify(token, secret);
-  } catch {
-    return NextResponse.json({ error: "Token non valido" }, { status: 401 });
-  }
+    const authHeader = req.headers.get("authorization");
+    if (!authHeader) {
+      return NextResponse.json({ error: "Token mancante" }, { status: 401 });
+    }
 
-  // Controlla che decoded sia un oggetto con id ed email
-  if (
-    typeof decoded !== "object" ||
-    decoded === null ||
-    !("id" in decoded) ||
-    !("email" in decoded)
-  ) {
-    return NextResponse.json({ error: "Token non valido" }, { status: 401 });
-  }
-  const payload = decoded as { id: string; email: string };
+    const token = authHeader.split(" ")[1];
+    const secret = process.env.JWT_SECRET;
+    if (!secret) throw new Error("JWT_SECRET non definito");
 
-  try {
-    // 1) Carico UserDetails con pitture
+    const decoded = jwt.verify(token, secret) as { id: string; email: string };
+
+    // Recupera dettagli utente con pitture E progetti dal modello Project
     const userDetails = await prisma.userDetails.findUnique({
-      where: { userId: payload.id },
+      where: { userId: decoded.id },
       include: {
-        user: { select: { email: true } },
         paintings: true,
+        projects: true,          // <— includo i Project
+        user: { select: { email: true } },
       },
     });
     if (!userDetails) {
       return NextResponse.json({ error: "Utente non trovato" }, { status: 404 });
     }
 
-    // 2) Carico progetti da Project e Portfolio in parallelo
-    const [projectModels, portfolioModels] = await Promise.all([
-      prisma.project.findMany({ where: { userDetailsId: userDetails.id } }),
-      prisma.portfolio.findMany({
-        where: { userId: payload.id },
-        orderBy: { createdAt: "desc" },
-      }),
-    ]);
+    // Recupera progetti dal modello Portfolio
+    const portfolios = await prisma.portfolio.findMany({
+      where: { userId: decoded.id },
+      orderBy: { createdAt: "desc" },
+    });
 
-    // 3) Unisco i due array in un unico “projects”
+    // Unisco i due insiemi di “progetti”
     const projects = [
-      ...projectModels.map(pr => ({
+      // progetti dal modello Project
+      ...userDetails.projects.map(pr => ({
         id: pr.id,
         title: pr.title,
         content: pr.content,
         url: pr.url,
-        logoUrl: pr.logoUrl,
+        logoUrl: pr.logoUrl,  // qui c’è già il logoUrl
       })),
-      ...portfolioModels.map(pf => ({
+      // progetti dal modello Portfolio
+      ...portfolios.map(pf => ({
         id: pf.id,
         title: pf.title,
         content: pf.content,
         url: pf.url,
-        logoUrl: "", // aggiungi pf.logoUrl se lo renderai disponibile
+        logoUrl: "",         // Portfolio non ha il logoUrl, lo lascio vuoto
       })),
     ];
 
-    // 4) Restituisco la risposta JSON completa
-    return NextResponse.json({
+    const response = {
       firstName: userDetails.firstName,
       lastName:  userDetails.lastName,
-      about:     userDetails.bio      ?? "",
-      imageUrl:  userDetails.imageUrl ?? "",
+      about:     userDetails.bio      || "",
+      imageUrl:  userDetails.imageUrl || "",
       paintings: userDetails.paintings.map(p => ({
         title:   p.title,
         content: p.content,
       })),
-      projects,
+      projects,   // ora contiene sia Project che Portfolio
       contact: {
-        phone: userDetails.phone ?? "",
+        phone: userDetails.phone || "",
         email: userDetails.user.email,
       },
-    });
-  } catch (error: unknown) {
-    console.error("Errore API /publicData:", error);
+    };
+
+    return NextResponse.json(response);
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      console.error("Errore API /publicData:", err.message);
+    } else {
+      console.error("Errore sconosciuto:", err);
+    }
     return NextResponse.json({ error: "Errore interno" }, { status: 500 });
   }
 }
