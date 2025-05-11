@@ -205,6 +205,17 @@ export default function UserDetails() {
             </div>
           )}
 
+          <div className="mb-4">
+            <label className="block mb-2 text-sm font-medium text-gray-700">Carica nuova immagine</label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImageUpload}
+              className="w-full p-2 border rounded"
+            />
+          </div>
+
+
           {/* Quadri */}
           <h3 className="text-xl font-semibold text-gray-900 mt-6 mb-2">Quadri</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
