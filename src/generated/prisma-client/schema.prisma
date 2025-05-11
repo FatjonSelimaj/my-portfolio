@@ -18,6 +18,8 @@ model User {
   details             UserDetails?
   articles            Article[]
   passwordResetTokens PasswordResetToken[]
+
+  Project Project[]
 }
 
 model UserDetails {
@@ -30,7 +32,7 @@ model UserDetails {
   phone     String?
   imageUrl  String?
   paintings Painting[] @relation("UserPaintings")
-  projects  Project[]  @relation("UserProjects")
+  // RIMUOVI projects se non usi una relazione esplicita
 }
 
 model Painting {
@@ -42,13 +44,13 @@ model Painting {
 }
 
 model Project {
-  id            String      @id @default(auto()) @map("_id") @db.ObjectId
-  title         String
-  content       String
-  url           String
-  logoUrl       String
-  userDetailsId String      @db.ObjectId
-  userDetails   UserDetails @relation("UserProjects", fields: [userDetailsId], references: [id])
+  id      String  @id @default(auto()) @map("_id") @db.ObjectId
+  title   String
+  content String
+  url     String
+  logoUrl String?
+  userId  String  @db.ObjectId
+  user    User    @relation(fields: [userId], references: [id])
 }
 
 model Portfolio {

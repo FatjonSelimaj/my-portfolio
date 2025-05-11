@@ -19,87 +19,69 @@ interface ProjectInput {
 
 // ————————— GET handler —————————
 export async function GET(req: NextRequest): Promise<NextResponse> {
-  const authHeader = req.headers.get("authorization");
-  const token = authHeader?.split(" ")[1];
-  if (!token) {
-    return NextResponse.json({ error: "Token mancante" }, { status: 401 });
-  }
+  const token = req.headers.get("authorization")?.split(" ")[1];
+  if (!token) return NextResponse.json({ error: "Token mancante" }, { status: 401 });
 
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
-    if (
-      typeof decoded !== "object" ||
-      decoded === null ||
-      !("id" in decoded)
-    ) {
+    if (typeof decoded !== "object" || decoded === null || !("id" in decoded)) {
       return NextResponse.json({ error: "Token non valido" }, { status: 401 });
     }
+
     const userId = (decoded as { id: string }).id;
 
     const userDetails = await prisma.userDetails.findUnique({
       where: { userId },
-      include: {
-        user: { select: { email: true } },
-        paintings: true,
-        projects: true,
-      },
+      include: { user: { select: { email: true } } },
     });
 
     if (!userDetails) {
       return NextResponse.json({ error: "Utente non trovato" }, { status: 404 });
     }
 
+    const [paintings, projects] = await Promise.all([
+      prisma.painting.findMany({ where: { userId } }),
+      prisma.project.findMany({ where: { userId } }),
+    ]);
+
     return NextResponse.json({
       firstName: userDetails.firstName,
       lastName: userDetails.lastName,
-      bio: userDetails.bio || "",
-      phone: userDetails.phone || "",
-      imageUrl: userDetails.imageUrl || "",
-      paintings: userDetails.paintings.map(p => ({
-        title: p.title,
-        content: p.content,
-      })),
-      projects: userDetails.projects.map(pr => ({
+      bio: userDetails.bio ?? "",
+      phone: userDetails.phone ?? "",
+      imageUrl: userDetails.imageUrl ?? "",
+      paintings: paintings.map(p => ({ title: p.title, content: p.content })),
+      projects: projects.map(pr => ({
         id: pr.id,
         title: pr.title,
         content: pr.content,
         url: pr.url,
-        logoUrl: pr.logoUrl || "",
+        logoUrl: pr.logoUrl ?? "",
       })),
       contact: {
         email: userDetails.user.email,
-        phone: userDetails.phone || "",
+        phone: userDetails.phone ?? "",
       },
     });
   } catch (err) {
     console.error("Errore GET userDetails:", err);
-    return NextResponse.json(
-      { error: "Errore interno", dettagli: err instanceof Error ? err.message : "Sconosciuto" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Errore interno" }, { status: 500 });
   }
 }
 
 // ————————— PUT handler —————————
 export async function PUT(req: NextRequest): Promise<NextResponse> {
-  const authHeader = req.headers.get("authorization");
-  const token = authHeader?.split(" ")[1];
-  if (!token) {
-    return NextResponse.json({ error: "Token mancante" }, { status: 401 });
-  }
+  const token = req.headers.get("authorization")?.split(" ")[1];
+  if (!token) return NextResponse.json({ error: "Token mancante" }, { status: 401 });
 
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
-    if (
-      typeof decoded !== "object" ||
-      decoded === null ||
-      !("id" in decoded)
-    ) {
+    if (typeof decoded !== "object" || decoded === null || !("id" in decoded)) {
       return NextResponse.json({ error: "Token non valido" }, { status: 401 });
     }
-    const userId = (decoded as { id: string }).id;
 
-    const body = (await req.json()) as {
+    const userId = (decoded as { id: string }).id;
+    const body = await req.json() as {
       firstName: string;
       lastName: string;
       bio: string;
@@ -109,7 +91,7 @@ export async function PUT(req: NextRequest): Promise<NextResponse> {
       projects?: ProjectInput[];
     };
 
-    const details = await prisma.userDetails.upsert({
+    await prisma.userDetails.upsert({
       where: { userId },
       create: {
         userId,
@@ -128,26 +110,26 @@ export async function PUT(req: NextRequest): Promise<NextResponse> {
       },
     });
 
-    await prisma.painting.deleteMany({ where: { userDetailsId: details.id } });
+    await prisma.painting.deleteMany({ where: { userId } });
     if (body.paintings.length) {
       await prisma.painting.createMany({
         data: body.paintings.map(p => ({
           title: p.title,
           content: p.content,
-          userDetailsId: details.id,
+          userId,
         })),
       });
     }
 
-    await prisma.project.deleteMany({ where: { userDetailsId: details.id } });
+    await prisma.project.deleteMany({ where: { userId } });
     if (body.projects?.length) {
       await prisma.project.createMany({
         data: body.projects.map(pr => ({
           title: pr.title,
           content: pr.content,
           url: pr.url,
-          logoUrl: pr.logoUrl || "",
-          userDetailsId: details.id,
+          logoUrl: pr.logoUrl ?? "",
+          userId,
         })),
       });
     }
@@ -155,9 +137,6 @@ export async function PUT(req: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ message: "Dati aggiornati con successo" });
   } catch (err) {
     console.error("Errore PUT userDetails:", err);
-    return NextResponse.json(
-      { error: "Errore interno", dettagli: err instanceof Error ? err.message : "Sconosciuto" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Errore interno" }, { status: 500 });
   }
 }

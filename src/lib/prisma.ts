@@ -1,14 +1,17 @@
-// src/lib/prisma.ts
-// Importa il client Prisma generato in src/generated/prisma-client
-import { PrismaClient } from "../generated/prisma-client";
+import { PrismaClient } from "@prisma/client";
 
-// Dichiara la proprietà `prisma` su globalThis per TypeScript
-declare global {
-  var prisma: PrismaClient | undefined;
+// Estendi il tipo globale per aggiungere `prisma`
+type CustomGlobal = typeof globalThis & {
+  prisma?: PrismaClient;
+};
+
+const globalForPrisma = globalThis as CustomGlobal;
+
+// Crea un'unica istanza riutilizzabile
+const prismaClient = globalForPrisma.prisma ?? new PrismaClient();
+
+if (process.env.NODE_ENV !== "production") {
+  globalForPrisma.prisma = prismaClient;
 }
 
-// Usa un'istanza globale in sviluppo per evitare errori di "too many clients"
-const prisma = globalThis.prisma ?? new PrismaClient();
-if (process.env.NODE_ENV !== "production") globalThis.prisma = prisma;
-
-export default prisma;
+export default prismaClient;
