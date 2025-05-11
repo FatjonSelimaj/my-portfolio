@@ -1,0 +1,80 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma-client"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                  String               @id @default(auto()) @map("_id") @db.ObjectId
+  email               String               @unique
+  password            String
+  name                String?
+  gender              String               @default("male")
+  portfolios          Portfolio[]
+  details             UserDetails?
+  articles            Article[]
+  passwordResetTokens PasswordResetToken[]
+}
+
+model UserDetails {
+  id        String     @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String     @unique @db.ObjectId
+  user      User       @relation(fields: [userId], references: [id])
+  firstName String
+  lastName  String
+  bio       String?
+  phone     String?
+  imageUrl  String?
+  paintings Painting[] @relation("UserPaintings")
+  projects  Project[]  @relation("UserProjects")
+}
+
+model Painting {
+  id            String      @id @default(auto()) @map("_id") @db.ObjectId
+  title         String
+  content       String
+  userDetailsId String      @db.ObjectId
+  userDetails   UserDetails @relation("UserPaintings", fields: [userDetailsId], references: [id])
+}
+
+model Project {
+  id            String      @id @default(auto()) @map("_id") @db.ObjectId
+  title         String
+  content       String
+  url           String
+  logoUrl       String
+  userDetailsId String      @db.ObjectId
+  userDetails   UserDetails @relation("UserProjects", fields: [userDetailsId], references: [id])
+}
+
+model Portfolio {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  title     String
+  content   String
+  url       String
+  createdAt DateTime @default(now())
+  userId    String   @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model Article {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  title     String
+  content   String
+  createdAt DateTime @default(now())
+  userId    String   @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model PasswordResetToken {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  token     String   @unique
+  userId    String   @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id])
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}

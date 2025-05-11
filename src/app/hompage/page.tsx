@@ -2,9 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import {
-  FaSignOutAlt, FaCog, FaTimes, FaSave, FaUser
-} from "react-icons/fa";
+import { FaSignOutAlt, FaCog, FaTimes, FaSave, FaUser } from "react-icons/fa";
 import Link from "next/link";
 
 // Tipi delle sezioni disponibili
@@ -15,39 +13,30 @@ export default function Dashboard() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedSection, setSelectedSection] = useState<SectionType | null>(null);
   const [modalMessage, setModalMessage] = useState<string | null>(null);
-  const [userData, setUserData] = useState({
-    name: "",
-    email: "",
-    password: "",
-    gender: "male",
-  });
+  const [userData, setUserData] = useState({ name: "", email: "", password: "", gender: "male" });
+
+  // Logout helper
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("userData");
+    router.push("/");
+  };
 
   useEffect(() => {
     const token = localStorage.getItem("token");
     const savedUser = localStorage.getItem("userData");
-
     if (!token) {
       setModalMessage("Sessione scaduta. Effettua nuovamente il login.");
       router.replace("auth/login");
     } else if (savedUser) {
       try {
         const parsed = JSON.parse(savedUser);
-        setUserData(prev => ({
-          ...prev,
-          ...parsed,
-          password: "",
-        }));
+        setUserData(prev => ({ ...prev, ...parsed, password: "" }));
       } catch (err) {
         console.warn("userData malformato nel localStorage", err);
       }
     }
   }, [router]);
-
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("userData");
-    router.push("/");
-  };
 
   const handleOpenModal = (section: SectionType) => {
     setSelectedSection(section);
@@ -60,10 +49,23 @@ export default function Dashboard() {
         return;
       }
 
+      // Timeout auto-logout dopo 10s
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => {
+        controller.abort();
+        setModalMessage("Sessione scaduta per inattività.");
+        handleLogout();
+      }, 10000);
+
       fetch("/api/userData", {
         headers: { Authorization: `Bearer ${token}` },
+        signal: controller.signal,
       })
-        .then(res => res.json())
+        .then(res => {
+          clearTimeout(timeoutId);
+          if (!res.ok) throw new Error("Errore nella richiesta");
+          return res.json();
+        })
         .then(data => {
           setUserData(prev => ({
             ...prev,
@@ -72,17 +74,13 @@ export default function Dashboard() {
             gender: data.gender ?? prev.gender,
             password: "",
           }));
-
           localStorage.setItem(
             "userData",
-            JSON.stringify({
-              name: data.name ?? userData.name,
-              email: data.email ?? userData.email,
-              gender: data.gender ?? userData.gender,
-            })
+            JSON.stringify({ name: data.name, email: data.email, gender: data.gender })
           );
         })
-        .catch((err) => {
+        .catch(err => {
+          if (err.name === 'AbortError') return; // già gestito
           console.error("Errore nel recupero dei dati utente:", err);
           setModalMessage("Errore nel recupero dei dati utente.");
         });
@@ -98,10 +96,7 @@ export default function Dashboard() {
 
     fetch("/api/userData", {
       method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
       body: JSON.stringify(userData),
     })
       .then(res => res.json())
@@ -110,7 +105,7 @@ export default function Dashboard() {
         localStorage.setItem("userData", JSON.stringify(userData));
         setIsModalOpen(false);
       })
-      .catch((err) => {
+      .catch(err => {
         console.error("Errore nell'aggiornamento delle impostazioni:", err);
         setModalMessage("Errore nell'aggiornamento delle impostazioni.");
       });
@@ -157,7 +152,7 @@ export default function Dashboard() {
             <input
               type="text"
               value={userData.name}
-              onChange={(e) => setUserData({ ...userData, name: e.target.value })}
+              onChange={e => setUserData({ ...userData, name: e.target.value })}
               className="w-full p-2 border rounded mb-2"
             />
 
@@ -165,14 +160,14 @@ export default function Dashboard() {
             <input
               type="email"
               value={userData.email}
-              onChange={(e) => setUserData({ ...userData, email: e.target.value })}
+              onChange={e => setUserData({ ...userData, email: e.target.value })}
               className="w-full p-2 border rounded mb-2"
             />
 
             <label className="block mb-2">Genere</label>
             <select
               value={userData.gender}
-              onChange={(e) => setUserData({ ...userData, gender: e.target.value })}
+              onChange={e => setUserData({ ...userData, gender: e.target.value })}
               className="w-full p-2 border rounded mb-2"
             >
               <option value="male">Maschio</option>
@@ -180,12 +175,8 @@ export default function Dashboard() {
             </select>
 
             <div className="flex justify-end gap-2 mt-4">
-              <button onClick={() => setIsModalOpen(false)} className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">
-                <FaTimes />
-              </button>
-              <button onClick={handleSaveSettings} className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
-                <FaSave />
-              </button>
+              <button onClick={() => setIsModalOpen(false)} className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"><FaTimes /></button>
+              <button onClick={handleSaveSettings} className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"><FaSave /></button>
             </div>
           </div>
         </div>
@@ -195,9 +186,7 @@ export default function Dashboard() {
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white p-6 rounded-lg shadow-lg text-gray-900 w-96">
             <p className="text-center mb-4">{modalMessage}</p>
-            <button onClick={() => setModalMessage(null)} className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 w-full">
-              OK
-            </button>
+            <button onClick={() => setModalMessage(null)} className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 w-full">OK</button>
           </div>
         </div>
       )}

@@ -1,5 +1,6 @@
 generator client {
   provider = "prisma-client-js"
+  output   = "../src/generated/prisma-client"
 }
 
 datasource db {
@@ -8,46 +9,56 @@ datasource db {
 }
 
 model User {
+  id                  String               @id @default(auto()) @map("_id") @db.ObjectId
+  email               String               @unique
+  password            String
+  name                String?
+  gender              String               @default("male")
+  portfolios          Portfolio[]
+  details             UserDetails?
+  articles            Article[]
+  passwordResetTokens PasswordResetToken[]
+}
+
+model UserDetails {
   id        String      @id @default(auto()) @map("_id") @db.ObjectId
-  email     String      @unique
-  password  String
-  name      String?
-  gender    String      @default("male")  
-  portfolios Portfolio[]
-  details   UserDetails? // ✅ Corretto: Non serve `@relation` qui, la relazione è definita in `UserDetails`
+  userId    String      @unique @db.ObjectId
+  user      User        @relation(fields: [userId], references: [id])
+  firstName String
+  lastName  String
+  bio       String?
+  phone     String?
+  imageUrl  String?
+  paintings Painting[]  @relation("UserPaintings")
+  projects  Project[]   @relation("UserProjects")
+}
 
-  Article Article[]
+model Painting {
+  id            String      @id @default(auto()) @map("_id") @db.ObjectId
+  title         String
+  content       String
+  userDetailsId String      @db.ObjectId
+  userDetails   UserDetails @relation("UserPaintings", fields: [userDetailsId], references: [id])
+}
 
-  PasswordResetToken PasswordResetToken[]
+model Project {
+  id            String      @id @default(auto()) @map("_id") @db.ObjectId
+  title         String
+  content       String
+  url           String
+  logoUrl       String
+  userDetailsId String      @db.ObjectId
+  userDetails   UserDetails @relation("UserProjects", fields: [userDetailsId], references: [id])
 }
 
 model Portfolio {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   title     String
   content   String
+  url       String
   createdAt DateTime @default(now())
   userId    String   @db.ObjectId
   user      User     @relation(fields: [userId], references: [id])
-}
-
-model UserDetails {
-  id        String      @id @default(auto()) @map("_id") @db.ObjectId
-  userId    String      @unique @db.ObjectId  // Chiave esterna
-  user      User       @relation(fields: [userId], references: [id]) // ✅ Mantiene la relazione corretta con User
-  firstName String
-  lastName  String
-  bio       String?
-  phone     String?
-  imageUrl String? 
-  paintings Painting[]
-} 
-
-model Painting {
-  id        String   @id @default(auto()) @db.ObjectId @map("_id")
-  title     String
-  content   String
-  userId    String   @db.ObjectId
-  user      UserDetails  @relation(fields: [userId], references: [id]) // ✅ Relazione corretta con UserDetails
 }
 
 model Article {

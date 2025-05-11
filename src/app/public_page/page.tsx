@@ -1,12 +1,20 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import { FaPhone, FaEnvelope } from "react-icons/fa";
-import Image from "next/image";
+import { useEffect, useState } from 'react';
+import { FaPhone, FaEnvelope } from 'react-icons/fa';
+import Link from 'next/link';
+import Image from 'next/image';
 
 interface Painting {
   title: string;
   content: string;
+}
+
+interface Project {
+  id: string;
+  title: string;
+  content: string;
+  url: string;
 }
 
 interface ApiData {
@@ -19,34 +27,30 @@ interface ApiData {
     phone: string;
     email: string;
   };
+  projects?: Project[];
 }
 
 export default function PublicPage() {
   const [data, setData] = useState<ApiData | null>(null);
-  const [selected, setSelected] = useState<string>("about");
+  const [selected, setSelected] = useState<'about' | `painting-${number}` | 'projects'>('about');
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem('token');
     if (!token) {
       setError("Devi essere loggato per visualizzare l'area pubblica.");
       return;
     }
 
-    fetch("/api/publicData", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+    fetch('/api/publicData', {
+      headers: { Authorization: `Bearer ${token}` },
     })
-      .then((res) => {
-        if (!res.ok) throw new Error("Errore caricamento dati pubblici");
+      .then(res => {
+        if (!res.ok) throw new Error('Errore caricamento dati pubblici');
         return res.json();
       })
       .then((fetchedData: ApiData) => setData(fetchedData))
-      .catch((err) => {
-        console.error("Errore:", err);
-        setError("Impossibile caricare i tuoi dati pubblici.");
-      });
+      .catch(() => setError('Impossibile caricare i tuoi dati pubblici.'));
   }, []);
 
   if (error) {
@@ -62,13 +66,16 @@ export default function PublicPage() {
   }
 
   const validPaintings = data.paintings.filter(
-    (p) => p.title.trim() !== "" && p.content.trim() !== ""
+    p => p.title.trim() !== '' && p.content.trim() !== ''
   );
+  const validProjects = data.projects?.filter(
+    pr => pr.title.trim() !== '' && pr.url.trim() !== ''
+  ) || [];
 
-  let paintingToShow = null;
-  if (selected.startsWith("painting-")) {
-    const index = parseInt(selected.split("-")[1], 10);
-    paintingToShow = validPaintings[index] || null;
+  let paintingToShow: Painting | null = null;
+  if (selected.startsWith('painting-')) {
+    const idx = parseInt(selected.split('-')[1], 10);
+    paintingToShow = validPaintings[idx] || null;
   }
 
   return (
@@ -76,40 +83,41 @@ export default function PublicPage() {
       <header className="bg-white shadow px-4 py-3 sm:p-4">
         <nav className="flex gap-2 sm:gap-4 overflow-x-auto whitespace-nowrap">
           <button
-            onClick={() => setSelected("about")}
-            className={`px-3 py-2 sm:px-4 sm:py-2 rounded font-semibold ${
-              selected === "about"
-                ? "bg-green-500 text-white"
-                : "bg-blue-300 hover:bg-blue-800 text-white"
-            }`}
+            onClick={() => setSelected('about')}
+            className={`px-3 py-2 sm:px-4 sm:py-2 rounded font-semibold ${selected === 'about' ? 'bg-green-500 text-white' : 'bg-blue-300 hover:bg-blue-800 text-white'
+              }`}
           >
             Chi Sono
           </button>
-          {validPaintings.map((painting, idx) => (
+          {validPaintings.map((p, i) => (
             <button
-              key={idx}
-              onClick={() => setSelected(`painting-${idx}`)}
-              className={`px-3 py-2 sm:px-4 sm:py-2 rounded font-semibold ${
-                selected === `painting-${idx}`
-                  ? "bg-green-500 text-white"
-                  : "bg-blue-300 hover:bg-blue-800 text-white"
-              }`}
+              key={i}
+              onClick={() => setSelected(`painting-${i}`)}
+              className={`px-3 py-2 sm:px-4 sm:py-2 rounded font-semibold ${selected === `painting-${i}` ? 'bg-green-500 text-white' : 'bg-blue-300 hover:bg-blue-800 text-white'
+                }`}
             >
-              {painting.title}
+              {p.title}
             </button>
           ))}
+          {validProjects.length > 0 && (
+            <button
+              onClick={() => setSelected('projects')}
+              className={`px-3 py-2 sm:px-4 sm:py-2 rounded font-semibold ${selected === 'projects' ? 'bg-green-500 text-white' : 'bg-blue-300 hover:bg-blue-800 text-white'
+                }`}
+            >
+              Progetti
+            </button>
+          )}
         </nav>
       </header>
 
       <main className="flex-grow px-4 py-6 sm:px-6 md:px-10">
         <div className="bg-white p-4 sm:p-6 rounded shadow max-w-3xl mx-auto text-black">
-          {selected === "about" ? (
-            <div>
+          {selected === 'about' && (
+            <>
               <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mb-2 text-center">
                 {data.firstName} {data.lastName}
               </h1>
-
-              {/* ✅ Immagine profilo centrata e ottimizzata */}
               {data.imageUrl && (
                 <div className="flex justify-center mb-4">
                   <Image
@@ -118,41 +126,73 @@ export default function PublicPage() {
                     width={128}
                     height={128}
                     className="rounded-full object-cover border border-gray-300 shadow"
-                    unoptimized // evita errori in build se non si usa un dominio esterno
+                    unoptimized
                   />
                 </div>
               )}
-
-              <h2 className="text-lg sm:text-xl md:text-2xl font-semibold mb-4 text-center">
-                Chi Sono
-              </h2>
-
-              <div
-                className="mb-4"
-                dangerouslySetInnerHTML={{ __html: data.about }}
-              />
-
-              <div className="border border-green-400 rounded p-2 sm:p-3 md:p-4 bg-green-100">
+              <h2 className="text-lg sm:text-xl md:text-2xl font-semibold mb-4 text-center">Chi Sono</h2>
+              <div className="mb-4" dangerouslySetInnerHTML={{ __html: data.about }} />
+              <div className="border border-green-400 rounded p-2 sm:p-3 md:p-4 bg-green-100 mb-6">
                 <h3 className="font-semibold mb-2">Contatti</h3>
                 <p className="flex items-center gap-2 mb-1">
-                  <FaPhone />
-                  <strong>Telefono:</strong> {data.contact.phone}
+                  <FaPhone /> <strong>Telefono:</strong> {data.contact.phone}
                 </p>
                 <p className="flex items-center gap-2">
-                  <FaEnvelope />
-                  <strong>Email:</strong> {data.contact.email}
+                  <FaEnvelope /> <strong>Email:</strong> {data.contact.email}
                 </p>
               </div>
-            </div>
-          ) : paintingToShow ? (
+            </>
+          )}
+
+          {selected.startsWith('painting-') && paintingToShow && (
             <div>
-              <h1 className="text-xl sm:text-2xl font-bold mb-4">
-                {paintingToShow.title}
-              </h1>
+              <h1 className="text-xl sm:text-2xl font-bold mb-4">{paintingToShow.title}</h1>
               <p>{paintingToShow.content}</p>
             </div>
-          ) : (
-            <p>Nessun contenuto disponibile.</p>
+          )}
+
+          {selected === 'projects' && (
+            <div>
+              <h1 className="text-2xl font-bold mb-6 text-center">I miei Progetti</h1>
+              {validProjects.length === 0 ? (
+                <p className="text-center text-gray-500">Nessun progetto disponibile.</p>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                  {validProjects.map(pr => {
+                    // Derivo il logo dal dominio del progetto
+                    let logoSrc = '';
+                    try {
+                      const origin = new URL(pr.url).origin;
+                      logoSrc = origin + '/favicon.ico';
+                    } catch {
+                      logoSrc = '';
+                    }
+                    return (
+                      <Link key={pr.id} href={pr.url} className="block group">
+                        <div className="overflow-hidden rounded-2xl shadow-lg transform transition-transform group-hover:scale-105 bg-white p-4 flex items-center justify-center">
+                          {logoSrc ? (
+                            <Image
+                              src={logoSrc}
+                              alt={`Logo ${pr.title}`}
+                              width={160}
+                              height={160}
+                              style={{ width: 'auto', height: 'auto' }}
+                              className="object-contain"
+                              unoptimized
+                            />
+
+                          ) : (
+                            <div className="text-gray-400">No logo</div>
+                          )}
+                        </div>
+                        <h2 className="mt-3 text-lg font-semibold text-center text-black">{pr.title}</h2>
+                        <p className="mt-1 text-sm text-gray-700 text-center">{pr.content}</p>
+                      </Link>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
           )}
         </div>
       </main>
