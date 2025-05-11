@@ -14,7 +14,7 @@ interface ProjectInput {
   title: string;
   content: string;
   url: string;
-  logoUrl: string;
+  logoUrl?: string;
 }
 
 // ————————— GET handler —————————
@@ -26,7 +26,15 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
   }
 
   try {
-    const { id: userId } = jwt.verify(token, JWT_SECRET) as { id: string };
+    const decoded = jwt.verify(token, JWT_SECRET);
+    if (
+      typeof decoded !== "object" ||
+      decoded === null ||
+      !("id" in decoded)
+    ) {
+      return NextResponse.json({ error: "Token non valido" }, { status: 401 });
+    }
+    const userId = (decoded as { id: string }).id;
 
     const userDetails = await prisma.userDetails.findUnique({
       where: { userId },
@@ -42,21 +50,21 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     }
 
     return NextResponse.json({
-      firstName:  userDetails.firstName,
-      lastName:   userDetails.lastName,
-      bio:        userDetails.bio   || "",
-      phone:      userDetails.phone || "",
-      imageUrl:   userDetails.imageUrl || "",
-      paintings:  userDetails.paintings.map(p => ({
-        title:   p.title,
+      firstName: userDetails.firstName,
+      lastName: userDetails.lastName,
+      bio: userDetails.bio || "",
+      phone: userDetails.phone || "",
+      imageUrl: userDetails.imageUrl || "",
+      paintings: userDetails.paintings.map(p => ({
+        title: p.title,
         content: p.content,
       })),
       projects: userDetails.projects.map(pr => ({
-        id:      pr.id,
-        title:   pr.title,
+        id: pr.id,
+        title: pr.title,
         content: pr.content,
-        url:     pr.url,
-        logoUrl: pr.logoUrl,
+        url: pr.url,
+        logoUrl: pr.logoUrl || "",
       })),
       contact: {
         email: userDetails.user.email,
@@ -81,58 +89,64 @@ export async function PUT(req: NextRequest): Promise<NextResponse> {
   }
 
   try {
-    const { id: userId } = jwt.verify(token, JWT_SECRET) as { id: string };
+    const decoded = jwt.verify(token, JWT_SECRET);
+    if (
+      typeof decoded !== "object" ||
+      decoded === null ||
+      !("id" in decoded)
+    ) {
+      return NextResponse.json({ error: "Token non valido" }, { status: 401 });
+    }
+    const userId = (decoded as { id: string }).id;
+
     const body = (await req.json()) as {
       firstName: string;
-      lastName:  string;
-      bio:       string;
-      phone:     string;
+      lastName: string;
+      bio: string;
+      phone: string;
       imageUrl?: string;
       paintings: PaintingInput[];
       projects?: ProjectInput[];
     };
 
-    // Upsert dei dettagli
     const details = await prisma.userDetails.upsert({
       where: { userId },
       create: {
         userId,
         firstName: body.firstName,
-        lastName:  body.lastName,
-        bio:       body.bio,
-        phone:     body.phone,
-        imageUrl:  body.imageUrl,
+        lastName: body.lastName,
+        bio: body.bio,
+        phone: body.phone,
+        imageUrl: body.imageUrl,
       },
       update: {
         firstName: body.firstName,
-        lastName:  body.lastName,
-        bio:       body.bio,
-        phone:     body.phone,
-        imageUrl:  body.imageUrl,
+        lastName: body.lastName,
+        bio: body.bio,
+        phone: body.phone,
+        imageUrl: body.imageUrl,
       },
     });
 
-    // Sostituisci tutte le painting esistenti
     await prisma.painting.deleteMany({ where: { userDetailsId: details.id } });
     if (body.paintings.length) {
       await prisma.painting.createMany({
         data: body.paintings.map(p => ({
-          title:         p.title,
-          content:       p.content,
+          title: p.title,
+          content: p.content,
           userDetailsId: details.id,
         })),
       });
     }
 
-    // Sostituisci tutti i progetti esistenti
     await prisma.project.deleteMany({ where: { userDetailsId: details.id } });
     if (body.projects?.length) {
       await prisma.project.createMany({
         data: body.projects.map(pr => ({
-          title:         pr.title,
-          content:       pr.content,
-          url:           pr.url,
-          logoUrl:       pr.logoUrl,
+          title: pr.title,
+          content: pr.content,
+          url: pr.url,
+          logoUrl: pr.logoUrl || "",
           userDetailsId: details.id,
         })),
       });
