@@ -1,14 +1,21 @@
 // src/app/api/publicData/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import jwt from "jsonwebtoken";
+import jwt, { JwtPayload } from "jsonwebtoken";
+
+interface TokenPayload extends JwtPayload {
+  id: string;
+  email: string;
+}
 
 export async function GET(req: NextRequest): Promise<NextResponse> {
+  // 1) Verifica presenza header
   const authHeader = req.headers.get("authorization");
   if (!authHeader) {
     return NextResponse.json({ error: "Token mancante" }, { status: 401 });
   }
 
+  // 2) Estrai token
   const token = authHeader.replace(/^Bearer\s+/, "");
   const secret = process.env.JWT_SECRET;
   if (!secret) {
@@ -16,27 +23,25 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: "Errore interno" }, { status: 500 });
   }
 
-  // Verifica il token senza provare a usare un overload generico inesistente
-  let decoded: unknown;
+  // 3) Verifica token & tipa payload
+  let payload: TokenPayload;
   try {
-    decoded = jwt.verify(token, secret);
+    const decoded = jwt.verify(token, secret);
+    if (
+      typeof decoded !== "object" ||
+      decoded === null ||
+      typeof (decoded as any).id !== "string" ||
+      typeof (decoded as any).email !== "string"
+    ) {
+      throw new Error("Payload non valido");
+    }
+    payload = decoded as TokenPayload;
   } catch {
     return NextResponse.json({ error: "Token non valido" }, { status: 401 });
   }
 
-  // Controlla che decoded sia un oggetto con id ed email
-  if (
-    typeof decoded !== "object" ||
-    decoded === null ||
-    !("id" in decoded) ||
-    !("email" in decoded)
-  ) {
-    return NextResponse.json({ error: "Token non valido" }, { status: 401 });
-  }
-  const payload = decoded as { id: string; email: string };
-
   try {
-    // 1) Carico UserDetails con pitture
+    // 4) Carica UserDetails + paintings
     const userDetails = await prisma.userDetails.findUnique({
       where: { userId: payload.id },
       include: {
@@ -48,16 +53,18 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       return NextResponse.json({ error: "Utente non trovato" }, { status: 404 });
     }
 
-    // 2) Carico progetti da Project e Portfolio in parallelo
+    // 5) Carica progetti (Project + Portfolio) in parallelo
     const [projectModels, portfolioModels] = await Promise.all([
-      prisma.project.findMany({ where: { userDetailsId: userDetails.id } }),
+      prisma.project.findMany({
+        where: { userDetailsId: userDetails.id },
+      }),
       prisma.portfolio.findMany({
         where: { userId: payload.id },
         orderBy: { createdAt: "desc" },
       }),
     ]);
 
-    // 3) Unisco i due array in un unico “projects”
+    // 6) Unisci array di progetti
     const projects = [
       ...projectModels.map(pr => ({
         id: pr.id,
@@ -71,11 +78,11 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
         title: pf.title,
         content: pf.content,
         url: pf.url,
-        logoUrl: "", // aggiungi pf.logoUrl se lo renderai disponibile
+        logoUrl: "", // aggiungi pf.logoUrl se disponibile
       })),
     ];
 
-    // 4) Restituisco la risposta JSON completa
+    // 7) Restituisci la risposta
     return NextResponse.json({
       firstName: userDetails.firstName,
       lastName:  userDetails.lastName,
@@ -91,8 +98,8 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
         email: userDetails.user.email,
       },
     });
-  } catch (error: unknown) {
-    console.error("Errore API /publicData:", error);
+  } catch (err: unknown) {
+    console.error("Errore API /publicData:", err);
     return NextResponse.json({ error: "Errore interno" }, { status: 500 });
   }
 }
