@@ -1,5 +1,6 @@
 {
   "eslint": {
-    "ignoreDuringBuilds": true
+    "ignoreDuringBuilds": true 
+
   }
 }
