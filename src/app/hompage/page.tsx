@@ -80,9 +80,13 @@ export default function Dashboard() {
           );
         })
         .catch(err => {
-          if (err.name === 'AbortError') return; // già gestito
+          if (err.name === 'AbortError') return; // timeout gestito sopra
+
           console.error("Errore nel recupero dei dati utente:", err);
-          setModalMessage("Errore nel recupero dei dati utente.");
+          setModalMessage("Sessione scaduta. Effettua nuovamente il login.");
+          localStorage.removeItem("token");
+          localStorage.removeItem("userData");
+          setTimeout(() => router.replace("/auth/login"), 1500);
         });
     }
   };
