@@ -10,9 +10,10 @@ const compat = new FlatCompat({
 });
 
 export default [
+  // ✅ Estensioni consigliate per Next.js
   ...compat.extends("next/core-web-vitals", "next/typescript"),
 
-  // ✅ Disattiva regole troppo rigide nei file TypeScript
+  // ✅ Disattiva regole fastidiose in tutti i .ts/.tsx
   {
     files: ["**/*.ts", "**/*.tsx"],
     rules: {
@@ -21,13 +22,8 @@ export default [
     },
   },
 
-  // ✅ Ignora completamente i file generati da Prisma
+  // ✅ Ignora completamente la cartella generata da Prisma
   {
-    files: ["src/generated/**/*.*"],
-    rules: {
-      "@typescript-eslint/no-unused-vars": "off",
-      "@typescript-eslint/no-require-imports": "off",
-      "@typescript-eslint/no-empty-object-type": "off",
-    },
+    ignores: ["src/generated/**/*"],
   },
 ];
