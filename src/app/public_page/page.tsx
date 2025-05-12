@@ -30,6 +30,35 @@ interface ApiData {
   projects?: Project[];
 }
 
+// ✅ Componente per caricare logo.png, poi favicon.ico, poi fallback
+function ProjectLogo({ url, title }: { url: string; title: string }) {
+  const domain = new URL(url).origin;
+  const [logoSrc, setLogoSrc] = useState(`${domain}/logo.png`);
+  const [attempt, setAttempt] = useState(1);
+
+  const handleError = () => {
+    if (attempt === 1) {
+      setLogoSrc(`${domain}/favicon.ico`);
+      setAttempt(2);
+    } else {
+      setLogoSrc('/default-logo.png');
+    }
+  };
+
+  return (
+    <Image
+      src={logoSrc}
+      alt={`Logo ${title}`}
+      width={160}
+      height={160}
+      style={{ width: 'auto', height: 'auto' }}
+      className="object-contain"
+      onError={handleError}
+      unoptimized
+    />
+  );
+}
+
 export default function PublicPage() {
   const [data, setData] = useState<ApiData | null>(null);
   const [selected, setSelected] = useState<'about' | `painting-${number}` | 'projects'>('about');
@@ -158,38 +187,15 @@ export default function PublicPage() {
                 <p className="text-center text-gray-500">Nessun progetto disponibile.</p>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-                  {validProjects.map(pr => {
-                    // Derivo il logo dal dominio del progetto
-                    let logoSrc = '';
-                    try {
-                      const origin = new URL(pr.url).origin;
-                      logoSrc = origin + '/favicon.ico';
-                    } catch {
-                      logoSrc = '';
-                    }
-                    return (
-                      <Link key={pr.id} href={pr.url} className="block group">
-                        <div className="overflow-hidden rounded-2xl shadow-lg transform transition-transform group-hover:scale-105 bg-white p-4 flex items-center justify-center">
-                          {logoSrc ? (
-                            <Image
-                              src={logoSrc}
-                              alt={`Logo ${pr.title}`}
-                              width={160}
-                              height={160}
-                              style={{ width: 'auto', height: 'auto' }}
-                              className="object-contain"
-                              unoptimized
-                            />
-
-                          ) : (
-                            <div className="text-gray-400">No logo</div>
-                          )}
-                        </div>
-                        <h2 className="mt-3 text-lg font-semibold text-center text-black">{pr.title}</h2>
-                        <p className="mt-1 text-sm text-gray-700 text-center">{pr.content}</p>
-                      </Link>
-                    );
-                  })}
+                  {validProjects.map(pr => (
+                    <Link key={pr.id} href={pr.url} className="block group">
+                      <div className="overflow-hidden rounded-2xl shadow-lg transform transition-transform group-hover:scale-105 bg-white p-4 flex items-center justify-center">
+                        <ProjectLogo url={pr.url} title={pr.title} />
+                      </div>
+                      <h2 className="mt-3 text-lg font-semibold text-center text-black">{pr.title}</h2>
+                      <p className="mt-1 text-sm text-gray-700 text-center">{pr.content}</p>
+                    </Link>
+                  ))}
                 </div>
               )}
             </div>
