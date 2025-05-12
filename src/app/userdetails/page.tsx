@@ -140,7 +140,7 @@ export default function UserDetails() {
       <header className="w-full px-4 py-6 flex flex-col gap-4 sm:flex-row justify-between items-center bg-white shadow-lg">
         <h1 className="text-2xl font-bold text-gray-900">Profilo Utente</h1>
         <div className="flex flex-col sm:flex-row gap-3">
-          <Link href="/homepage">
+          <Link href="/hompage">
             <button className="flex items-center gap-2 border border-blue-700 text-blue-700 px-4 py-2 rounded-lg shadow hover:bg-blue-100 transition-all">
               <FaArrowLeft className="text-blue-700" /> Torna alla Dashboard
             </button>
