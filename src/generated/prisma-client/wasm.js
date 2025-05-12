@@ -144,7 +144,7 @@ exports.Prisma.ProjectScalarFieldEnum = {
   content: 'content',
   url: 'url',
   logoUrl: 'logoUrl',
-  userId: 'userId'
+  userDetailsId: 'userDetailsId'
 };
 
 exports.Prisma.PortfolioScalarFieldEnum = {

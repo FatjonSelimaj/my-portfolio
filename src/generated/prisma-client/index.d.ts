@@ -1372,14 +1372,12 @@ export namespace Prisma {
     portfolios: number
     articles: number
     passwordResetTokens: number
-    Project: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     portfolios?: boolean | UserCountOutputTypeCountPortfoliosArgs
     articles?: boolean | UserCountOutputTypeCountArticlesArgs
     passwordResetTokens?: boolean | UserCountOutputTypeCountPasswordResetTokensArgs
-    Project?: boolean | UserCountOutputTypeCountProjectArgs
   }
 
   // Custom InputTypes
@@ -1414,13 +1412,6 @@ export namespace Prisma {
     where?: PasswordResetTokenWhereInput
   }
 
-  /**
-   * UserCountOutputType without action
-   */
-  export type UserCountOutputTypeCountProjectArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: ProjectWhereInput
-  }
-
 
   /**
    * Count Type UserDetailsCountOutputType
@@ -1428,10 +1419,12 @@ export namespace Prisma {
 
   export type UserDetailsCountOutputType = {
     paintings: number
+    projects: number
   }
 
   export type UserDetailsCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     paintings?: boolean | UserDetailsCountOutputTypeCountPaintingsArgs
+    projects?: boolean | UserDetailsCountOutputTypeCountProjectsArgs
   }
 
   // Custom InputTypes
@@ -1450,6 +1443,13 @@ export namespace Prisma {
    */
   export type UserDetailsCountOutputTypeCountPaintingsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: PaintingWhereInput
+  }
+
+  /**
+   * UserDetailsCountOutputType without action
+   */
+  export type UserDetailsCountOutputTypeCountProjectsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ProjectWhereInput
   }
 
 
@@ -1625,7 +1625,6 @@ export namespace Prisma {
     details?: boolean | User$detailsArgs<ExtArgs>
     articles?: boolean | User$articlesArgs<ExtArgs>
     passwordResetTokens?: boolean | User$passwordResetTokensArgs<ExtArgs>
-    Project?: boolean | User$ProjectArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -1645,7 +1644,6 @@ export namespace Prisma {
     details?: boolean | User$detailsArgs<ExtArgs>
     articles?: boolean | User$articlesArgs<ExtArgs>
     passwordResetTokens?: boolean | User$passwordResetTokensArgs<ExtArgs>
-    Project?: boolean | User$ProjectArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
 
@@ -1656,7 +1654,6 @@ export namespace Prisma {
       details: Prisma.$UserDetailsPayload<ExtArgs> | null
       articles: Prisma.$ArticlePayload<ExtArgs>[]
       passwordResetTokens: Prisma.$PasswordResetTokenPayload<ExtArgs>[]
-      Project: Prisma.$ProjectPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -2031,7 +2028,6 @@ export namespace Prisma {
     details<T extends User$detailsArgs<ExtArgs> = {}>(args?: Subset<T, User$detailsArgs<ExtArgs>>): Prisma__UserDetailsClient<$Result.GetResult<Prisma.$UserDetailsPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     articles<T extends User$articlesArgs<ExtArgs> = {}>(args?: Subset<T, User$articlesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ArticlePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     passwordResetTokens<T extends User$passwordResetTokensArgs<ExtArgs> = {}>(args?: Subset<T, User$passwordResetTokensArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PasswordResetTokenPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    Project<T extends User$ProjectArgs<ExtArgs> = {}>(args?: Subset<T, User$ProjectArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProjectPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2527,30 +2523,6 @@ export namespace Prisma {
   }
 
   /**
-   * User.Project
-   */
-  export type User$ProjectArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Project
-     */
-    select?: ProjectSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Project
-     */
-    omit?: ProjectOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ProjectInclude<ExtArgs> | null
-    where?: ProjectWhereInput
-    orderBy?: ProjectOrderByWithRelationInput | ProjectOrderByWithRelationInput[]
-    cursor?: ProjectWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: ProjectScalarFieldEnum | ProjectScalarFieldEnum[]
-  }
-
-  /**
    * User without action
    */
   export type UserDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -2751,6 +2723,7 @@ export namespace Prisma {
     imageUrl?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
     paintings?: boolean | UserDetails$paintingsArgs<ExtArgs>
+    projects?: boolean | UserDetails$projectsArgs<ExtArgs>
     _count?: boolean | UserDetailsCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["userDetails"]>
 
@@ -2770,6 +2743,7 @@ export namespace Prisma {
   export type UserDetailsInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
     paintings?: boolean | UserDetails$paintingsArgs<ExtArgs>
+    projects?: boolean | UserDetails$projectsArgs<ExtArgs>
     _count?: boolean | UserDetailsCountOutputTypeDefaultArgs<ExtArgs>
   }
 
@@ -2778,6 +2752,7 @@ export namespace Prisma {
     objects: {
       user: Prisma.$UserPayload<ExtArgs>
       paintings: Prisma.$PaintingPayload<ExtArgs>[]
+      projects: Prisma.$ProjectPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -3152,6 +3127,7 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     paintings<T extends UserDetails$paintingsArgs<ExtArgs> = {}>(args?: Subset<T, UserDetails$paintingsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaintingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    projects<T extends UserDetails$projectsArgs<ExtArgs> = {}>(args?: Subset<T, UserDetails$projectsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProjectPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3579,6 +3555,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: PaintingScalarFieldEnum | PaintingScalarFieldEnum[]
+  }
+
+  /**
+   * UserDetails.projects
+   */
+  export type UserDetails$projectsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Project
+     */
+    select?: ProjectSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Project
+     */
+    omit?: ProjectOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProjectInclude<ExtArgs> | null
+    where?: ProjectWhereInput
+    orderBy?: ProjectOrderByWithRelationInput | ProjectOrderByWithRelationInput[]
+    cursor?: ProjectWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ProjectScalarFieldEnum | ProjectScalarFieldEnum[]
   }
 
   /**
@@ -4584,7 +4584,7 @@ export namespace Prisma {
     content: string | null
     url: string | null
     logoUrl: string | null
-    userId: string | null
+    userDetailsId: string | null
   }
 
   export type ProjectMaxAggregateOutputType = {
@@ -4593,7 +4593,7 @@ export namespace Prisma {
     content: string | null
     url: string | null
     logoUrl: string | null
-    userId: string | null
+    userDetailsId: string | null
   }
 
   export type ProjectCountAggregateOutputType = {
@@ -4602,7 +4602,7 @@ export namespace Prisma {
     content: number
     url: number
     logoUrl: number
-    userId: number
+    userDetailsId: number
     _all: number
   }
 
@@ -4613,7 +4613,7 @@ export namespace Prisma {
     content?: true
     url?: true
     logoUrl?: true
-    userId?: true
+    userDetailsId?: true
   }
 
   export type ProjectMaxAggregateInputType = {
@@ -4622,7 +4622,7 @@ export namespace Prisma {
     content?: true
     url?: true
     logoUrl?: true
-    userId?: true
+    userDetailsId?: true
   }
 
   export type ProjectCountAggregateInputType = {
@@ -4631,7 +4631,7 @@ export namespace Prisma {
     content?: true
     url?: true
     logoUrl?: true
-    userId?: true
+    userDetailsId?: true
     _all?: true
   }
 
@@ -4712,8 +4712,8 @@ export namespace Prisma {
     title: string
     content: string
     url: string
-    logoUrl: string | null
-    userId: string
+    logoUrl: string
+    userDetailsId: string
     _count: ProjectCountAggregateOutputType | null
     _min: ProjectMinAggregateOutputType | null
     _max: ProjectMaxAggregateOutputType | null
@@ -4739,8 +4739,8 @@ export namespace Prisma {
     content?: boolean
     url?: boolean
     logoUrl?: boolean
-    userId?: boolean
-    user?: boolean | UserDefaultArgs<ExtArgs>
+    userDetailsId?: boolean
+    userDetails?: boolean | UserDetailsDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["project"]>
 
 
@@ -4751,26 +4751,26 @@ export namespace Prisma {
     content?: boolean
     url?: boolean
     logoUrl?: boolean
-    userId?: boolean
+    userDetailsId?: boolean
   }
 
-  export type ProjectOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "content" | "url" | "logoUrl" | "userId", ExtArgs["result"]["project"]>
+  export type ProjectOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "content" | "url" | "logoUrl" | "userDetailsId", ExtArgs["result"]["project"]>
   export type ProjectInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    user?: boolean | UserDefaultArgs<ExtArgs>
+    userDetails?: boolean | UserDetailsDefaultArgs<ExtArgs>
   }
 
   export type $ProjectPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Project"
     objects: {
-      user: Prisma.$UserPayload<ExtArgs>
+      userDetails: Prisma.$UserDetailsPayload<ExtArgs>
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
       title: string
       content: string
       url: string
-      logoUrl: string | null
-      userId: string
+      logoUrl: string
+      userDetailsId: string
     }, ExtArgs["result"]["project"]>
     composites: {}
   }
@@ -5134,7 +5134,7 @@ export namespace Prisma {
    */
   export interface Prisma__ProjectClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    userDetails<T extends UserDetailsDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDetailsDefaultArgs<ExtArgs>>): Prisma__UserDetailsClient<$Result.GetResult<Prisma.$UserDetailsPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -5169,7 +5169,7 @@ export namespace Prisma {
     readonly content: FieldRef<"Project", 'String'>
     readonly url: FieldRef<"Project", 'String'>
     readonly logoUrl: FieldRef<"Project", 'String'>
-    readonly userId: FieldRef<"Project", 'String'>
+    readonly userDetailsId: FieldRef<"Project", 'String'>
   }
     
 
@@ -8550,7 +8550,7 @@ export namespace Prisma {
     content: 'content',
     url: 'url',
     logoUrl: 'logoUrl',
-    userId: 'userId'
+    userDetailsId: 'userDetailsId'
   };
 
   export type ProjectScalarFieldEnum = (typeof ProjectScalarFieldEnum)[keyof typeof ProjectScalarFieldEnum]
@@ -8669,7 +8669,6 @@ export namespace Prisma {
     details?: XOR<UserDetailsNullableScalarRelationFilter, UserDetailsWhereInput> | null
     articles?: ArticleListRelationFilter
     passwordResetTokens?: PasswordResetTokenListRelationFilter
-    Project?: ProjectListRelationFilter
   }
 
   export type UserOrderByWithRelationInput = {
@@ -8682,7 +8681,6 @@ export namespace Prisma {
     details?: UserDetailsOrderByWithRelationInput
     articles?: ArticleOrderByRelationAggregateInput
     passwordResetTokens?: PasswordResetTokenOrderByRelationAggregateInput
-    Project?: ProjectOrderByRelationAggregateInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -8698,7 +8696,6 @@ export namespace Prisma {
     details?: XOR<UserDetailsNullableScalarRelationFilter, UserDetailsWhereInput> | null
     articles?: ArticleListRelationFilter
     passwordResetTokens?: PasswordResetTokenListRelationFilter
-    Project?: ProjectListRelationFilter
   }, "id" | "email">
 
   export type UserOrderByWithAggregationInput = {
@@ -8736,6 +8733,7 @@ export namespace Prisma {
     imageUrl?: StringNullableFilter<"UserDetails"> | string | null
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
     paintings?: PaintingListRelationFilter
+    projects?: ProjectListRelationFilter
   }
 
   export type UserDetailsOrderByWithRelationInput = {
@@ -8748,6 +8746,7 @@ export namespace Prisma {
     imageUrl?: SortOrder
     user?: UserOrderByWithRelationInput
     paintings?: PaintingOrderByRelationAggregateInput
+    projects?: ProjectOrderByRelationAggregateInput
   }
 
   export type UserDetailsWhereUniqueInput = Prisma.AtLeast<{
@@ -8763,6 +8762,7 @@ export namespace Prisma {
     imageUrl?: StringNullableFilter<"UserDetails"> | string | null
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
     paintings?: PaintingListRelationFilter
+    projects?: ProjectListRelationFilter
   }, "id" | "userId">
 
   export type UserDetailsOrderByWithAggregationInput = {
@@ -8849,9 +8849,9 @@ export namespace Prisma {
     title?: StringFilter<"Project"> | string
     content?: StringFilter<"Project"> | string
     url?: StringFilter<"Project"> | string
-    logoUrl?: StringNullableFilter<"Project"> | string | null
-    userId?: StringFilter<"Project"> | string
-    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    logoUrl?: StringFilter<"Project"> | string
+    userDetailsId?: StringFilter<"Project"> | string
+    userDetails?: XOR<UserDetailsScalarRelationFilter, UserDetailsWhereInput>
   }
 
   export type ProjectOrderByWithRelationInput = {
@@ -8860,8 +8860,8 @@ export namespace Prisma {
     content?: SortOrder
     url?: SortOrder
     logoUrl?: SortOrder
-    userId?: SortOrder
-    user?: UserOrderByWithRelationInput
+    userDetailsId?: SortOrder
+    userDetails?: UserDetailsOrderByWithRelationInput
   }
 
   export type ProjectWhereUniqueInput = Prisma.AtLeast<{
@@ -8872,9 +8872,9 @@ export namespace Prisma {
     title?: StringFilter<"Project"> | string
     content?: StringFilter<"Project"> | string
     url?: StringFilter<"Project"> | string
-    logoUrl?: StringNullableFilter<"Project"> | string | null
-    userId?: StringFilter<"Project"> | string
-    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    logoUrl?: StringFilter<"Project"> | string
+    userDetailsId?: StringFilter<"Project"> | string
+    userDetails?: XOR<UserDetailsScalarRelationFilter, UserDetailsWhereInput>
   }, "id">
 
   export type ProjectOrderByWithAggregationInput = {
@@ -8883,7 +8883,7 @@ export namespace Prisma {
     content?: SortOrder
     url?: SortOrder
     logoUrl?: SortOrder
-    userId?: SortOrder
+    userDetailsId?: SortOrder
     _count?: ProjectCountOrderByAggregateInput
     _max?: ProjectMaxOrderByAggregateInput
     _min?: ProjectMinOrderByAggregateInput
@@ -8897,8 +8897,8 @@ export namespace Prisma {
     title?: StringWithAggregatesFilter<"Project"> | string
     content?: StringWithAggregatesFilter<"Project"> | string
     url?: StringWithAggregatesFilter<"Project"> | string
-    logoUrl?: StringNullableWithAggregatesFilter<"Project"> | string | null
-    userId?: StringWithAggregatesFilter<"Project"> | string
+    logoUrl?: StringWithAggregatesFilter<"Project"> | string
+    userDetailsId?: StringWithAggregatesFilter<"Project"> | string
   }
 
   export type PortfolioWhereInput = {
@@ -9081,7 +9081,6 @@ export namespace Prisma {
     details?: UserDetailsCreateNestedOneWithoutUserInput
     articles?: ArticleCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenCreateNestedManyWithoutUserInput
-    Project?: ProjectCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -9094,7 +9093,6 @@ export namespace Prisma {
     details?: UserDetailsUncheckedCreateNestedOneWithoutUserInput
     articles?: ArticleUncheckedCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
-    Project?: ProjectUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserUpdateInput = {
@@ -9106,7 +9104,6 @@ export namespace Prisma {
     details?: UserDetailsUpdateOneWithoutUserNestedInput
     articles?: ArticleUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUpdateManyWithoutUserNestedInput
-    Project?: ProjectUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -9118,7 +9115,6 @@ export namespace Prisma {
     details?: UserDetailsUncheckedUpdateOneWithoutUserNestedInput
     articles?: ArticleUncheckedUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
-    Project?: ProjectUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -9152,6 +9148,7 @@ export namespace Prisma {
     imageUrl?: string | null
     user: UserCreateNestedOneWithoutDetailsInput
     paintings?: PaintingCreateNestedManyWithoutUserDetailsInput
+    projects?: ProjectCreateNestedManyWithoutUserDetailsInput
   }
 
   export type UserDetailsUncheckedCreateInput = {
@@ -9163,6 +9160,7 @@ export namespace Prisma {
     phone?: string | null
     imageUrl?: string | null
     paintings?: PaintingUncheckedCreateNestedManyWithoutUserDetailsInput
+    projects?: ProjectUncheckedCreateNestedManyWithoutUserDetailsInput
   }
 
   export type UserDetailsUpdateInput = {
@@ -9173,6 +9171,7 @@ export namespace Prisma {
     imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     user?: UserUpdateOneRequiredWithoutDetailsNestedInput
     paintings?: PaintingUpdateManyWithoutUserDetailsNestedInput
+    projects?: ProjectUpdateManyWithoutUserDetailsNestedInput
   }
 
   export type UserDetailsUncheckedUpdateInput = {
@@ -9183,6 +9182,7 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     paintings?: PaintingUncheckedUpdateManyWithoutUserDetailsNestedInput
+    projects?: ProjectUncheckedUpdateManyWithoutUserDetailsNestedInput
   }
 
   export type UserDetailsCreateManyInput = {
@@ -9261,8 +9261,8 @@ export namespace Prisma {
     title: string
     content: string
     url: string
-    logoUrl?: string | null
-    user: UserCreateNestedOneWithoutProjectInput
+    logoUrl: string
+    userDetails: UserDetailsCreateNestedOneWithoutProjectsInput
   }
 
   export type ProjectUncheckedCreateInput = {
@@ -9270,24 +9270,24 @@ export namespace Prisma {
     title: string
     content: string
     url: string
-    logoUrl?: string | null
-    userId: string
+    logoUrl: string
+    userDetailsId: string
   }
 
   export type ProjectUpdateInput = {
     title?: StringFieldUpdateOperationsInput | string
     content?: StringFieldUpdateOperationsInput | string
     url?: StringFieldUpdateOperationsInput | string
-    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    user?: UserUpdateOneRequiredWithoutProjectNestedInput
+    logoUrl?: StringFieldUpdateOperationsInput | string
+    userDetails?: UserDetailsUpdateOneRequiredWithoutProjectsNestedInput
   }
 
   export type ProjectUncheckedUpdateInput = {
     title?: StringFieldUpdateOperationsInput | string
     content?: StringFieldUpdateOperationsInput | string
     url?: StringFieldUpdateOperationsInput | string
-    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    userId?: StringFieldUpdateOperationsInput | string
+    logoUrl?: StringFieldUpdateOperationsInput | string
+    userDetailsId?: StringFieldUpdateOperationsInput | string
   }
 
   export type ProjectCreateManyInput = {
@@ -9295,23 +9295,23 @@ export namespace Prisma {
     title: string
     content: string
     url: string
-    logoUrl?: string | null
-    userId: string
+    logoUrl: string
+    userDetailsId: string
   }
 
   export type ProjectUpdateManyMutationInput = {
     title?: StringFieldUpdateOperationsInput | string
     content?: StringFieldUpdateOperationsInput | string
     url?: StringFieldUpdateOperationsInput | string
-    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: StringFieldUpdateOperationsInput | string
   }
 
   export type ProjectUncheckedUpdateManyInput = {
     title?: StringFieldUpdateOperationsInput | string
     content?: StringFieldUpdateOperationsInput | string
     url?: StringFieldUpdateOperationsInput | string
-    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    userId?: StringFieldUpdateOperationsInput | string
+    logoUrl?: StringFieldUpdateOperationsInput | string
+    userDetailsId?: StringFieldUpdateOperationsInput | string
   }
 
   export type PortfolioCreateInput = {
@@ -9528,12 +9528,6 @@ export namespace Prisma {
     none?: PasswordResetTokenWhereInput
   }
 
-  export type ProjectListRelationFilter = {
-    every?: ProjectWhereInput
-    some?: ProjectWhereInput
-    none?: ProjectWhereInput
-  }
-
   export type PortfolioOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
@@ -9543,10 +9537,6 @@ export namespace Prisma {
   }
 
   export type PasswordResetTokenOrderByRelationAggregateInput = {
-    _count?: SortOrder
-  }
-
-  export type ProjectOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -9622,7 +9612,17 @@ export namespace Prisma {
     none?: PaintingWhereInput
   }
 
+  export type ProjectListRelationFilter = {
+    every?: ProjectWhereInput
+    some?: ProjectWhereInput
+    none?: ProjectWhereInput
+  }
+
   export type PaintingOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type ProjectOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -9688,7 +9688,7 @@ export namespace Prisma {
     content?: SortOrder
     url?: SortOrder
     logoUrl?: SortOrder
-    userId?: SortOrder
+    userDetailsId?: SortOrder
   }
 
   export type ProjectMaxOrderByAggregateInput = {
@@ -9697,7 +9697,7 @@ export namespace Prisma {
     content?: SortOrder
     url?: SortOrder
     logoUrl?: SortOrder
-    userId?: SortOrder
+    userDetailsId?: SortOrder
   }
 
   export type ProjectMinOrderByAggregateInput = {
@@ -9706,7 +9706,7 @@ export namespace Prisma {
     content?: SortOrder
     url?: SortOrder
     logoUrl?: SortOrder
-    userId?: SortOrder
+    userDetailsId?: SortOrder
   }
 
   export type DateTimeFilter<$PrismaModel = never> = {
@@ -9836,13 +9836,6 @@ export namespace Prisma {
     connect?: PasswordResetTokenWhereUniqueInput | PasswordResetTokenWhereUniqueInput[]
   }
 
-  export type ProjectCreateNestedManyWithoutUserInput = {
-    create?: XOR<ProjectCreateWithoutUserInput, ProjectUncheckedCreateWithoutUserInput> | ProjectCreateWithoutUserInput[] | ProjectUncheckedCreateWithoutUserInput[]
-    connectOrCreate?: ProjectCreateOrConnectWithoutUserInput | ProjectCreateOrConnectWithoutUserInput[]
-    createMany?: ProjectCreateManyUserInputEnvelope
-    connect?: ProjectWhereUniqueInput | ProjectWhereUniqueInput[]
-  }
-
   export type PortfolioUncheckedCreateNestedManyWithoutUserInput = {
     create?: XOR<PortfolioCreateWithoutUserInput, PortfolioUncheckedCreateWithoutUserInput> | PortfolioCreateWithoutUserInput[] | PortfolioUncheckedCreateWithoutUserInput[]
     connectOrCreate?: PortfolioCreateOrConnectWithoutUserInput | PortfolioCreateOrConnectWithoutUserInput[]
@@ -9868,13 +9861,6 @@ export namespace Prisma {
     connectOrCreate?: PasswordResetTokenCreateOrConnectWithoutUserInput | PasswordResetTokenCreateOrConnectWithoutUserInput[]
     createMany?: PasswordResetTokenCreateManyUserInputEnvelope
     connect?: PasswordResetTokenWhereUniqueInput | PasswordResetTokenWhereUniqueInput[]
-  }
-
-  export type ProjectUncheckedCreateNestedManyWithoutUserInput = {
-    create?: XOR<ProjectCreateWithoutUserInput, ProjectUncheckedCreateWithoutUserInput> | ProjectCreateWithoutUserInput[] | ProjectUncheckedCreateWithoutUserInput[]
-    connectOrCreate?: ProjectCreateOrConnectWithoutUserInput | ProjectCreateOrConnectWithoutUserInput[]
-    createMany?: ProjectCreateManyUserInputEnvelope
-    connect?: ProjectWhereUniqueInput | ProjectWhereUniqueInput[]
   }
 
   export type StringFieldUpdateOperationsInput = {
@@ -9938,20 +9924,6 @@ export namespace Prisma {
     deleteMany?: PasswordResetTokenScalarWhereInput | PasswordResetTokenScalarWhereInput[]
   }
 
-  export type ProjectUpdateManyWithoutUserNestedInput = {
-    create?: XOR<ProjectCreateWithoutUserInput, ProjectUncheckedCreateWithoutUserInput> | ProjectCreateWithoutUserInput[] | ProjectUncheckedCreateWithoutUserInput[]
-    connectOrCreate?: ProjectCreateOrConnectWithoutUserInput | ProjectCreateOrConnectWithoutUserInput[]
-    upsert?: ProjectUpsertWithWhereUniqueWithoutUserInput | ProjectUpsertWithWhereUniqueWithoutUserInput[]
-    createMany?: ProjectCreateManyUserInputEnvelope
-    set?: ProjectWhereUniqueInput | ProjectWhereUniqueInput[]
-    disconnect?: ProjectWhereUniqueInput | ProjectWhereUniqueInput[]
-    delete?: ProjectWhereUniqueInput | ProjectWhereUniqueInput[]
-    connect?: ProjectWhereUniqueInput | ProjectWhereUniqueInput[]
-    update?: ProjectUpdateWithWhereUniqueWithoutUserInput | ProjectUpdateWithWhereUniqueWithoutUserInput[]
-    updateMany?: ProjectUpdateManyWithWhereWithoutUserInput | ProjectUpdateManyWithWhereWithoutUserInput[]
-    deleteMany?: ProjectScalarWhereInput | ProjectScalarWhereInput[]
-  }
-
   export type PortfolioUncheckedUpdateManyWithoutUserNestedInput = {
     create?: XOR<PortfolioCreateWithoutUserInput, PortfolioUncheckedCreateWithoutUserInput> | PortfolioCreateWithoutUserInput[] | PortfolioUncheckedCreateWithoutUserInput[]
     connectOrCreate?: PortfolioCreateOrConnectWithoutUserInput | PortfolioCreateOrConnectWithoutUserInput[]
@@ -10004,20 +9976,6 @@ export namespace Prisma {
     deleteMany?: PasswordResetTokenScalarWhereInput | PasswordResetTokenScalarWhereInput[]
   }
 
-  export type ProjectUncheckedUpdateManyWithoutUserNestedInput = {
-    create?: XOR<ProjectCreateWithoutUserInput, ProjectUncheckedCreateWithoutUserInput> | ProjectCreateWithoutUserInput[] | ProjectUncheckedCreateWithoutUserInput[]
-    connectOrCreate?: ProjectCreateOrConnectWithoutUserInput | ProjectCreateOrConnectWithoutUserInput[]
-    upsert?: ProjectUpsertWithWhereUniqueWithoutUserInput | ProjectUpsertWithWhereUniqueWithoutUserInput[]
-    createMany?: ProjectCreateManyUserInputEnvelope
-    set?: ProjectWhereUniqueInput | ProjectWhereUniqueInput[]
-    disconnect?: ProjectWhereUniqueInput | ProjectWhereUniqueInput[]
-    delete?: ProjectWhereUniqueInput | ProjectWhereUniqueInput[]
-    connect?: ProjectWhereUniqueInput | ProjectWhereUniqueInput[]
-    update?: ProjectUpdateWithWhereUniqueWithoutUserInput | ProjectUpdateWithWhereUniqueWithoutUserInput[]
-    updateMany?: ProjectUpdateManyWithWhereWithoutUserInput | ProjectUpdateManyWithWhereWithoutUserInput[]
-    deleteMany?: ProjectScalarWhereInput | ProjectScalarWhereInput[]
-  }
-
   export type UserCreateNestedOneWithoutDetailsInput = {
     create?: XOR<UserCreateWithoutDetailsInput, UserUncheckedCreateWithoutDetailsInput>
     connectOrCreate?: UserCreateOrConnectWithoutDetailsInput
@@ -10031,11 +9989,25 @@ export namespace Prisma {
     connect?: PaintingWhereUniqueInput | PaintingWhereUniqueInput[]
   }
 
+  export type ProjectCreateNestedManyWithoutUserDetailsInput = {
+    create?: XOR<ProjectCreateWithoutUserDetailsInput, ProjectUncheckedCreateWithoutUserDetailsInput> | ProjectCreateWithoutUserDetailsInput[] | ProjectUncheckedCreateWithoutUserDetailsInput[]
+    connectOrCreate?: ProjectCreateOrConnectWithoutUserDetailsInput | ProjectCreateOrConnectWithoutUserDetailsInput[]
+    createMany?: ProjectCreateManyUserDetailsInputEnvelope
+    connect?: ProjectWhereUniqueInput | ProjectWhereUniqueInput[]
+  }
+
   export type PaintingUncheckedCreateNestedManyWithoutUserDetailsInput = {
     create?: XOR<PaintingCreateWithoutUserDetailsInput, PaintingUncheckedCreateWithoutUserDetailsInput> | PaintingCreateWithoutUserDetailsInput[] | PaintingUncheckedCreateWithoutUserDetailsInput[]
     connectOrCreate?: PaintingCreateOrConnectWithoutUserDetailsInput | PaintingCreateOrConnectWithoutUserDetailsInput[]
     createMany?: PaintingCreateManyUserDetailsInputEnvelope
     connect?: PaintingWhereUniqueInput | PaintingWhereUniqueInput[]
+  }
+
+  export type ProjectUncheckedCreateNestedManyWithoutUserDetailsInput = {
+    create?: XOR<ProjectCreateWithoutUserDetailsInput, ProjectUncheckedCreateWithoutUserDetailsInput> | ProjectCreateWithoutUserDetailsInput[] | ProjectUncheckedCreateWithoutUserDetailsInput[]
+    connectOrCreate?: ProjectCreateOrConnectWithoutUserDetailsInput | ProjectCreateOrConnectWithoutUserDetailsInput[]
+    createMany?: ProjectCreateManyUserDetailsInputEnvelope
+    connect?: ProjectWhereUniqueInput | ProjectWhereUniqueInput[]
   }
 
   export type UserUpdateOneRequiredWithoutDetailsNestedInput = {
@@ -10060,6 +10032,20 @@ export namespace Prisma {
     deleteMany?: PaintingScalarWhereInput | PaintingScalarWhereInput[]
   }
 
+  export type ProjectUpdateManyWithoutUserDetailsNestedInput = {
+    create?: XOR<ProjectCreateWithoutUserDetailsInput, ProjectUncheckedCreateWithoutUserDetailsInput> | ProjectCreateWithoutUserDetailsInput[] | ProjectUncheckedCreateWithoutUserDetailsInput[]
+    connectOrCreate?: ProjectCreateOrConnectWithoutUserDetailsInput | ProjectCreateOrConnectWithoutUserDetailsInput[]
+    upsert?: ProjectUpsertWithWhereUniqueWithoutUserDetailsInput | ProjectUpsertWithWhereUniqueWithoutUserDetailsInput[]
+    createMany?: ProjectCreateManyUserDetailsInputEnvelope
+    set?: ProjectWhereUniqueInput | ProjectWhereUniqueInput[]
+    disconnect?: ProjectWhereUniqueInput | ProjectWhereUniqueInput[]
+    delete?: ProjectWhereUniqueInput | ProjectWhereUniqueInput[]
+    connect?: ProjectWhereUniqueInput | ProjectWhereUniqueInput[]
+    update?: ProjectUpdateWithWhereUniqueWithoutUserDetailsInput | ProjectUpdateWithWhereUniqueWithoutUserDetailsInput[]
+    updateMany?: ProjectUpdateManyWithWhereWithoutUserDetailsInput | ProjectUpdateManyWithWhereWithoutUserDetailsInput[]
+    deleteMany?: ProjectScalarWhereInput | ProjectScalarWhereInput[]
+  }
+
   export type PaintingUncheckedUpdateManyWithoutUserDetailsNestedInput = {
     create?: XOR<PaintingCreateWithoutUserDetailsInput, PaintingUncheckedCreateWithoutUserDetailsInput> | PaintingCreateWithoutUserDetailsInput[] | PaintingUncheckedCreateWithoutUserDetailsInput[]
     connectOrCreate?: PaintingCreateOrConnectWithoutUserDetailsInput | PaintingCreateOrConnectWithoutUserDetailsInput[]
@@ -10072,6 +10058,20 @@ export namespace Prisma {
     update?: PaintingUpdateWithWhereUniqueWithoutUserDetailsInput | PaintingUpdateWithWhereUniqueWithoutUserDetailsInput[]
     updateMany?: PaintingUpdateManyWithWhereWithoutUserDetailsInput | PaintingUpdateManyWithWhereWithoutUserDetailsInput[]
     deleteMany?: PaintingScalarWhereInput | PaintingScalarWhereInput[]
+  }
+
+  export type ProjectUncheckedUpdateManyWithoutUserDetailsNestedInput = {
+    create?: XOR<ProjectCreateWithoutUserDetailsInput, ProjectUncheckedCreateWithoutUserDetailsInput> | ProjectCreateWithoutUserDetailsInput[] | ProjectUncheckedCreateWithoutUserDetailsInput[]
+    connectOrCreate?: ProjectCreateOrConnectWithoutUserDetailsInput | ProjectCreateOrConnectWithoutUserDetailsInput[]
+    upsert?: ProjectUpsertWithWhereUniqueWithoutUserDetailsInput | ProjectUpsertWithWhereUniqueWithoutUserDetailsInput[]
+    createMany?: ProjectCreateManyUserDetailsInputEnvelope
+    set?: ProjectWhereUniqueInput | ProjectWhereUniqueInput[]
+    disconnect?: ProjectWhereUniqueInput | ProjectWhereUniqueInput[]
+    delete?: ProjectWhereUniqueInput | ProjectWhereUniqueInput[]
+    connect?: ProjectWhereUniqueInput | ProjectWhereUniqueInput[]
+    update?: ProjectUpdateWithWhereUniqueWithoutUserDetailsInput | ProjectUpdateWithWhereUniqueWithoutUserDetailsInput[]
+    updateMany?: ProjectUpdateManyWithWhereWithoutUserDetailsInput | ProjectUpdateManyWithWhereWithoutUserDetailsInput[]
+    deleteMany?: ProjectScalarWhereInput | ProjectScalarWhereInput[]
   }
 
   export type UserDetailsCreateNestedOneWithoutPaintingsInput = {
@@ -10088,18 +10088,18 @@ export namespace Prisma {
     update?: XOR<XOR<UserDetailsUpdateToOneWithWhereWithoutPaintingsInput, UserDetailsUpdateWithoutPaintingsInput>, UserDetailsUncheckedUpdateWithoutPaintingsInput>
   }
 
-  export type UserCreateNestedOneWithoutProjectInput = {
-    create?: XOR<UserCreateWithoutProjectInput, UserUncheckedCreateWithoutProjectInput>
-    connectOrCreate?: UserCreateOrConnectWithoutProjectInput
-    connect?: UserWhereUniqueInput
+  export type UserDetailsCreateNestedOneWithoutProjectsInput = {
+    create?: XOR<UserDetailsCreateWithoutProjectsInput, UserDetailsUncheckedCreateWithoutProjectsInput>
+    connectOrCreate?: UserDetailsCreateOrConnectWithoutProjectsInput
+    connect?: UserDetailsWhereUniqueInput
   }
 
-  export type UserUpdateOneRequiredWithoutProjectNestedInput = {
-    create?: XOR<UserCreateWithoutProjectInput, UserUncheckedCreateWithoutProjectInput>
-    connectOrCreate?: UserCreateOrConnectWithoutProjectInput
-    upsert?: UserUpsertWithoutProjectInput
-    connect?: UserWhereUniqueInput
-    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutProjectInput, UserUpdateWithoutProjectInput>, UserUncheckedUpdateWithoutProjectInput>
+  export type UserDetailsUpdateOneRequiredWithoutProjectsNestedInput = {
+    create?: XOR<UserDetailsCreateWithoutProjectsInput, UserDetailsUncheckedCreateWithoutProjectsInput>
+    connectOrCreate?: UserDetailsCreateOrConnectWithoutProjectsInput
+    upsert?: UserDetailsUpsertWithoutProjectsInput
+    connect?: UserDetailsWhereUniqueInput
+    update?: XOR<XOR<UserDetailsUpdateToOneWithWhereWithoutProjectsInput, UserDetailsUpdateWithoutProjectsInput>, UserDetailsUncheckedUpdateWithoutProjectsInput>
   }
 
   export type UserCreateNestedOneWithoutPortfoliosInput = {
@@ -10293,6 +10293,7 @@ export namespace Prisma {
     phone?: string | null
     imageUrl?: string | null
     paintings?: PaintingCreateNestedManyWithoutUserDetailsInput
+    projects?: ProjectCreateNestedManyWithoutUserDetailsInput
   }
 
   export type UserDetailsUncheckedCreateWithoutUserInput = {
@@ -10303,6 +10304,7 @@ export namespace Prisma {
     phone?: string | null
     imageUrl?: string | null
     paintings?: PaintingUncheckedCreateNestedManyWithoutUserDetailsInput
+    projects?: ProjectUncheckedCreateNestedManyWithoutUserDetailsInput
   }
 
   export type UserDetailsCreateOrConnectWithoutUserInput = {
@@ -10356,31 +10358,6 @@ export namespace Prisma {
     data: PasswordResetTokenCreateManyUserInput | PasswordResetTokenCreateManyUserInput[]
   }
 
-  export type ProjectCreateWithoutUserInput = {
-    id?: string
-    title: string
-    content: string
-    url: string
-    logoUrl?: string | null
-  }
-
-  export type ProjectUncheckedCreateWithoutUserInput = {
-    id?: string
-    title: string
-    content: string
-    url: string
-    logoUrl?: string | null
-  }
-
-  export type ProjectCreateOrConnectWithoutUserInput = {
-    where: ProjectWhereUniqueInput
-    create: XOR<ProjectCreateWithoutUserInput, ProjectUncheckedCreateWithoutUserInput>
-  }
-
-  export type ProjectCreateManyUserInputEnvelope = {
-    data: ProjectCreateManyUserInput | ProjectCreateManyUserInput[]
-  }
-
   export type PortfolioUpsertWithWhereUniqueWithoutUserInput = {
     where: PortfolioWhereUniqueInput
     update: XOR<PortfolioUpdateWithoutUserInput, PortfolioUncheckedUpdateWithoutUserInput>
@@ -10427,6 +10404,7 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     paintings?: PaintingUpdateManyWithoutUserDetailsNestedInput
+    projects?: ProjectUpdateManyWithoutUserDetailsNestedInput
   }
 
   export type UserDetailsUncheckedUpdateWithoutUserInput = {
@@ -10436,6 +10414,7 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     paintings?: PaintingUncheckedUpdateManyWithoutUserDetailsNestedInput
+    projects?: ProjectUncheckedUpdateManyWithoutUserDetailsNestedInput
   }
 
   export type ArticleUpsertWithWhereUniqueWithoutUserInput = {
@@ -10492,34 +10471,6 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"PasswordResetToken"> | Date | string
   }
 
-  export type ProjectUpsertWithWhereUniqueWithoutUserInput = {
-    where: ProjectWhereUniqueInput
-    update: XOR<ProjectUpdateWithoutUserInput, ProjectUncheckedUpdateWithoutUserInput>
-    create: XOR<ProjectCreateWithoutUserInput, ProjectUncheckedCreateWithoutUserInput>
-  }
-
-  export type ProjectUpdateWithWhereUniqueWithoutUserInput = {
-    where: ProjectWhereUniqueInput
-    data: XOR<ProjectUpdateWithoutUserInput, ProjectUncheckedUpdateWithoutUserInput>
-  }
-
-  export type ProjectUpdateManyWithWhereWithoutUserInput = {
-    where: ProjectScalarWhereInput
-    data: XOR<ProjectUpdateManyMutationInput, ProjectUncheckedUpdateManyWithoutUserInput>
-  }
-
-  export type ProjectScalarWhereInput = {
-    AND?: ProjectScalarWhereInput | ProjectScalarWhereInput[]
-    OR?: ProjectScalarWhereInput[]
-    NOT?: ProjectScalarWhereInput | ProjectScalarWhereInput[]
-    id?: StringFilter<"Project"> | string
-    title?: StringFilter<"Project"> | string
-    content?: StringFilter<"Project"> | string
-    url?: StringFilter<"Project"> | string
-    logoUrl?: StringNullableFilter<"Project"> | string | null
-    userId?: StringFilter<"Project"> | string
-  }
-
   export type UserCreateWithoutDetailsInput = {
     id?: string
     email: string
@@ -10529,7 +10480,6 @@ export namespace Prisma {
     portfolios?: PortfolioCreateNestedManyWithoutUserInput
     articles?: ArticleCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenCreateNestedManyWithoutUserInput
-    Project?: ProjectCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutDetailsInput = {
@@ -10541,7 +10491,6 @@ export namespace Prisma {
     portfolios?: PortfolioUncheckedCreateNestedManyWithoutUserInput
     articles?: ArticleUncheckedCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
-    Project?: ProjectUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutDetailsInput = {
@@ -10570,6 +10519,31 @@ export namespace Prisma {
     data: PaintingCreateManyUserDetailsInput | PaintingCreateManyUserDetailsInput[]
   }
 
+  export type ProjectCreateWithoutUserDetailsInput = {
+    id?: string
+    title: string
+    content: string
+    url: string
+    logoUrl: string
+  }
+
+  export type ProjectUncheckedCreateWithoutUserDetailsInput = {
+    id?: string
+    title: string
+    content: string
+    url: string
+    logoUrl: string
+  }
+
+  export type ProjectCreateOrConnectWithoutUserDetailsInput = {
+    where: ProjectWhereUniqueInput
+    create: XOR<ProjectCreateWithoutUserDetailsInput, ProjectUncheckedCreateWithoutUserDetailsInput>
+  }
+
+  export type ProjectCreateManyUserDetailsInputEnvelope = {
+    data: ProjectCreateManyUserDetailsInput | ProjectCreateManyUserDetailsInput[]
+  }
+
   export type UserUpsertWithoutDetailsInput = {
     update: XOR<UserUpdateWithoutDetailsInput, UserUncheckedUpdateWithoutDetailsInput>
     create: XOR<UserCreateWithoutDetailsInput, UserUncheckedCreateWithoutDetailsInput>
@@ -10589,7 +10563,6 @@ export namespace Prisma {
     portfolios?: PortfolioUpdateManyWithoutUserNestedInput
     articles?: ArticleUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUpdateManyWithoutUserNestedInput
-    Project?: ProjectUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutDetailsInput = {
@@ -10600,7 +10573,6 @@ export namespace Prisma {
     portfolios?: PortfolioUncheckedUpdateManyWithoutUserNestedInput
     articles?: ArticleUncheckedUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
-    Project?: ProjectUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type PaintingUpsertWithWhereUniqueWithoutUserDetailsInput = {
@@ -10629,6 +10601,34 @@ export namespace Prisma {
     userDetailsId?: StringFilter<"Painting"> | string
   }
 
+  export type ProjectUpsertWithWhereUniqueWithoutUserDetailsInput = {
+    where: ProjectWhereUniqueInput
+    update: XOR<ProjectUpdateWithoutUserDetailsInput, ProjectUncheckedUpdateWithoutUserDetailsInput>
+    create: XOR<ProjectCreateWithoutUserDetailsInput, ProjectUncheckedCreateWithoutUserDetailsInput>
+  }
+
+  export type ProjectUpdateWithWhereUniqueWithoutUserDetailsInput = {
+    where: ProjectWhereUniqueInput
+    data: XOR<ProjectUpdateWithoutUserDetailsInput, ProjectUncheckedUpdateWithoutUserDetailsInput>
+  }
+
+  export type ProjectUpdateManyWithWhereWithoutUserDetailsInput = {
+    where: ProjectScalarWhereInput
+    data: XOR<ProjectUpdateManyMutationInput, ProjectUncheckedUpdateManyWithoutUserDetailsInput>
+  }
+
+  export type ProjectScalarWhereInput = {
+    AND?: ProjectScalarWhereInput | ProjectScalarWhereInput[]
+    OR?: ProjectScalarWhereInput[]
+    NOT?: ProjectScalarWhereInput | ProjectScalarWhereInput[]
+    id?: StringFilter<"Project"> | string
+    title?: StringFilter<"Project"> | string
+    content?: StringFilter<"Project"> | string
+    url?: StringFilter<"Project"> | string
+    logoUrl?: StringFilter<"Project"> | string
+    userDetailsId?: StringFilter<"Project"> | string
+  }
+
   export type UserDetailsCreateWithoutPaintingsInput = {
     id?: string
     firstName: string
@@ -10637,6 +10637,7 @@ export namespace Prisma {
     phone?: string | null
     imageUrl?: string | null
     user: UserCreateNestedOneWithoutDetailsInput
+    projects?: ProjectCreateNestedManyWithoutUserDetailsInput
   }
 
   export type UserDetailsUncheckedCreateWithoutPaintingsInput = {
@@ -10647,6 +10648,7 @@ export namespace Prisma {
     bio?: string | null
     phone?: string | null
     imageUrl?: string | null
+    projects?: ProjectUncheckedCreateNestedManyWithoutUserDetailsInput
   }
 
   export type UserDetailsCreateOrConnectWithoutPaintingsInput = {
@@ -10672,6 +10674,7 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     user?: UserUpdateOneRequiredWithoutDetailsNestedInput
+    projects?: ProjectUpdateManyWithoutUserDetailsNestedInput
   }
 
   export type UserDetailsUncheckedUpdateWithoutPaintingsInput = {
@@ -10681,68 +10684,65 @@ export namespace Prisma {
     bio?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    projects?: ProjectUncheckedUpdateManyWithoutUserDetailsNestedInput
   }
 
-  export type UserCreateWithoutProjectInput = {
+  export type UserDetailsCreateWithoutProjectsInput = {
     id?: string
-    email: string
-    password: string
-    name?: string | null
-    gender?: string
-    portfolios?: PortfolioCreateNestedManyWithoutUserInput
-    details?: UserDetailsCreateNestedOneWithoutUserInput
-    articles?: ArticleCreateNestedManyWithoutUserInput
-    passwordResetTokens?: PasswordResetTokenCreateNestedManyWithoutUserInput
+    firstName: string
+    lastName: string
+    bio?: string | null
+    phone?: string | null
+    imageUrl?: string | null
+    user: UserCreateNestedOneWithoutDetailsInput
+    paintings?: PaintingCreateNestedManyWithoutUserDetailsInput
   }
 
-  export type UserUncheckedCreateWithoutProjectInput = {
+  export type UserDetailsUncheckedCreateWithoutProjectsInput = {
     id?: string
-    email: string
-    password: string
-    name?: string | null
-    gender?: string
-    portfolios?: PortfolioUncheckedCreateNestedManyWithoutUserInput
-    details?: UserDetailsUncheckedCreateNestedOneWithoutUserInput
-    articles?: ArticleUncheckedCreateNestedManyWithoutUserInput
-    passwordResetTokens?: PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
+    userId: string
+    firstName: string
+    lastName: string
+    bio?: string | null
+    phone?: string | null
+    imageUrl?: string | null
+    paintings?: PaintingUncheckedCreateNestedManyWithoutUserDetailsInput
   }
 
-  export type UserCreateOrConnectWithoutProjectInput = {
-    where: UserWhereUniqueInput
-    create: XOR<UserCreateWithoutProjectInput, UserUncheckedCreateWithoutProjectInput>
+  export type UserDetailsCreateOrConnectWithoutProjectsInput = {
+    where: UserDetailsWhereUniqueInput
+    create: XOR<UserDetailsCreateWithoutProjectsInput, UserDetailsUncheckedCreateWithoutProjectsInput>
   }
 
-  export type UserUpsertWithoutProjectInput = {
-    update: XOR<UserUpdateWithoutProjectInput, UserUncheckedUpdateWithoutProjectInput>
-    create: XOR<UserCreateWithoutProjectInput, UserUncheckedCreateWithoutProjectInput>
-    where?: UserWhereInput
+  export type UserDetailsUpsertWithoutProjectsInput = {
+    update: XOR<UserDetailsUpdateWithoutProjectsInput, UserDetailsUncheckedUpdateWithoutProjectsInput>
+    create: XOR<UserDetailsCreateWithoutProjectsInput, UserDetailsUncheckedCreateWithoutProjectsInput>
+    where?: UserDetailsWhereInput
   }
 
-  export type UserUpdateToOneWithWhereWithoutProjectInput = {
-    where?: UserWhereInput
-    data: XOR<UserUpdateWithoutProjectInput, UserUncheckedUpdateWithoutProjectInput>
+  export type UserDetailsUpdateToOneWithWhereWithoutProjectsInput = {
+    where?: UserDetailsWhereInput
+    data: XOR<UserDetailsUpdateWithoutProjectsInput, UserDetailsUncheckedUpdateWithoutProjectsInput>
   }
 
-  export type UserUpdateWithoutProjectInput = {
-    email?: StringFieldUpdateOperationsInput | string
-    password?: StringFieldUpdateOperationsInput | string
-    name?: NullableStringFieldUpdateOperationsInput | string | null
-    gender?: StringFieldUpdateOperationsInput | string
-    portfolios?: PortfolioUpdateManyWithoutUserNestedInput
-    details?: UserDetailsUpdateOneWithoutUserNestedInput
-    articles?: ArticleUpdateManyWithoutUserNestedInput
-    passwordResetTokens?: PasswordResetTokenUpdateManyWithoutUserNestedInput
+  export type UserDetailsUpdateWithoutProjectsInput = {
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    bio?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    user?: UserUpdateOneRequiredWithoutDetailsNestedInput
+    paintings?: PaintingUpdateManyWithoutUserDetailsNestedInput
   }
 
-  export type UserUncheckedUpdateWithoutProjectInput = {
-    email?: StringFieldUpdateOperationsInput | string
-    password?: StringFieldUpdateOperationsInput | string
-    name?: NullableStringFieldUpdateOperationsInput | string | null
-    gender?: StringFieldUpdateOperationsInput | string
-    portfolios?: PortfolioUncheckedUpdateManyWithoutUserNestedInput
-    details?: UserDetailsUncheckedUpdateOneWithoutUserNestedInput
-    articles?: ArticleUncheckedUpdateManyWithoutUserNestedInput
-    passwordResetTokens?: PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
+  export type UserDetailsUncheckedUpdateWithoutProjectsInput = {
+    userId?: StringFieldUpdateOperationsInput | string
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    bio?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    paintings?: PaintingUncheckedUpdateManyWithoutUserDetailsNestedInput
   }
 
   export type UserCreateWithoutPortfoliosInput = {
@@ -10754,7 +10754,6 @@ export namespace Prisma {
     details?: UserDetailsCreateNestedOneWithoutUserInput
     articles?: ArticleCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenCreateNestedManyWithoutUserInput
-    Project?: ProjectCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutPortfoliosInput = {
@@ -10766,7 +10765,6 @@ export namespace Prisma {
     details?: UserDetailsUncheckedCreateNestedOneWithoutUserInput
     articles?: ArticleUncheckedCreateNestedManyWithoutUserInput
     passwordResetTokens?: PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
-    Project?: ProjectUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutPortfoliosInput = {
@@ -10793,7 +10791,6 @@ export namespace Prisma {
     details?: UserDetailsUpdateOneWithoutUserNestedInput
     articles?: ArticleUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUpdateManyWithoutUserNestedInput
-    Project?: ProjectUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutPortfoliosInput = {
@@ -10804,7 +10801,6 @@ export namespace Prisma {
     details?: UserDetailsUncheckedUpdateOneWithoutUserNestedInput
     articles?: ArticleUncheckedUpdateManyWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
-    Project?: ProjectUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutArticlesInput = {
@@ -10816,7 +10812,6 @@ export namespace Prisma {
     portfolios?: PortfolioCreateNestedManyWithoutUserInput
     details?: UserDetailsCreateNestedOneWithoutUserInput
     passwordResetTokens?: PasswordResetTokenCreateNestedManyWithoutUserInput
-    Project?: ProjectCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutArticlesInput = {
@@ -10828,7 +10823,6 @@ export namespace Prisma {
     portfolios?: PortfolioUncheckedCreateNestedManyWithoutUserInput
     details?: UserDetailsUncheckedCreateNestedOneWithoutUserInput
     passwordResetTokens?: PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
-    Project?: ProjectUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutArticlesInput = {
@@ -10855,7 +10849,6 @@ export namespace Prisma {
     portfolios?: PortfolioUpdateManyWithoutUserNestedInput
     details?: UserDetailsUpdateOneWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUpdateManyWithoutUserNestedInput
-    Project?: ProjectUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutArticlesInput = {
@@ -10866,7 +10859,6 @@ export namespace Prisma {
     portfolios?: PortfolioUncheckedUpdateManyWithoutUserNestedInput
     details?: UserDetailsUncheckedUpdateOneWithoutUserNestedInput
     passwordResetTokens?: PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
-    Project?: ProjectUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutPasswordResetTokensInput = {
@@ -10878,7 +10870,6 @@ export namespace Prisma {
     portfolios?: PortfolioCreateNestedManyWithoutUserInput
     details?: UserDetailsCreateNestedOneWithoutUserInput
     articles?: ArticleCreateNestedManyWithoutUserInput
-    Project?: ProjectCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutPasswordResetTokensInput = {
@@ -10890,7 +10881,6 @@ export namespace Prisma {
     portfolios?: PortfolioUncheckedCreateNestedManyWithoutUserInput
     details?: UserDetailsUncheckedCreateNestedOneWithoutUserInput
     articles?: ArticleUncheckedCreateNestedManyWithoutUserInput
-    Project?: ProjectUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutPasswordResetTokensInput = {
@@ -10917,7 +10907,6 @@ export namespace Prisma {
     portfolios?: PortfolioUpdateManyWithoutUserNestedInput
     details?: UserDetailsUpdateOneWithoutUserNestedInput
     articles?: ArticleUpdateManyWithoutUserNestedInput
-    Project?: ProjectUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutPasswordResetTokensInput = {
@@ -10928,7 +10917,6 @@ export namespace Prisma {
     portfolios?: PortfolioUncheckedUpdateManyWithoutUserNestedInput
     details?: UserDetailsUncheckedUpdateOneWithoutUserNestedInput
     articles?: ArticleUncheckedUpdateManyWithoutUserNestedInput
-    Project?: ProjectUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type PortfolioCreateManyUserInput = {
@@ -10951,14 +10939,6 @@ export namespace Prisma {
     token: string
     expiresAt: Date | string
     createdAt?: Date | string
-  }
-
-  export type ProjectCreateManyUserInput = {
-    id?: string
-    title: string
-    content: string
-    url: string
-    logoUrl?: string | null
   }
 
   export type PortfolioUpdateWithoutUserInput = {
@@ -11018,31 +10998,18 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type ProjectUpdateWithoutUserInput = {
-    title?: StringFieldUpdateOperationsInput | string
-    content?: StringFieldUpdateOperationsInput | string
-    url?: StringFieldUpdateOperationsInput | string
-    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
-  }
-
-  export type ProjectUncheckedUpdateWithoutUserInput = {
-    title?: StringFieldUpdateOperationsInput | string
-    content?: StringFieldUpdateOperationsInput | string
-    url?: StringFieldUpdateOperationsInput | string
-    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
-  }
-
-  export type ProjectUncheckedUpdateManyWithoutUserInput = {
-    title?: StringFieldUpdateOperationsInput | string
-    content?: StringFieldUpdateOperationsInput | string
-    url?: StringFieldUpdateOperationsInput | string
-    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
-  }
-
   export type PaintingCreateManyUserDetailsInput = {
     id?: string
     title: string
     content: string
+  }
+
+  export type ProjectCreateManyUserDetailsInput = {
+    id?: string
+    title: string
+    content: string
+    url: string
+    logoUrl: string
   }
 
   export type PaintingUpdateWithoutUserDetailsInput = {
@@ -11058,6 +11025,27 @@ export namespace Prisma {
   export type PaintingUncheckedUpdateManyWithoutUserDetailsInput = {
     title?: StringFieldUpdateOperationsInput | string
     content?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type ProjectUpdateWithoutUserDetailsInput = {
+    title?: StringFieldUpdateOperationsInput | string
+    content?: StringFieldUpdateOperationsInput | string
+    url?: StringFieldUpdateOperationsInput | string
+    logoUrl?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type ProjectUncheckedUpdateWithoutUserDetailsInput = {
+    title?: StringFieldUpdateOperationsInput | string
+    content?: StringFieldUpdateOperationsInput | string
+    url?: StringFieldUpdateOperationsInput | string
+    logoUrl?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type ProjectUncheckedUpdateManyWithoutUserDetailsInput = {
+    title?: StringFieldUpdateOperationsInput | string
+    content?: StringFieldUpdateOperationsInput | string
+    url?: StringFieldUpdateOperationsInput | string
+    logoUrl?: StringFieldUpdateOperationsInput | string
   }
 
 
