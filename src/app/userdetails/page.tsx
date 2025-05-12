@@ -201,16 +201,8 @@ export default function UserDetails() {
           {userDetails.imageUrl && userDetails.imageUrl.startsWith("http") && (
             <div className="my-4">
               <p className="mb-2 font-medium text-gray-700">Immagine del Profilo</p>
-              <Image
-                unoptimized
-                src={userDetails.imageUrl}
-                alt="Foto profilo"
-                width={28}
-                height={28}
-                style={{ width: "auto", height: "auto" }}
-                className="rounded-full object-cover mx-auto"
-              />
-
+              <Image unoptimized src={userDetails.imageUrl}
+               alt="Foto profilo" width={128} height={128} className="rounded-full object-cover mx-auto" />
             </div>
           )}
 

@@ -48,11 +48,12 @@ function ProjectLogo({ url, title }: { url: string; title: string }) {
   return (
     <Image
       src={logoSrc}
-      alt="Logo"
+      alt={`Logo ${title}`}
       width={160}
       height={160}
       style={{ width: 'auto', height: 'auto' }}
       className="object-contain"
+      onError={handleError}
       unoptimized
     />
   );
