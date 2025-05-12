@@ -9,16 +9,25 @@ const compat = new FlatCompat({
   baseDirectory: __dirname,
 });
 
-const eslintConfig = [
+export default [
+  // Estensioni ESLint standard per Next.js + TypeScript
   ...compat.extends("next/core-web-vitals", "next/typescript"),
 
-  // ✅ Override per disattivare il blocco di `any` nei file TypeScript
+  // ✅ Disattiva no-explicit-any globalmente nei file TypeScript
   {
     files: ["**/*.ts", "**/*.tsx"],
     rules: {
       "@typescript-eslint/no-explicit-any": "off",
     },
   },
+
+  // ✅ Disattiva regole fastidiose SOLO per i file generati da Prisma
+  {
+    files: ["src/generated/**/*.*"],
+    rules: {
+      "@typescript-eslint/no-unused-vars": "off",
+      "@typescript-eslint/no-require-imports": "off",
+    },
+  },
 ];
 
-export default eslintConfig;
