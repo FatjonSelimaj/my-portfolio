@@ -1,6 +1,4 @@
-// src/app/api/userDetails/route.ts
 import { NextRequest, NextResponse } from "next/server";
-
 import jwt from "jsonwebtoken";
 import prisma from "@/lib/prisma";
 
@@ -10,11 +8,20 @@ interface PaintingInput {
   title: string;
   content: string;
 }
+
 interface ProjectInput {
+  id: string;
   title: string;
   content: string;
   url: string;
   logoUrl?: string;
+}
+
+interface PortfolioInput {
+  id: string;
+  title: string;
+  content: string;
+  url: string;
 }
 
 // Parsing e verifica del token da header Authorization
@@ -32,28 +39,26 @@ function getUserIdFromRequest(req: NextRequest): string | null {
 
 // Helper per costruire la risposta utente con progetti unificati
 async function buildUserResponse(userId: string) {
-  // Recupero dettagli e paintings
   const details = await prisma.userDetails.findUnique({
     where: { userId },
     include: { user: { select: { email: true } }, paintings: true },
   });
   if (!details) return null;
 
-  // Carico progetti da Project e Portfolio
   const [projModel, portModel] = await Promise.all([
     prisma.project.findMany({ where: { userDetailsId: details.id } }),
     prisma.portfolio.findMany({ where: { userId }, orderBy: { createdAt: "desc" } }),
   ]);
 
   const projects = [
-    ...projModel.map((pr: { id: any; title: any; content: any; url: any; logoUrl: any; }) => ({
+    ...projModel.map((pr: ProjectInput) => ({
       id: pr.id,
       title: pr.title,
       content: pr.content,
       url: pr.url,
       logoUrl: pr.logoUrl || "",
     })),
-    ...portModel.map((pf: { id: any; title: any; content: any; url: any; }) => ({
+    ...portModel.map((pf: PortfolioInput) => ({
       id: pf.id,
       title: pf.title,
       content: pf.content,
@@ -62,10 +67,10 @@ async function buildUserResponse(userId: string) {
     })),
   ];
 
-  // Mappo paintings includendo solo campi definiti e non vuoti
   const paintings = details.paintings.map(painting => {
-    const entries = Object.entries(painting) as [keyof typeof painting, any][];
-    const filteredEntries = entries.filter(([_key, value]) => value !== null && value !== undefined && value !== ""
+    const entries = Object.entries(painting) as [keyof typeof painting, unknown][];
+    const filteredEntries = entries.filter(
+      ([_key, value]) => value !== null && value !== undefined && value !== ""
     );
     return Object.fromEntries(filteredEntries);
   });
@@ -118,7 +123,6 @@ export async function PUT(req: NextRequest) {
   };
 
   try {
-    // Upsert di UserDetails
     const details = await prisma.userDetails.upsert({
       where: { userId },
       create: {
@@ -138,7 +142,6 @@ export async function PUT(req: NextRequest) {
       },
     });
 
-    // Sostituisco paintings esistenti
     await prisma.painting.deleteMany({ where: { userDetailsId: details.id } });
     if (Array.isArray(body.paintings)) {
       await Promise.all(
@@ -150,7 +153,6 @@ export async function PUT(req: NextRequest) {
       );
     }
 
-    // Sostituisco progetti nel modello Project
     await prisma.project.deleteMany({ where: { userDetailsId: details.id } });
     if (Array.isArray(body.projects)) {
       await Promise.all(
@@ -168,7 +170,6 @@ export async function PUT(req: NextRequest) {
       );
     }
 
-    // Rispondo con i dati aggiornati
     const updated = await buildUserResponse(userId);
     if (!updated) {
       throw new Error("Utente non trovato dopo aggiornamento");

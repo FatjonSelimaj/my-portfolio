@@ -1,7 +1,22 @@
-// src/app/api/publicData/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
-import prisma from "@/lib/prisma"; // Usa il client Prisma centralizzato
+import prisma from "@/lib/prisma";
+
+// Tipi per evitare `any`
+interface ProjectLike {
+  id: string;
+  title: string;
+  content: string;
+  url: string;
+  logoUrl: string;
+}
+
+interface PortfolioLike {
+  id: string;
+  title: string;
+  content: string;
+  url: string;
+}
 
 export async function GET(req: NextRequest): Promise<NextResponse> {
   const authHeader = req.headers.get("authorization");
@@ -9,17 +24,14 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: "Token mancante" }, { status: 401 });
   }
 
-  // Rimuove il prefisso 'Bearer '
   const token = authHeader.replace(/^Bearer\s+/, "");
-
-  // Verifica che la secret sia presente
   const secret = process.env.JWT_SECRET;
+
   if (!secret) {
     console.error("JWT_SECRET non definito");
     return NextResponse.json({ error: "Errore interno" }, { status: 500 });
   }
 
-  // Verifica token e cattura payload
   let payload: { id: string; email: string };
   try {
     payload = jwt.verify(token, secret) as { id: string; email: string };
@@ -28,7 +40,6 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
   }
 
   try {
-    // 1) Carica i dettagli utente con pitture
     const userDetails = await prisma.userDetails.findUnique({
       where: { userId: payload.id },
       include: {
@@ -41,22 +52,20 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       return NextResponse.json({ error: "Utente non trovato" }, { status: 404 });
     }
 
-    // 2) Carica progetti da Project e Portfolio
     const [projectModels, portfolioModels] = await Promise.all([
       prisma.project.findMany({ where: { userDetailsId: userDetails.id } }),
       prisma.portfolio.findMany({ where: { userId: payload.id }, orderBy: { createdAt: "desc" } }),
     ]);
 
-    // 3) Unisce i due array in 'projects'
     const projects = [
-      ...projectModels.map((pr: { id: any; title: any; content: any; url: any; logoUrl: any; }) => ({
+      ...projectModels.map((pr: ProjectLike) => ({
         id: pr.id,
         title: pr.title,
         content: pr.content,
         url: pr.url,
         logoUrl: pr.logoUrl,
       })),
-      ...portfolioModels.map((pf: { id: any; title: any; content: any; url: any; }) => ({
+      ...portfolioModels.map((pf: PortfolioLike) => ({
         id: pf.id,
         title: pf.title,
         content: pf.content,
@@ -65,7 +74,6 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       })),
     ];
 
-    // 4) Costruisce e restituisce la risposta
     return NextResponse.json({
       firstName: userDetails.firstName,
       lastName: userDetails.lastName,
