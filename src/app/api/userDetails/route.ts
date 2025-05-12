@@ -70,8 +70,9 @@ async function buildUserResponse(userId: string) {
   const paintings = details.paintings.map(painting => {
     const entries = Object.entries(painting) as [keyof typeof painting, unknown][];
     const filteredEntries = entries.filter(
-      ([_key, value]) => value !== null && value !== undefined && value !== ""
+      ([, value]) => value !== null && value !== undefined && value !== ""
     );
+
     return Object.fromEntries(filteredEntries);
   });
 
