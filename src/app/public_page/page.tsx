@@ -200,7 +200,7 @@ export default function PublicPage() {
               </div>
               <h2 className="text-2xl font-semibold mb-4">Certificazioni/Diplomi</h2>
               {data.certifications!.length === 0 ? (
-                <p className="text-gray-500">Nessuna certificazione disponibile.</p>
+                <p className="text-blue-500">Nessuna certificazione disponibile.</p>
               ) : (
                 <ul className="space-y-6">
                   {data.certifications!.map(cert => (
@@ -208,19 +208,19 @@ export default function PublicPage() {
                       <div className="flex items-center gap-4 mb-2">
                         <div className="text-center">
                           <FallbackLogo text={cert.institution} type="institution" />
-                          <div className="text-xs text-gray-600 mt-1">{cert.institution}</div>
+                          <div className="text-xs text-blue-600 mt-1">{cert.institution}</div>
                         </div>
                         <div className="text-center">
                           <FallbackLogo text={cert.title} type="course" />
-                          <div className="text-xs text-gray-600 mt-1">{cert.title}</div>
+                          <div className="text-xs text-blue-600 mt-1">{cert.title}</div>
                         </div>
                       </div>
-                      <p className="text-sm text-gray-600 mb-2">{cert.dateAwarded}</p>
+                      <p className="text-sm text-blue-600 mb-2">{cert.dateAwarded}</p>
                       {/* qui mostriamo la descrizione inserita dall’utente */}
                       <p className="mb-2">{cert.description}</p>
                       {/* opzionale: mostrare anche il testo estratto */}
                       {cert.extractedText && (
-                        <div className="bg-gray-100 p-2 rounded text-sm whitespace-pre-wrap">
+                        <div className="bg-blue-500 p-2 rounded text-sm whitespace-pre-wrap">
                           <strong>Estratto:</strong><br/>
                           {cert.extractedText}
                         </div>
