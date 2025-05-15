@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
 import { v4 as uuidv4 } from "uuid";
 import { Resend } from "resend";
-
+import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 const resend = new Resend(process.env.RESEND_API_KEY);
 
