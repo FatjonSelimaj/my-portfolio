@@ -169,7 +169,7 @@ export default function PublicPage() {
         </nav>
       </header>
 
-      <main className="flex-grow px-6 py-8">
+      <main className="flex-grow px-6 py-8 text-black">
         <div className="max-w-3xl mx-auto">
           {/* ABOUT */}
           {selected === 'about' && (
