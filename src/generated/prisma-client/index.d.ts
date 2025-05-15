@@ -48,6 +48,33 @@ export type Article = $Result.DefaultSelection<Prisma.$ArticlePayload>
  * 
  */
 export type PasswordResetToken = $Result.DefaultSelection<Prisma.$PasswordResetTokenPayload>
+/**
+ * Model Certification
+ * 
+ */
+export type Certification = $Result.DefaultSelection<Prisma.$CertificationPayload>
+/**
+ * Model Diploma
+ * 
+ */
+export type Diploma = $Result.DefaultSelection<Prisma.$DiplomaPayload>
+
+/**
+ * Enums
+ */
+export namespace $Enums {
+  export const FileType: {
+  IMAGE: 'IMAGE',
+  PDF: 'PDF'
+};
+
+export type FileType = (typeof FileType)[keyof typeof FileType]
+
+}
+
+export type FileType = $Enums.FileType
+
+export const FileType: typeof $Enums.FileType
 
 /**
  * ##  Prisma Client ʲˢ
@@ -210,6 +237,26 @@ export class PrismaClient<
     * ```
     */
   get passwordResetToken(): Prisma.PasswordResetTokenDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.certification`: Exposes CRUD operations for the **Certification** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Certifications
+    * const certifications = await prisma.certification.findMany()
+    * ```
+    */
+  get certification(): Prisma.CertificationDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.diploma`: Exposes CRUD operations for the **Diploma** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Diplomas
+    * const diplomas = await prisma.diploma.findMany()
+    * ```
+    */
+  get diploma(): Prisma.DiplomaDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -656,7 +703,9 @@ export namespace Prisma {
     Project: 'Project',
     Portfolio: 'Portfolio',
     Article: 'Article',
-    PasswordResetToken: 'PasswordResetToken'
+    PasswordResetToken: 'PasswordResetToken',
+    Certification: 'Certification',
+    Diploma: 'Diploma'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -675,7 +724,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "userDetails" | "painting" | "project" | "portfolio" | "article" | "passwordResetToken"
+      modelProps: "user" | "userDetails" | "painting" | "project" | "portfolio" | "article" | "passwordResetToken" | "certification" | "diploma"
       txIsolationLevel: never
     }
     model: {
@@ -1197,6 +1246,154 @@ export namespace Prisma {
           }
         }
       }
+      Certification: {
+        payload: Prisma.$CertificationPayload<ExtArgs>
+        fields: Prisma.CertificationFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.CertificationFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CertificationPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.CertificationFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CertificationPayload>
+          }
+          findFirst: {
+            args: Prisma.CertificationFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CertificationPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.CertificationFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CertificationPayload>
+          }
+          findMany: {
+            args: Prisma.CertificationFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CertificationPayload>[]
+          }
+          create: {
+            args: Prisma.CertificationCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CertificationPayload>
+          }
+          createMany: {
+            args: Prisma.CertificationCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.CertificationDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CertificationPayload>
+          }
+          update: {
+            args: Prisma.CertificationUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CertificationPayload>
+          }
+          deleteMany: {
+            args: Prisma.CertificationDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.CertificationUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.CertificationUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CertificationPayload>
+          }
+          aggregate: {
+            args: Prisma.CertificationAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateCertification>
+          }
+          groupBy: {
+            args: Prisma.CertificationGroupByArgs<ExtArgs>
+            result: $Utils.Optional<CertificationGroupByOutputType>[]
+          }
+          findRaw: {
+            args: Prisma.CertificationFindRawArgs<ExtArgs>
+            result: JsonObject
+          }
+          aggregateRaw: {
+            args: Prisma.CertificationAggregateRawArgs<ExtArgs>
+            result: JsonObject
+          }
+          count: {
+            args: Prisma.CertificationCountArgs<ExtArgs>
+            result: $Utils.Optional<CertificationCountAggregateOutputType> | number
+          }
+        }
+      }
+      Diploma: {
+        payload: Prisma.$DiplomaPayload<ExtArgs>
+        fields: Prisma.DiplomaFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.DiplomaFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DiplomaPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.DiplomaFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DiplomaPayload>
+          }
+          findFirst: {
+            args: Prisma.DiplomaFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DiplomaPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.DiplomaFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DiplomaPayload>
+          }
+          findMany: {
+            args: Prisma.DiplomaFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DiplomaPayload>[]
+          }
+          create: {
+            args: Prisma.DiplomaCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DiplomaPayload>
+          }
+          createMany: {
+            args: Prisma.DiplomaCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.DiplomaDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DiplomaPayload>
+          }
+          update: {
+            args: Prisma.DiplomaUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DiplomaPayload>
+          }
+          deleteMany: {
+            args: Prisma.DiplomaDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.DiplomaUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.DiplomaUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DiplomaPayload>
+          }
+          aggregate: {
+            args: Prisma.DiplomaAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateDiploma>
+          }
+          groupBy: {
+            args: Prisma.DiplomaGroupByArgs<ExtArgs>
+            result: $Utils.Optional<DiplomaGroupByOutputType>[]
+          }
+          findRaw: {
+            args: Prisma.DiplomaFindRawArgs<ExtArgs>
+            result: JsonObject
+          }
+          aggregateRaw: {
+            args: Prisma.DiplomaAggregateRawArgs<ExtArgs>
+            result: JsonObject
+          }
+          count: {
+            args: Prisma.DiplomaCountArgs<ExtArgs>
+            result: $Utils.Optional<DiplomaCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -1275,6 +1472,8 @@ export namespace Prisma {
     portfolio?: PortfolioOmit
     article?: ArticleOmit
     passwordResetToken?: PasswordResetTokenOmit
+    certification?: CertificationOmit
+    diploma?: DiplomaOmit
   }
 
   /* Types for Logging */
@@ -1420,11 +1619,15 @@ export namespace Prisma {
   export type UserDetailsCountOutputType = {
     paintings: number
     projects: number
+    certifications: number
+    diplomas: number
   }
 
   export type UserDetailsCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     paintings?: boolean | UserDetailsCountOutputTypeCountPaintingsArgs
     projects?: boolean | UserDetailsCountOutputTypeCountProjectsArgs
+    certifications?: boolean | UserDetailsCountOutputTypeCountCertificationsArgs
+    diplomas?: boolean | UserDetailsCountOutputTypeCountDiplomasArgs
   }
 
   // Custom InputTypes
@@ -1450,6 +1653,20 @@ export namespace Prisma {
    */
   export type UserDetailsCountOutputTypeCountProjectsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: ProjectWhereInput
+  }
+
+  /**
+   * UserDetailsCountOutputType without action
+   */
+  export type UserDetailsCountOutputTypeCountCertificationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: CertificationWhereInput
+  }
+
+  /**
+   * UserDetailsCountOutputType without action
+   */
+  export type UserDetailsCountOutputTypeCountDiplomasArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DiplomaWhereInput
   }
 
 
@@ -2724,6 +2941,8 @@ export namespace Prisma {
     user?: boolean | UserDefaultArgs<ExtArgs>
     paintings?: boolean | UserDetails$paintingsArgs<ExtArgs>
     projects?: boolean | UserDetails$projectsArgs<ExtArgs>
+    certifications?: boolean | UserDetails$certificationsArgs<ExtArgs>
+    diplomas?: boolean | UserDetails$diplomasArgs<ExtArgs>
     _count?: boolean | UserDetailsCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["userDetails"]>
 
@@ -2744,6 +2963,8 @@ export namespace Prisma {
     user?: boolean | UserDefaultArgs<ExtArgs>
     paintings?: boolean | UserDetails$paintingsArgs<ExtArgs>
     projects?: boolean | UserDetails$projectsArgs<ExtArgs>
+    certifications?: boolean | UserDetails$certificationsArgs<ExtArgs>
+    diplomas?: boolean | UserDetails$diplomasArgs<ExtArgs>
     _count?: boolean | UserDetailsCountOutputTypeDefaultArgs<ExtArgs>
   }
 
@@ -2753,6 +2974,8 @@ export namespace Prisma {
       user: Prisma.$UserPayload<ExtArgs>
       paintings: Prisma.$PaintingPayload<ExtArgs>[]
       projects: Prisma.$ProjectPayload<ExtArgs>[]
+      certifications: Prisma.$CertificationPayload<ExtArgs>[]
+      diplomas: Prisma.$DiplomaPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -3128,6 +3351,8 @@ export namespace Prisma {
     user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     paintings<T extends UserDetails$paintingsArgs<ExtArgs> = {}>(args?: Subset<T, UserDetails$paintingsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaintingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     projects<T extends UserDetails$projectsArgs<ExtArgs> = {}>(args?: Subset<T, UserDetails$projectsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProjectPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    certifications<T extends UserDetails$certificationsArgs<ExtArgs> = {}>(args?: Subset<T, UserDetails$certificationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CertificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    diplomas<T extends UserDetails$diplomasArgs<ExtArgs> = {}>(args?: Subset<T, UserDetails$diplomasArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DiplomaPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3579,6 +3804,54 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: ProjectScalarFieldEnum | ProjectScalarFieldEnum[]
+  }
+
+  /**
+   * UserDetails.certifications
+   */
+  export type UserDetails$certificationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Certification
+     */
+    select?: CertificationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Certification
+     */
+    omit?: CertificationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CertificationInclude<ExtArgs> | null
+    where?: CertificationWhereInput
+    orderBy?: CertificationOrderByWithRelationInput | CertificationOrderByWithRelationInput[]
+    cursor?: CertificationWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: CertificationScalarFieldEnum | CertificationScalarFieldEnum[]
+  }
+
+  /**
+   * UserDetails.diplomas
+   */
+  export type UserDetails$diplomasArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Diploma
+     */
+    select?: DiplomaSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Diploma
+     */
+    omit?: DiplomaOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DiplomaInclude<ExtArgs> | null
+    where?: DiplomaWhereInput
+    orderBy?: DiplomaOrderByWithRelationInput | DiplomaOrderByWithRelationInput[]
+    cursor?: DiplomaWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: DiplomaScalarFieldEnum | DiplomaScalarFieldEnum[]
   }
 
   /**
@@ -8507,6 +8780,2030 @@ export namespace Prisma {
 
 
   /**
+   * Model Certification
+   */
+
+  export type AggregateCertification = {
+    _count: CertificationCountAggregateOutputType | null
+    _min: CertificationMinAggregateOutputType | null
+    _max: CertificationMaxAggregateOutputType | null
+  }
+
+  export type CertificationMinAggregateOutputType = {
+    id: string | null
+    title: string | null
+    institution: string | null
+    dateAwarded: Date | null
+    extractedText: string | null
+    logoUrl: string | null
+    description: string | null
+    userDetailsId: string | null
+  }
+
+  export type CertificationMaxAggregateOutputType = {
+    id: string | null
+    title: string | null
+    institution: string | null
+    dateAwarded: Date | null
+    extractedText: string | null
+    logoUrl: string | null
+    description: string | null
+    userDetailsId: string | null
+  }
+
+  export type CertificationCountAggregateOutputType = {
+    id: number
+    title: number
+    institution: number
+    dateAwarded: number
+    extractedText: number
+    logoUrl: number
+    description: number
+    userDetailsId: number
+    _all: number
+  }
+
+
+  export type CertificationMinAggregateInputType = {
+    id?: true
+    title?: true
+    institution?: true
+    dateAwarded?: true
+    extractedText?: true
+    logoUrl?: true
+    description?: true
+    userDetailsId?: true
+  }
+
+  export type CertificationMaxAggregateInputType = {
+    id?: true
+    title?: true
+    institution?: true
+    dateAwarded?: true
+    extractedText?: true
+    logoUrl?: true
+    description?: true
+    userDetailsId?: true
+  }
+
+  export type CertificationCountAggregateInputType = {
+    id?: true
+    title?: true
+    institution?: true
+    dateAwarded?: true
+    extractedText?: true
+    logoUrl?: true
+    description?: true
+    userDetailsId?: true
+    _all?: true
+  }
+
+  export type CertificationAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Certification to aggregate.
+     */
+    where?: CertificationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Certifications to fetch.
+     */
+    orderBy?: CertificationOrderByWithRelationInput | CertificationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: CertificationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Certifications from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Certifications.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Certifications
+    **/
+    _count?: true | CertificationCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: CertificationMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: CertificationMaxAggregateInputType
+  }
+
+  export type GetCertificationAggregateType<T extends CertificationAggregateArgs> = {
+        [P in keyof T & keyof AggregateCertification]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateCertification[P]>
+      : GetScalarType<T[P], AggregateCertification[P]>
+  }
+
+
+
+
+  export type CertificationGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: CertificationWhereInput
+    orderBy?: CertificationOrderByWithAggregationInput | CertificationOrderByWithAggregationInput[]
+    by: CertificationScalarFieldEnum[] | CertificationScalarFieldEnum
+    having?: CertificationScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: CertificationCountAggregateInputType | true
+    _min?: CertificationMinAggregateInputType
+    _max?: CertificationMaxAggregateInputType
+  }
+
+  export type CertificationGroupByOutputType = {
+    id: string
+    title: string
+    institution: string
+    dateAwarded: Date
+    extractedText: string | null
+    logoUrl: string | null
+    description: string | null
+    userDetailsId: string
+    _count: CertificationCountAggregateOutputType | null
+    _min: CertificationMinAggregateOutputType | null
+    _max: CertificationMaxAggregateOutputType | null
+  }
+
+  type GetCertificationGroupByPayload<T extends CertificationGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<CertificationGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof CertificationGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], CertificationGroupByOutputType[P]>
+            : GetScalarType<T[P], CertificationGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type CertificationSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    title?: boolean
+    institution?: boolean
+    dateAwarded?: boolean
+    extractedText?: boolean
+    logoUrl?: boolean
+    description?: boolean
+    userDetailsId?: boolean
+    userDetails?: boolean | UserDetailsDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["certification"]>
+
+
+
+  export type CertificationSelectScalar = {
+    id?: boolean
+    title?: boolean
+    institution?: boolean
+    dateAwarded?: boolean
+    extractedText?: boolean
+    logoUrl?: boolean
+    description?: boolean
+    userDetailsId?: boolean
+  }
+
+  export type CertificationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "institution" | "dateAwarded" | "extractedText" | "logoUrl" | "description" | "userDetailsId", ExtArgs["result"]["certification"]>
+  export type CertificationInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    userDetails?: boolean | UserDetailsDefaultArgs<ExtArgs>
+  }
+
+  export type $CertificationPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Certification"
+    objects: {
+      userDetails: Prisma.$UserDetailsPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      title: string
+      institution: string
+      dateAwarded: Date
+      extractedText: string | null
+      logoUrl: string | null
+      description: string | null
+      userDetailsId: string
+    }, ExtArgs["result"]["certification"]>
+    composites: {}
+  }
+
+  type CertificationGetPayload<S extends boolean | null | undefined | CertificationDefaultArgs> = $Result.GetResult<Prisma.$CertificationPayload, S>
+
+  type CertificationCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<CertificationFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: CertificationCountAggregateInputType | true
+    }
+
+  export interface CertificationDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Certification'], meta: { name: 'Certification' } }
+    /**
+     * Find zero or one Certification that matches the filter.
+     * @param {CertificationFindUniqueArgs} args - Arguments to find a Certification
+     * @example
+     * // Get one Certification
+     * const certification = await prisma.certification.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends CertificationFindUniqueArgs>(args: SelectSubset<T, CertificationFindUniqueArgs<ExtArgs>>): Prisma__CertificationClient<$Result.GetResult<Prisma.$CertificationPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Certification that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {CertificationFindUniqueOrThrowArgs} args - Arguments to find a Certification
+     * @example
+     * // Get one Certification
+     * const certification = await prisma.certification.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends CertificationFindUniqueOrThrowArgs>(args: SelectSubset<T, CertificationFindUniqueOrThrowArgs<ExtArgs>>): Prisma__CertificationClient<$Result.GetResult<Prisma.$CertificationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Certification that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CertificationFindFirstArgs} args - Arguments to find a Certification
+     * @example
+     * // Get one Certification
+     * const certification = await prisma.certification.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends CertificationFindFirstArgs>(args?: SelectSubset<T, CertificationFindFirstArgs<ExtArgs>>): Prisma__CertificationClient<$Result.GetResult<Prisma.$CertificationPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Certification that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CertificationFindFirstOrThrowArgs} args - Arguments to find a Certification
+     * @example
+     * // Get one Certification
+     * const certification = await prisma.certification.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends CertificationFindFirstOrThrowArgs>(args?: SelectSubset<T, CertificationFindFirstOrThrowArgs<ExtArgs>>): Prisma__CertificationClient<$Result.GetResult<Prisma.$CertificationPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Certifications that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CertificationFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Certifications
+     * const certifications = await prisma.certification.findMany()
+     * 
+     * // Get first 10 Certifications
+     * const certifications = await prisma.certification.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const certificationWithIdOnly = await prisma.certification.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends CertificationFindManyArgs>(args?: SelectSubset<T, CertificationFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CertificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Certification.
+     * @param {CertificationCreateArgs} args - Arguments to create a Certification.
+     * @example
+     * // Create one Certification
+     * const Certification = await prisma.certification.create({
+     *   data: {
+     *     // ... data to create a Certification
+     *   }
+     * })
+     * 
+     */
+    create<T extends CertificationCreateArgs>(args: SelectSubset<T, CertificationCreateArgs<ExtArgs>>): Prisma__CertificationClient<$Result.GetResult<Prisma.$CertificationPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Certifications.
+     * @param {CertificationCreateManyArgs} args - Arguments to create many Certifications.
+     * @example
+     * // Create many Certifications
+     * const certification = await prisma.certification.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends CertificationCreateManyArgs>(args?: SelectSubset<T, CertificationCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a Certification.
+     * @param {CertificationDeleteArgs} args - Arguments to delete one Certification.
+     * @example
+     * // Delete one Certification
+     * const Certification = await prisma.certification.delete({
+     *   where: {
+     *     // ... filter to delete one Certification
+     *   }
+     * })
+     * 
+     */
+    delete<T extends CertificationDeleteArgs>(args: SelectSubset<T, CertificationDeleteArgs<ExtArgs>>): Prisma__CertificationClient<$Result.GetResult<Prisma.$CertificationPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Certification.
+     * @param {CertificationUpdateArgs} args - Arguments to update one Certification.
+     * @example
+     * // Update one Certification
+     * const certification = await prisma.certification.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends CertificationUpdateArgs>(args: SelectSubset<T, CertificationUpdateArgs<ExtArgs>>): Prisma__CertificationClient<$Result.GetResult<Prisma.$CertificationPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Certifications.
+     * @param {CertificationDeleteManyArgs} args - Arguments to filter Certifications to delete.
+     * @example
+     * // Delete a few Certifications
+     * const { count } = await prisma.certification.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends CertificationDeleteManyArgs>(args?: SelectSubset<T, CertificationDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Certifications.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CertificationUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Certifications
+     * const certification = await prisma.certification.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends CertificationUpdateManyArgs>(args: SelectSubset<T, CertificationUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one Certification.
+     * @param {CertificationUpsertArgs} args - Arguments to update or create a Certification.
+     * @example
+     * // Update or create a Certification
+     * const certification = await prisma.certification.upsert({
+     *   create: {
+     *     // ... data to create a Certification
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Certification we want to update
+     *   }
+     * })
+     */
+    upsert<T extends CertificationUpsertArgs>(args: SelectSubset<T, CertificationUpsertArgs<ExtArgs>>): Prisma__CertificationClient<$Result.GetResult<Prisma.$CertificationPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Certifications that matches the filter.
+     * @param {CertificationFindRawArgs} args - Select which filters you would like to apply.
+     * @example
+     * const certification = await prisma.certification.findRaw({
+     *   filter: { age: { $gt: 25 } }
+     * })
+     */
+    findRaw(args?: CertificationFindRawArgs): Prisma.PrismaPromise<JsonObject>
+
+    /**
+     * Perform aggregation operations on a Certification.
+     * @param {CertificationAggregateRawArgs} args - Select which aggregations you would like to apply.
+     * @example
+     * const certification = await prisma.certification.aggregateRaw({
+     *   pipeline: [
+     *     { $match: { status: "registered" } },
+     *     { $group: { _id: "$country", total: { $sum: 1 } } }
+     *   ]
+     * })
+     */
+    aggregateRaw(args?: CertificationAggregateRawArgs): Prisma.PrismaPromise<JsonObject>
+
+
+    /**
+     * Count the number of Certifications.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CertificationCountArgs} args - Arguments to filter Certifications to count.
+     * @example
+     * // Count the number of Certifications
+     * const count = await prisma.certification.count({
+     *   where: {
+     *     // ... the filter for the Certifications we want to count
+     *   }
+     * })
+    **/
+    count<T extends CertificationCountArgs>(
+      args?: Subset<T, CertificationCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], CertificationCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Certification.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CertificationAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends CertificationAggregateArgs>(args: Subset<T, CertificationAggregateArgs>): Prisma.PrismaPromise<GetCertificationAggregateType<T>>
+
+    /**
+     * Group by Certification.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CertificationGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends CertificationGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: CertificationGroupByArgs['orderBy'] }
+        : { orderBy?: CertificationGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, CertificationGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetCertificationGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Certification model
+   */
+  readonly fields: CertificationFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Certification.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__CertificationClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    userDetails<T extends UserDetailsDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDetailsDefaultArgs<ExtArgs>>): Prisma__UserDetailsClient<$Result.GetResult<Prisma.$UserDetailsPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Certification model
+   */
+  interface CertificationFieldRefs {
+    readonly id: FieldRef<"Certification", 'String'>
+    readonly title: FieldRef<"Certification", 'String'>
+    readonly institution: FieldRef<"Certification", 'String'>
+    readonly dateAwarded: FieldRef<"Certification", 'DateTime'>
+    readonly extractedText: FieldRef<"Certification", 'String'>
+    readonly logoUrl: FieldRef<"Certification", 'String'>
+    readonly description: FieldRef<"Certification", 'String'>
+    readonly userDetailsId: FieldRef<"Certification", 'String'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Certification findUnique
+   */
+  export type CertificationFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Certification
+     */
+    select?: CertificationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Certification
+     */
+    omit?: CertificationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CertificationInclude<ExtArgs> | null
+    /**
+     * Filter, which Certification to fetch.
+     */
+    where: CertificationWhereUniqueInput
+  }
+
+  /**
+   * Certification findUniqueOrThrow
+   */
+  export type CertificationFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Certification
+     */
+    select?: CertificationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Certification
+     */
+    omit?: CertificationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CertificationInclude<ExtArgs> | null
+    /**
+     * Filter, which Certification to fetch.
+     */
+    where: CertificationWhereUniqueInput
+  }
+
+  /**
+   * Certification findFirst
+   */
+  export type CertificationFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Certification
+     */
+    select?: CertificationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Certification
+     */
+    omit?: CertificationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CertificationInclude<ExtArgs> | null
+    /**
+     * Filter, which Certification to fetch.
+     */
+    where?: CertificationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Certifications to fetch.
+     */
+    orderBy?: CertificationOrderByWithRelationInput | CertificationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Certifications.
+     */
+    cursor?: CertificationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Certifications from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Certifications.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Certifications.
+     */
+    distinct?: CertificationScalarFieldEnum | CertificationScalarFieldEnum[]
+  }
+
+  /**
+   * Certification findFirstOrThrow
+   */
+  export type CertificationFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Certification
+     */
+    select?: CertificationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Certification
+     */
+    omit?: CertificationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CertificationInclude<ExtArgs> | null
+    /**
+     * Filter, which Certification to fetch.
+     */
+    where?: CertificationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Certifications to fetch.
+     */
+    orderBy?: CertificationOrderByWithRelationInput | CertificationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Certifications.
+     */
+    cursor?: CertificationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Certifications from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Certifications.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Certifications.
+     */
+    distinct?: CertificationScalarFieldEnum | CertificationScalarFieldEnum[]
+  }
+
+  /**
+   * Certification findMany
+   */
+  export type CertificationFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Certification
+     */
+    select?: CertificationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Certification
+     */
+    omit?: CertificationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CertificationInclude<ExtArgs> | null
+    /**
+     * Filter, which Certifications to fetch.
+     */
+    where?: CertificationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Certifications to fetch.
+     */
+    orderBy?: CertificationOrderByWithRelationInput | CertificationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Certifications.
+     */
+    cursor?: CertificationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Certifications from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Certifications.
+     */
+    skip?: number
+    distinct?: CertificationScalarFieldEnum | CertificationScalarFieldEnum[]
+  }
+
+  /**
+   * Certification create
+   */
+  export type CertificationCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Certification
+     */
+    select?: CertificationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Certification
+     */
+    omit?: CertificationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CertificationInclude<ExtArgs> | null
+    /**
+     * The data needed to create a Certification.
+     */
+    data: XOR<CertificationCreateInput, CertificationUncheckedCreateInput>
+  }
+
+  /**
+   * Certification createMany
+   */
+  export type CertificationCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Certifications.
+     */
+    data: CertificationCreateManyInput | CertificationCreateManyInput[]
+  }
+
+  /**
+   * Certification update
+   */
+  export type CertificationUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Certification
+     */
+    select?: CertificationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Certification
+     */
+    omit?: CertificationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CertificationInclude<ExtArgs> | null
+    /**
+     * The data needed to update a Certification.
+     */
+    data: XOR<CertificationUpdateInput, CertificationUncheckedUpdateInput>
+    /**
+     * Choose, which Certification to update.
+     */
+    where: CertificationWhereUniqueInput
+  }
+
+  /**
+   * Certification updateMany
+   */
+  export type CertificationUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Certifications.
+     */
+    data: XOR<CertificationUpdateManyMutationInput, CertificationUncheckedUpdateManyInput>
+    /**
+     * Filter which Certifications to update
+     */
+    where?: CertificationWhereInput
+    /**
+     * Limit how many Certifications to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Certification upsert
+   */
+  export type CertificationUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Certification
+     */
+    select?: CertificationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Certification
+     */
+    omit?: CertificationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CertificationInclude<ExtArgs> | null
+    /**
+     * The filter to search for the Certification to update in case it exists.
+     */
+    where: CertificationWhereUniqueInput
+    /**
+     * In case the Certification found by the `where` argument doesn't exist, create a new Certification with this data.
+     */
+    create: XOR<CertificationCreateInput, CertificationUncheckedCreateInput>
+    /**
+     * In case the Certification was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<CertificationUpdateInput, CertificationUncheckedUpdateInput>
+  }
+
+  /**
+   * Certification delete
+   */
+  export type CertificationDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Certification
+     */
+    select?: CertificationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Certification
+     */
+    omit?: CertificationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CertificationInclude<ExtArgs> | null
+    /**
+     * Filter which Certification to delete.
+     */
+    where: CertificationWhereUniqueInput
+  }
+
+  /**
+   * Certification deleteMany
+   */
+  export type CertificationDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Certifications to delete
+     */
+    where?: CertificationWhereInput
+    /**
+     * Limit how many Certifications to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * Certification findRaw
+   */
+  export type CertificationFindRawArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The query predicate filter. If unspecified, then all documents in the collection will match the predicate. ${@link https://docs.mongodb.com/manual/reference/operator/query MongoDB Docs}.
+     */
+    filter?: InputJsonValue
+    /**
+     * Additional options to pass to the `find` command ${@link https://docs.mongodb.com/manual/reference/command/find/#command-fields MongoDB Docs}.
+     */
+    options?: InputJsonValue
+  }
+
+  /**
+   * Certification aggregateRaw
+   */
+  export type CertificationAggregateRawArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * An array of aggregation stages to process and transform the document stream via the aggregation pipeline. ${@link https://docs.mongodb.com/manual/reference/operator/aggregation-pipeline MongoDB Docs}.
+     */
+    pipeline?: InputJsonValue[]
+    /**
+     * Additional options to pass to the `aggregate` command ${@link https://docs.mongodb.com/manual/reference/command/aggregate/#command-fields MongoDB Docs}.
+     */
+    options?: InputJsonValue
+  }
+
+  /**
+   * Certification without action
+   */
+  export type CertificationDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Certification
+     */
+    select?: CertificationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Certification
+     */
+    omit?: CertificationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CertificationInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model Diploma
+   */
+
+  export type AggregateDiploma = {
+    _count: DiplomaCountAggregateOutputType | null
+    _min: DiplomaMinAggregateOutputType | null
+    _max: DiplomaMaxAggregateOutputType | null
+  }
+
+  export type DiplomaMinAggregateOutputType = {
+    id: string | null
+    degree: string | null
+    fieldOfStudy: string | null
+    institution: string | null
+    dateAwarded: Date | null
+    diplomaUrl: string | null
+    fileType: $Enums.FileType | null
+    userDetailsId: string | null
+  }
+
+  export type DiplomaMaxAggregateOutputType = {
+    id: string | null
+    degree: string | null
+    fieldOfStudy: string | null
+    institution: string | null
+    dateAwarded: Date | null
+    diplomaUrl: string | null
+    fileType: $Enums.FileType | null
+    userDetailsId: string | null
+  }
+
+  export type DiplomaCountAggregateOutputType = {
+    id: number
+    degree: number
+    fieldOfStudy: number
+    institution: number
+    dateAwarded: number
+    diplomaUrl: number
+    fileType: number
+    userDetailsId: number
+    _all: number
+  }
+
+
+  export type DiplomaMinAggregateInputType = {
+    id?: true
+    degree?: true
+    fieldOfStudy?: true
+    institution?: true
+    dateAwarded?: true
+    diplomaUrl?: true
+    fileType?: true
+    userDetailsId?: true
+  }
+
+  export type DiplomaMaxAggregateInputType = {
+    id?: true
+    degree?: true
+    fieldOfStudy?: true
+    institution?: true
+    dateAwarded?: true
+    diplomaUrl?: true
+    fileType?: true
+    userDetailsId?: true
+  }
+
+  export type DiplomaCountAggregateInputType = {
+    id?: true
+    degree?: true
+    fieldOfStudy?: true
+    institution?: true
+    dateAwarded?: true
+    diplomaUrl?: true
+    fileType?: true
+    userDetailsId?: true
+    _all?: true
+  }
+
+  export type DiplomaAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Diploma to aggregate.
+     */
+    where?: DiplomaWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Diplomas to fetch.
+     */
+    orderBy?: DiplomaOrderByWithRelationInput | DiplomaOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: DiplomaWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Diplomas from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Diplomas.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Diplomas
+    **/
+    _count?: true | DiplomaCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: DiplomaMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: DiplomaMaxAggregateInputType
+  }
+
+  export type GetDiplomaAggregateType<T extends DiplomaAggregateArgs> = {
+        [P in keyof T & keyof AggregateDiploma]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateDiploma[P]>
+      : GetScalarType<T[P], AggregateDiploma[P]>
+  }
+
+
+
+
+  export type DiplomaGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DiplomaWhereInput
+    orderBy?: DiplomaOrderByWithAggregationInput | DiplomaOrderByWithAggregationInput[]
+    by: DiplomaScalarFieldEnum[] | DiplomaScalarFieldEnum
+    having?: DiplomaScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: DiplomaCountAggregateInputType | true
+    _min?: DiplomaMinAggregateInputType
+    _max?: DiplomaMaxAggregateInputType
+  }
+
+  export type DiplomaGroupByOutputType = {
+    id: string
+    degree: string
+    fieldOfStudy: string
+    institution: string
+    dateAwarded: Date
+    diplomaUrl: string | null
+    fileType: $Enums.FileType | null
+    userDetailsId: string
+    _count: DiplomaCountAggregateOutputType | null
+    _min: DiplomaMinAggregateOutputType | null
+    _max: DiplomaMaxAggregateOutputType | null
+  }
+
+  type GetDiplomaGroupByPayload<T extends DiplomaGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<DiplomaGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof DiplomaGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], DiplomaGroupByOutputType[P]>
+            : GetScalarType<T[P], DiplomaGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type DiplomaSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    degree?: boolean
+    fieldOfStudy?: boolean
+    institution?: boolean
+    dateAwarded?: boolean
+    diplomaUrl?: boolean
+    fileType?: boolean
+    userDetailsId?: boolean
+    userDetails?: boolean | UserDetailsDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["diploma"]>
+
+
+
+  export type DiplomaSelectScalar = {
+    id?: boolean
+    degree?: boolean
+    fieldOfStudy?: boolean
+    institution?: boolean
+    dateAwarded?: boolean
+    diplomaUrl?: boolean
+    fileType?: boolean
+    userDetailsId?: boolean
+  }
+
+  export type DiplomaOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "degree" | "fieldOfStudy" | "institution" | "dateAwarded" | "diplomaUrl" | "fileType" | "userDetailsId", ExtArgs["result"]["diploma"]>
+  export type DiplomaInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    userDetails?: boolean | UserDetailsDefaultArgs<ExtArgs>
+  }
+
+  export type $DiplomaPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Diploma"
+    objects: {
+      userDetails: Prisma.$UserDetailsPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      degree: string
+      fieldOfStudy: string
+      institution: string
+      dateAwarded: Date
+      diplomaUrl: string | null
+      fileType: $Enums.FileType | null
+      userDetailsId: string
+    }, ExtArgs["result"]["diploma"]>
+    composites: {}
+  }
+
+  type DiplomaGetPayload<S extends boolean | null | undefined | DiplomaDefaultArgs> = $Result.GetResult<Prisma.$DiplomaPayload, S>
+
+  type DiplomaCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<DiplomaFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: DiplomaCountAggregateInputType | true
+    }
+
+  export interface DiplomaDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Diploma'], meta: { name: 'Diploma' } }
+    /**
+     * Find zero or one Diploma that matches the filter.
+     * @param {DiplomaFindUniqueArgs} args - Arguments to find a Diploma
+     * @example
+     * // Get one Diploma
+     * const diploma = await prisma.diploma.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends DiplomaFindUniqueArgs>(args: SelectSubset<T, DiplomaFindUniqueArgs<ExtArgs>>): Prisma__DiplomaClient<$Result.GetResult<Prisma.$DiplomaPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Diploma that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {DiplomaFindUniqueOrThrowArgs} args - Arguments to find a Diploma
+     * @example
+     * // Get one Diploma
+     * const diploma = await prisma.diploma.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends DiplomaFindUniqueOrThrowArgs>(args: SelectSubset<T, DiplomaFindUniqueOrThrowArgs<ExtArgs>>): Prisma__DiplomaClient<$Result.GetResult<Prisma.$DiplomaPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Diploma that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DiplomaFindFirstArgs} args - Arguments to find a Diploma
+     * @example
+     * // Get one Diploma
+     * const diploma = await prisma.diploma.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends DiplomaFindFirstArgs>(args?: SelectSubset<T, DiplomaFindFirstArgs<ExtArgs>>): Prisma__DiplomaClient<$Result.GetResult<Prisma.$DiplomaPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Diploma that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DiplomaFindFirstOrThrowArgs} args - Arguments to find a Diploma
+     * @example
+     * // Get one Diploma
+     * const diploma = await prisma.diploma.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends DiplomaFindFirstOrThrowArgs>(args?: SelectSubset<T, DiplomaFindFirstOrThrowArgs<ExtArgs>>): Prisma__DiplomaClient<$Result.GetResult<Prisma.$DiplomaPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Diplomas that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DiplomaFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Diplomas
+     * const diplomas = await prisma.diploma.findMany()
+     * 
+     * // Get first 10 Diplomas
+     * const diplomas = await prisma.diploma.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const diplomaWithIdOnly = await prisma.diploma.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends DiplomaFindManyArgs>(args?: SelectSubset<T, DiplomaFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DiplomaPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Diploma.
+     * @param {DiplomaCreateArgs} args - Arguments to create a Diploma.
+     * @example
+     * // Create one Diploma
+     * const Diploma = await prisma.diploma.create({
+     *   data: {
+     *     // ... data to create a Diploma
+     *   }
+     * })
+     * 
+     */
+    create<T extends DiplomaCreateArgs>(args: SelectSubset<T, DiplomaCreateArgs<ExtArgs>>): Prisma__DiplomaClient<$Result.GetResult<Prisma.$DiplomaPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Diplomas.
+     * @param {DiplomaCreateManyArgs} args - Arguments to create many Diplomas.
+     * @example
+     * // Create many Diplomas
+     * const diploma = await prisma.diploma.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends DiplomaCreateManyArgs>(args?: SelectSubset<T, DiplomaCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a Diploma.
+     * @param {DiplomaDeleteArgs} args - Arguments to delete one Diploma.
+     * @example
+     * // Delete one Diploma
+     * const Diploma = await prisma.diploma.delete({
+     *   where: {
+     *     // ... filter to delete one Diploma
+     *   }
+     * })
+     * 
+     */
+    delete<T extends DiplomaDeleteArgs>(args: SelectSubset<T, DiplomaDeleteArgs<ExtArgs>>): Prisma__DiplomaClient<$Result.GetResult<Prisma.$DiplomaPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Diploma.
+     * @param {DiplomaUpdateArgs} args - Arguments to update one Diploma.
+     * @example
+     * // Update one Diploma
+     * const diploma = await prisma.diploma.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends DiplomaUpdateArgs>(args: SelectSubset<T, DiplomaUpdateArgs<ExtArgs>>): Prisma__DiplomaClient<$Result.GetResult<Prisma.$DiplomaPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Diplomas.
+     * @param {DiplomaDeleteManyArgs} args - Arguments to filter Diplomas to delete.
+     * @example
+     * // Delete a few Diplomas
+     * const { count } = await prisma.diploma.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends DiplomaDeleteManyArgs>(args?: SelectSubset<T, DiplomaDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Diplomas.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DiplomaUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Diplomas
+     * const diploma = await prisma.diploma.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends DiplomaUpdateManyArgs>(args: SelectSubset<T, DiplomaUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one Diploma.
+     * @param {DiplomaUpsertArgs} args - Arguments to update or create a Diploma.
+     * @example
+     * // Update or create a Diploma
+     * const diploma = await prisma.diploma.upsert({
+     *   create: {
+     *     // ... data to create a Diploma
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Diploma we want to update
+     *   }
+     * })
+     */
+    upsert<T extends DiplomaUpsertArgs>(args: SelectSubset<T, DiplomaUpsertArgs<ExtArgs>>): Prisma__DiplomaClient<$Result.GetResult<Prisma.$DiplomaPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Diplomas that matches the filter.
+     * @param {DiplomaFindRawArgs} args - Select which filters you would like to apply.
+     * @example
+     * const diploma = await prisma.diploma.findRaw({
+     *   filter: { age: { $gt: 25 } }
+     * })
+     */
+    findRaw(args?: DiplomaFindRawArgs): Prisma.PrismaPromise<JsonObject>
+
+    /**
+     * Perform aggregation operations on a Diploma.
+     * @param {DiplomaAggregateRawArgs} args - Select which aggregations you would like to apply.
+     * @example
+     * const diploma = await prisma.diploma.aggregateRaw({
+     *   pipeline: [
+     *     { $match: { status: "registered" } },
+     *     { $group: { _id: "$country", total: { $sum: 1 } } }
+     *   ]
+     * })
+     */
+    aggregateRaw(args?: DiplomaAggregateRawArgs): Prisma.PrismaPromise<JsonObject>
+
+
+    /**
+     * Count the number of Diplomas.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DiplomaCountArgs} args - Arguments to filter Diplomas to count.
+     * @example
+     * // Count the number of Diplomas
+     * const count = await prisma.diploma.count({
+     *   where: {
+     *     // ... the filter for the Diplomas we want to count
+     *   }
+     * })
+    **/
+    count<T extends DiplomaCountArgs>(
+      args?: Subset<T, DiplomaCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], DiplomaCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Diploma.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DiplomaAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends DiplomaAggregateArgs>(args: Subset<T, DiplomaAggregateArgs>): Prisma.PrismaPromise<GetDiplomaAggregateType<T>>
+
+    /**
+     * Group by Diploma.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DiplomaGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends DiplomaGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: DiplomaGroupByArgs['orderBy'] }
+        : { orderBy?: DiplomaGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, DiplomaGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetDiplomaGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Diploma model
+   */
+  readonly fields: DiplomaFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Diploma.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__DiplomaClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    userDetails<T extends UserDetailsDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDetailsDefaultArgs<ExtArgs>>): Prisma__UserDetailsClient<$Result.GetResult<Prisma.$UserDetailsPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Diploma model
+   */
+  interface DiplomaFieldRefs {
+    readonly id: FieldRef<"Diploma", 'String'>
+    readonly degree: FieldRef<"Diploma", 'String'>
+    readonly fieldOfStudy: FieldRef<"Diploma", 'String'>
+    readonly institution: FieldRef<"Diploma", 'String'>
+    readonly dateAwarded: FieldRef<"Diploma", 'DateTime'>
+    readonly diplomaUrl: FieldRef<"Diploma", 'String'>
+    readonly fileType: FieldRef<"Diploma", 'FileType'>
+    readonly userDetailsId: FieldRef<"Diploma", 'String'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Diploma findUnique
+   */
+  export type DiplomaFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Diploma
+     */
+    select?: DiplomaSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Diploma
+     */
+    omit?: DiplomaOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DiplomaInclude<ExtArgs> | null
+    /**
+     * Filter, which Diploma to fetch.
+     */
+    where: DiplomaWhereUniqueInput
+  }
+
+  /**
+   * Diploma findUniqueOrThrow
+   */
+  export type DiplomaFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Diploma
+     */
+    select?: DiplomaSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Diploma
+     */
+    omit?: DiplomaOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DiplomaInclude<ExtArgs> | null
+    /**
+     * Filter, which Diploma to fetch.
+     */
+    where: DiplomaWhereUniqueInput
+  }
+
+  /**
+   * Diploma findFirst
+   */
+  export type DiplomaFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Diploma
+     */
+    select?: DiplomaSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Diploma
+     */
+    omit?: DiplomaOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DiplomaInclude<ExtArgs> | null
+    /**
+     * Filter, which Diploma to fetch.
+     */
+    where?: DiplomaWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Diplomas to fetch.
+     */
+    orderBy?: DiplomaOrderByWithRelationInput | DiplomaOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Diplomas.
+     */
+    cursor?: DiplomaWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Diplomas from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Diplomas.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Diplomas.
+     */
+    distinct?: DiplomaScalarFieldEnum | DiplomaScalarFieldEnum[]
+  }
+
+  /**
+   * Diploma findFirstOrThrow
+   */
+  export type DiplomaFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Diploma
+     */
+    select?: DiplomaSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Diploma
+     */
+    omit?: DiplomaOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DiplomaInclude<ExtArgs> | null
+    /**
+     * Filter, which Diploma to fetch.
+     */
+    where?: DiplomaWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Diplomas to fetch.
+     */
+    orderBy?: DiplomaOrderByWithRelationInput | DiplomaOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Diplomas.
+     */
+    cursor?: DiplomaWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Diplomas from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Diplomas.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Diplomas.
+     */
+    distinct?: DiplomaScalarFieldEnum | DiplomaScalarFieldEnum[]
+  }
+
+  /**
+   * Diploma findMany
+   */
+  export type DiplomaFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Diploma
+     */
+    select?: DiplomaSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Diploma
+     */
+    omit?: DiplomaOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DiplomaInclude<ExtArgs> | null
+    /**
+     * Filter, which Diplomas to fetch.
+     */
+    where?: DiplomaWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Diplomas to fetch.
+     */
+    orderBy?: DiplomaOrderByWithRelationInput | DiplomaOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Diplomas.
+     */
+    cursor?: DiplomaWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Diplomas from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Diplomas.
+     */
+    skip?: number
+    distinct?: DiplomaScalarFieldEnum | DiplomaScalarFieldEnum[]
+  }
+
+  /**
+   * Diploma create
+   */
+  export type DiplomaCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Diploma
+     */
+    select?: DiplomaSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Diploma
+     */
+    omit?: DiplomaOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DiplomaInclude<ExtArgs> | null
+    /**
+     * The data needed to create a Diploma.
+     */
+    data: XOR<DiplomaCreateInput, DiplomaUncheckedCreateInput>
+  }
+
+  /**
+   * Diploma createMany
+   */
+  export type DiplomaCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Diplomas.
+     */
+    data: DiplomaCreateManyInput | DiplomaCreateManyInput[]
+  }
+
+  /**
+   * Diploma update
+   */
+  export type DiplomaUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Diploma
+     */
+    select?: DiplomaSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Diploma
+     */
+    omit?: DiplomaOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DiplomaInclude<ExtArgs> | null
+    /**
+     * The data needed to update a Diploma.
+     */
+    data: XOR<DiplomaUpdateInput, DiplomaUncheckedUpdateInput>
+    /**
+     * Choose, which Diploma to update.
+     */
+    where: DiplomaWhereUniqueInput
+  }
+
+  /**
+   * Diploma updateMany
+   */
+  export type DiplomaUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Diplomas.
+     */
+    data: XOR<DiplomaUpdateManyMutationInput, DiplomaUncheckedUpdateManyInput>
+    /**
+     * Filter which Diplomas to update
+     */
+    where?: DiplomaWhereInput
+    /**
+     * Limit how many Diplomas to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Diploma upsert
+   */
+  export type DiplomaUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Diploma
+     */
+    select?: DiplomaSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Diploma
+     */
+    omit?: DiplomaOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DiplomaInclude<ExtArgs> | null
+    /**
+     * The filter to search for the Diploma to update in case it exists.
+     */
+    where: DiplomaWhereUniqueInput
+    /**
+     * In case the Diploma found by the `where` argument doesn't exist, create a new Diploma with this data.
+     */
+    create: XOR<DiplomaCreateInput, DiplomaUncheckedCreateInput>
+    /**
+     * In case the Diploma was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<DiplomaUpdateInput, DiplomaUncheckedUpdateInput>
+  }
+
+  /**
+   * Diploma delete
+   */
+  export type DiplomaDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Diploma
+     */
+    select?: DiplomaSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Diploma
+     */
+    omit?: DiplomaOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DiplomaInclude<ExtArgs> | null
+    /**
+     * Filter which Diploma to delete.
+     */
+    where: DiplomaWhereUniqueInput
+  }
+
+  /**
+   * Diploma deleteMany
+   */
+  export type DiplomaDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Diplomas to delete
+     */
+    where?: DiplomaWhereInput
+    /**
+     * Limit how many Diplomas to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * Diploma findRaw
+   */
+  export type DiplomaFindRawArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The query predicate filter. If unspecified, then all documents in the collection will match the predicate. ${@link https://docs.mongodb.com/manual/reference/operator/query MongoDB Docs}.
+     */
+    filter?: InputJsonValue
+    /**
+     * Additional options to pass to the `find` command ${@link https://docs.mongodb.com/manual/reference/command/find/#command-fields MongoDB Docs}.
+     */
+    options?: InputJsonValue
+  }
+
+  /**
+   * Diploma aggregateRaw
+   */
+  export type DiplomaAggregateRawArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * An array of aggregation stages to process and transform the document stream via the aggregation pipeline. ${@link https://docs.mongodb.com/manual/reference/operator/aggregation-pipeline MongoDB Docs}.
+     */
+    pipeline?: InputJsonValue[]
+    /**
+     * Additional options to pass to the `aggregate` command ${@link https://docs.mongodb.com/manual/reference/command/aggregate/#command-fields MongoDB Docs}.
+     */
+    options?: InputJsonValue
+  }
+
+  /**
+   * Diploma without action
+   */
+  export type DiplomaDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Diploma
+     */
+    select?: DiplomaSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Diploma
+     */
+    omit?: DiplomaOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DiplomaInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -8590,6 +10887,34 @@ export namespace Prisma {
   export type PasswordResetTokenScalarFieldEnum = (typeof PasswordResetTokenScalarFieldEnum)[keyof typeof PasswordResetTokenScalarFieldEnum]
 
 
+  export const CertificationScalarFieldEnum: {
+    id: 'id',
+    title: 'title',
+    institution: 'institution',
+    dateAwarded: 'dateAwarded',
+    extractedText: 'extractedText',
+    logoUrl: 'logoUrl',
+    description: 'description',
+    userDetailsId: 'userDetailsId'
+  };
+
+  export type CertificationScalarFieldEnum = (typeof CertificationScalarFieldEnum)[keyof typeof CertificationScalarFieldEnum]
+
+
+  export const DiplomaScalarFieldEnum: {
+    id: 'id',
+    degree: 'degree',
+    fieldOfStudy: 'fieldOfStudy',
+    institution: 'institution',
+    dateAwarded: 'dateAwarded',
+    diplomaUrl: 'diplomaUrl',
+    fileType: 'fileType',
+    userDetailsId: 'userDetailsId'
+  };
+
+  export type DiplomaScalarFieldEnum = (typeof DiplomaScalarFieldEnum)[keyof typeof DiplomaScalarFieldEnum]
+
+
   export const SortOrder: {
     asc: 'asc',
     desc: 'desc'
@@ -8636,6 +10961,20 @@ export namespace Prisma {
    * Reference to a field of type 'DateTime[]'
    */
   export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'FileType'
+   */
+  export type EnumFileTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'FileType'>
+    
+
+
+  /**
+   * Reference to a field of type 'FileType[]'
+   */
+  export type ListEnumFileTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'FileType[]'>
     
 
 
@@ -8734,6 +11073,8 @@ export namespace Prisma {
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
     paintings?: PaintingListRelationFilter
     projects?: ProjectListRelationFilter
+    certifications?: CertificationListRelationFilter
+    diplomas?: DiplomaListRelationFilter
   }
 
   export type UserDetailsOrderByWithRelationInput = {
@@ -8747,6 +11088,8 @@ export namespace Prisma {
     user?: UserOrderByWithRelationInput
     paintings?: PaintingOrderByRelationAggregateInput
     projects?: ProjectOrderByRelationAggregateInput
+    certifications?: CertificationOrderByRelationAggregateInput
+    diplomas?: DiplomaOrderByRelationAggregateInput
   }
 
   export type UserDetailsWhereUniqueInput = Prisma.AtLeast<{
@@ -8763,6 +11106,8 @@ export namespace Prisma {
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
     paintings?: PaintingListRelationFilter
     projects?: ProjectListRelationFilter
+    certifications?: CertificationListRelationFilter
+    diplomas?: DiplomaListRelationFilter
   }, "id" | "userId">
 
   export type UserDetailsOrderByWithAggregationInput = {
@@ -9071,6 +11416,146 @@ export namespace Prisma {
     createdAt?: DateTimeWithAggregatesFilter<"PasswordResetToken"> | Date | string
   }
 
+  export type CertificationWhereInput = {
+    AND?: CertificationWhereInput | CertificationWhereInput[]
+    OR?: CertificationWhereInput[]
+    NOT?: CertificationWhereInput | CertificationWhereInput[]
+    id?: StringFilter<"Certification"> | string
+    title?: StringFilter<"Certification"> | string
+    institution?: StringFilter<"Certification"> | string
+    dateAwarded?: DateTimeFilter<"Certification"> | Date | string
+    extractedText?: StringNullableFilter<"Certification"> | string | null
+    logoUrl?: StringNullableFilter<"Certification"> | string | null
+    description?: StringNullableFilter<"Certification"> | string | null
+    userDetailsId?: StringFilter<"Certification"> | string
+    userDetails?: XOR<UserDetailsScalarRelationFilter, UserDetailsWhereInput>
+  }
+
+  export type CertificationOrderByWithRelationInput = {
+    id?: SortOrder
+    title?: SortOrder
+    institution?: SortOrder
+    dateAwarded?: SortOrder
+    extractedText?: SortOrder
+    logoUrl?: SortOrder
+    description?: SortOrder
+    userDetailsId?: SortOrder
+    userDetails?: UserDetailsOrderByWithRelationInput
+  }
+
+  export type CertificationWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: CertificationWhereInput | CertificationWhereInput[]
+    OR?: CertificationWhereInput[]
+    NOT?: CertificationWhereInput | CertificationWhereInput[]
+    title?: StringFilter<"Certification"> | string
+    institution?: StringFilter<"Certification"> | string
+    dateAwarded?: DateTimeFilter<"Certification"> | Date | string
+    extractedText?: StringNullableFilter<"Certification"> | string | null
+    logoUrl?: StringNullableFilter<"Certification"> | string | null
+    description?: StringNullableFilter<"Certification"> | string | null
+    userDetailsId?: StringFilter<"Certification"> | string
+    userDetails?: XOR<UserDetailsScalarRelationFilter, UserDetailsWhereInput>
+  }, "id">
+
+  export type CertificationOrderByWithAggregationInput = {
+    id?: SortOrder
+    title?: SortOrder
+    institution?: SortOrder
+    dateAwarded?: SortOrder
+    extractedText?: SortOrder
+    logoUrl?: SortOrder
+    description?: SortOrder
+    userDetailsId?: SortOrder
+    _count?: CertificationCountOrderByAggregateInput
+    _max?: CertificationMaxOrderByAggregateInput
+    _min?: CertificationMinOrderByAggregateInput
+  }
+
+  export type CertificationScalarWhereWithAggregatesInput = {
+    AND?: CertificationScalarWhereWithAggregatesInput | CertificationScalarWhereWithAggregatesInput[]
+    OR?: CertificationScalarWhereWithAggregatesInput[]
+    NOT?: CertificationScalarWhereWithAggregatesInput | CertificationScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"Certification"> | string
+    title?: StringWithAggregatesFilter<"Certification"> | string
+    institution?: StringWithAggregatesFilter<"Certification"> | string
+    dateAwarded?: DateTimeWithAggregatesFilter<"Certification"> | Date | string
+    extractedText?: StringNullableWithAggregatesFilter<"Certification"> | string | null
+    logoUrl?: StringNullableWithAggregatesFilter<"Certification"> | string | null
+    description?: StringNullableWithAggregatesFilter<"Certification"> | string | null
+    userDetailsId?: StringWithAggregatesFilter<"Certification"> | string
+  }
+
+  export type DiplomaWhereInput = {
+    AND?: DiplomaWhereInput | DiplomaWhereInput[]
+    OR?: DiplomaWhereInput[]
+    NOT?: DiplomaWhereInput | DiplomaWhereInput[]
+    id?: StringFilter<"Diploma"> | string
+    degree?: StringFilter<"Diploma"> | string
+    fieldOfStudy?: StringFilter<"Diploma"> | string
+    institution?: StringFilter<"Diploma"> | string
+    dateAwarded?: DateTimeFilter<"Diploma"> | Date | string
+    diplomaUrl?: StringNullableFilter<"Diploma"> | string | null
+    fileType?: EnumFileTypeNullableFilter<"Diploma"> | $Enums.FileType | null
+    userDetailsId?: StringFilter<"Diploma"> | string
+    userDetails?: XOR<UserDetailsScalarRelationFilter, UserDetailsWhereInput>
+  }
+
+  export type DiplomaOrderByWithRelationInput = {
+    id?: SortOrder
+    degree?: SortOrder
+    fieldOfStudy?: SortOrder
+    institution?: SortOrder
+    dateAwarded?: SortOrder
+    diplomaUrl?: SortOrder
+    fileType?: SortOrder
+    userDetailsId?: SortOrder
+    userDetails?: UserDetailsOrderByWithRelationInput
+  }
+
+  export type DiplomaWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: DiplomaWhereInput | DiplomaWhereInput[]
+    OR?: DiplomaWhereInput[]
+    NOT?: DiplomaWhereInput | DiplomaWhereInput[]
+    degree?: StringFilter<"Diploma"> | string
+    fieldOfStudy?: StringFilter<"Diploma"> | string
+    institution?: StringFilter<"Diploma"> | string
+    dateAwarded?: DateTimeFilter<"Diploma"> | Date | string
+    diplomaUrl?: StringNullableFilter<"Diploma"> | string | null
+    fileType?: EnumFileTypeNullableFilter<"Diploma"> | $Enums.FileType | null
+    userDetailsId?: StringFilter<"Diploma"> | string
+    userDetails?: XOR<UserDetailsScalarRelationFilter, UserDetailsWhereInput>
+  }, "id">
+
+  export type DiplomaOrderByWithAggregationInput = {
+    id?: SortOrder
+    degree?: SortOrder
+    fieldOfStudy?: SortOrder
+    institution?: SortOrder
+    dateAwarded?: SortOrder
+    diplomaUrl?: SortOrder
+    fileType?: SortOrder
+    userDetailsId?: SortOrder
+    _count?: DiplomaCountOrderByAggregateInput
+    _max?: DiplomaMaxOrderByAggregateInput
+    _min?: DiplomaMinOrderByAggregateInput
+  }
+
+  export type DiplomaScalarWhereWithAggregatesInput = {
+    AND?: DiplomaScalarWhereWithAggregatesInput | DiplomaScalarWhereWithAggregatesInput[]
+    OR?: DiplomaScalarWhereWithAggregatesInput[]
+    NOT?: DiplomaScalarWhereWithAggregatesInput | DiplomaScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"Diploma"> | string
+    degree?: StringWithAggregatesFilter<"Diploma"> | string
+    fieldOfStudy?: StringWithAggregatesFilter<"Diploma"> | string
+    institution?: StringWithAggregatesFilter<"Diploma"> | string
+    dateAwarded?: DateTimeWithAggregatesFilter<"Diploma"> | Date | string
+    diplomaUrl?: StringNullableWithAggregatesFilter<"Diploma"> | string | null
+    fileType?: EnumFileTypeNullableWithAggregatesFilter<"Diploma"> | $Enums.FileType | null
+    userDetailsId?: StringWithAggregatesFilter<"Diploma"> | string
+  }
+
   export type UserCreateInput = {
     id?: string
     email: string
@@ -9149,6 +11634,8 @@ export namespace Prisma {
     user: UserCreateNestedOneWithoutDetailsInput
     paintings?: PaintingCreateNestedManyWithoutUserDetailsInput
     projects?: ProjectCreateNestedManyWithoutUserDetailsInput
+    certifications?: CertificationCreateNestedManyWithoutUserDetailsInput
+    diplomas?: DiplomaCreateNestedManyWithoutUserDetailsInput
   }
 
   export type UserDetailsUncheckedCreateInput = {
@@ -9161,6 +11648,8 @@ export namespace Prisma {
     imageUrl?: string | null
     paintings?: PaintingUncheckedCreateNestedManyWithoutUserDetailsInput
     projects?: ProjectUncheckedCreateNestedManyWithoutUserDetailsInput
+    certifications?: CertificationUncheckedCreateNestedManyWithoutUserDetailsInput
+    diplomas?: DiplomaUncheckedCreateNestedManyWithoutUserDetailsInput
   }
 
   export type UserDetailsUpdateInput = {
@@ -9172,6 +11661,8 @@ export namespace Prisma {
     user?: UserUpdateOneRequiredWithoutDetailsNestedInput
     paintings?: PaintingUpdateManyWithoutUserDetailsNestedInput
     projects?: ProjectUpdateManyWithoutUserDetailsNestedInput
+    certifications?: CertificationUpdateManyWithoutUserDetailsNestedInput
+    diplomas?: DiplomaUpdateManyWithoutUserDetailsNestedInput
   }
 
   export type UserDetailsUncheckedUpdateInput = {
@@ -9183,6 +11674,8 @@ export namespace Prisma {
     imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     paintings?: PaintingUncheckedUpdateManyWithoutUserDetailsNestedInput
     projects?: ProjectUncheckedUpdateManyWithoutUserDetailsNestedInput
+    certifications?: CertificationUncheckedUpdateManyWithoutUserDetailsNestedInput
+    diplomas?: DiplomaUncheckedUpdateManyWithoutUserDetailsNestedInput
   }
 
   export type UserDetailsCreateManyInput = {
@@ -9474,6 +11967,150 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type CertificationCreateInput = {
+    id?: string
+    title: string
+    institution: string
+    dateAwarded: Date | string
+    extractedText?: string | null
+    logoUrl?: string | null
+    description?: string | null
+    userDetails: UserDetailsCreateNestedOneWithoutCertificationsInput
+  }
+
+  export type CertificationUncheckedCreateInput = {
+    id?: string
+    title: string
+    institution: string
+    dateAwarded: Date | string
+    extractedText?: string | null
+    logoUrl?: string | null
+    description?: string | null
+    userDetailsId: string
+  }
+
+  export type CertificationUpdateInput = {
+    title?: StringFieldUpdateOperationsInput | string
+    institution?: StringFieldUpdateOperationsInput | string
+    dateAwarded?: DateTimeFieldUpdateOperationsInput | Date | string
+    extractedText?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    userDetails?: UserDetailsUpdateOneRequiredWithoutCertificationsNestedInput
+  }
+
+  export type CertificationUncheckedUpdateInput = {
+    title?: StringFieldUpdateOperationsInput | string
+    institution?: StringFieldUpdateOperationsInput | string
+    dateAwarded?: DateTimeFieldUpdateOperationsInput | Date | string
+    extractedText?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    userDetailsId?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type CertificationCreateManyInput = {
+    id?: string
+    title: string
+    institution: string
+    dateAwarded: Date | string
+    extractedText?: string | null
+    logoUrl?: string | null
+    description?: string | null
+    userDetailsId: string
+  }
+
+  export type CertificationUpdateManyMutationInput = {
+    title?: StringFieldUpdateOperationsInput | string
+    institution?: StringFieldUpdateOperationsInput | string
+    dateAwarded?: DateTimeFieldUpdateOperationsInput | Date | string
+    extractedText?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type CertificationUncheckedUpdateManyInput = {
+    title?: StringFieldUpdateOperationsInput | string
+    institution?: StringFieldUpdateOperationsInput | string
+    dateAwarded?: DateTimeFieldUpdateOperationsInput | Date | string
+    extractedText?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    userDetailsId?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type DiplomaCreateInput = {
+    id?: string
+    degree: string
+    fieldOfStudy: string
+    institution: string
+    dateAwarded: Date | string
+    diplomaUrl?: string | null
+    fileType?: $Enums.FileType | null
+    userDetails: UserDetailsCreateNestedOneWithoutDiplomasInput
+  }
+
+  export type DiplomaUncheckedCreateInput = {
+    id?: string
+    degree: string
+    fieldOfStudy: string
+    institution: string
+    dateAwarded: Date | string
+    diplomaUrl?: string | null
+    fileType?: $Enums.FileType | null
+    userDetailsId: string
+  }
+
+  export type DiplomaUpdateInput = {
+    degree?: StringFieldUpdateOperationsInput | string
+    fieldOfStudy?: StringFieldUpdateOperationsInput | string
+    institution?: StringFieldUpdateOperationsInput | string
+    dateAwarded?: DateTimeFieldUpdateOperationsInput | Date | string
+    diplomaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fileType?: NullableEnumFileTypeFieldUpdateOperationsInput | $Enums.FileType | null
+    userDetails?: UserDetailsUpdateOneRequiredWithoutDiplomasNestedInput
+  }
+
+  export type DiplomaUncheckedUpdateInput = {
+    degree?: StringFieldUpdateOperationsInput | string
+    fieldOfStudy?: StringFieldUpdateOperationsInput | string
+    institution?: StringFieldUpdateOperationsInput | string
+    dateAwarded?: DateTimeFieldUpdateOperationsInput | Date | string
+    diplomaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fileType?: NullableEnumFileTypeFieldUpdateOperationsInput | $Enums.FileType | null
+    userDetailsId?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type DiplomaCreateManyInput = {
+    id?: string
+    degree: string
+    fieldOfStudy: string
+    institution: string
+    dateAwarded: Date | string
+    diplomaUrl?: string | null
+    fileType?: $Enums.FileType | null
+    userDetailsId: string
+  }
+
+  export type DiplomaUpdateManyMutationInput = {
+    degree?: StringFieldUpdateOperationsInput | string
+    fieldOfStudy?: StringFieldUpdateOperationsInput | string
+    institution?: StringFieldUpdateOperationsInput | string
+    dateAwarded?: DateTimeFieldUpdateOperationsInput | Date | string
+    diplomaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fileType?: NullableEnumFileTypeFieldUpdateOperationsInput | $Enums.FileType | null
+  }
+
+  export type DiplomaUncheckedUpdateManyInput = {
+    degree?: StringFieldUpdateOperationsInput | string
+    fieldOfStudy?: StringFieldUpdateOperationsInput | string
+    institution?: StringFieldUpdateOperationsInput | string
+    dateAwarded?: DateTimeFieldUpdateOperationsInput | Date | string
+    diplomaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fileType?: NullableEnumFileTypeFieldUpdateOperationsInput | $Enums.FileType | null
+    userDetailsId?: StringFieldUpdateOperationsInput | string
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -9618,11 +12255,31 @@ export namespace Prisma {
     none?: ProjectWhereInput
   }
 
+  export type CertificationListRelationFilter = {
+    every?: CertificationWhereInput
+    some?: CertificationWhereInput
+    none?: CertificationWhereInput
+  }
+
+  export type DiplomaListRelationFilter = {
+    every?: DiplomaWhereInput
+    some?: DiplomaWhereInput
+    none?: DiplomaWhereInput
+  }
+
   export type PaintingOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
   export type ProjectOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type CertificationOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type DiplomaOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -9807,6 +12464,91 @@ export namespace Prisma {
     userId?: SortOrder
     expiresAt?: SortOrder
     createdAt?: SortOrder
+  }
+
+  export type CertificationCountOrderByAggregateInput = {
+    id?: SortOrder
+    title?: SortOrder
+    institution?: SortOrder
+    dateAwarded?: SortOrder
+    extractedText?: SortOrder
+    logoUrl?: SortOrder
+    description?: SortOrder
+    userDetailsId?: SortOrder
+  }
+
+  export type CertificationMaxOrderByAggregateInput = {
+    id?: SortOrder
+    title?: SortOrder
+    institution?: SortOrder
+    dateAwarded?: SortOrder
+    extractedText?: SortOrder
+    logoUrl?: SortOrder
+    description?: SortOrder
+    userDetailsId?: SortOrder
+  }
+
+  export type CertificationMinOrderByAggregateInput = {
+    id?: SortOrder
+    title?: SortOrder
+    institution?: SortOrder
+    dateAwarded?: SortOrder
+    extractedText?: SortOrder
+    logoUrl?: SortOrder
+    description?: SortOrder
+    userDetailsId?: SortOrder
+  }
+
+  export type EnumFileTypeNullableFilter<$PrismaModel = never> = {
+    equals?: $Enums.FileType | EnumFileTypeFieldRefInput<$PrismaModel> | null
+    in?: $Enums.FileType[] | ListEnumFileTypeFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.FileType[] | ListEnumFileTypeFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumFileTypeNullableFilter<$PrismaModel> | $Enums.FileType | null
+    isSet?: boolean
+  }
+
+  export type DiplomaCountOrderByAggregateInput = {
+    id?: SortOrder
+    degree?: SortOrder
+    fieldOfStudy?: SortOrder
+    institution?: SortOrder
+    dateAwarded?: SortOrder
+    diplomaUrl?: SortOrder
+    fileType?: SortOrder
+    userDetailsId?: SortOrder
+  }
+
+  export type DiplomaMaxOrderByAggregateInput = {
+    id?: SortOrder
+    degree?: SortOrder
+    fieldOfStudy?: SortOrder
+    institution?: SortOrder
+    dateAwarded?: SortOrder
+    diplomaUrl?: SortOrder
+    fileType?: SortOrder
+    userDetailsId?: SortOrder
+  }
+
+  export type DiplomaMinOrderByAggregateInput = {
+    id?: SortOrder
+    degree?: SortOrder
+    fieldOfStudy?: SortOrder
+    institution?: SortOrder
+    dateAwarded?: SortOrder
+    diplomaUrl?: SortOrder
+    fileType?: SortOrder
+    userDetailsId?: SortOrder
+  }
+
+  export type EnumFileTypeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.FileType | EnumFileTypeFieldRefInput<$PrismaModel> | null
+    in?: $Enums.FileType[] | ListEnumFileTypeFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.FileType[] | ListEnumFileTypeFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumFileTypeNullableWithAggregatesFilter<$PrismaModel> | $Enums.FileType | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedEnumFileTypeNullableFilter<$PrismaModel>
+    _max?: NestedEnumFileTypeNullableFilter<$PrismaModel>
+    isSet?: boolean
   }
 
   export type PortfolioCreateNestedManyWithoutUserInput = {
@@ -9996,6 +12738,20 @@ export namespace Prisma {
     connect?: ProjectWhereUniqueInput | ProjectWhereUniqueInput[]
   }
 
+  export type CertificationCreateNestedManyWithoutUserDetailsInput = {
+    create?: XOR<CertificationCreateWithoutUserDetailsInput, CertificationUncheckedCreateWithoutUserDetailsInput> | CertificationCreateWithoutUserDetailsInput[] | CertificationUncheckedCreateWithoutUserDetailsInput[]
+    connectOrCreate?: CertificationCreateOrConnectWithoutUserDetailsInput | CertificationCreateOrConnectWithoutUserDetailsInput[]
+    createMany?: CertificationCreateManyUserDetailsInputEnvelope
+    connect?: CertificationWhereUniqueInput | CertificationWhereUniqueInput[]
+  }
+
+  export type DiplomaCreateNestedManyWithoutUserDetailsInput = {
+    create?: XOR<DiplomaCreateWithoutUserDetailsInput, DiplomaUncheckedCreateWithoutUserDetailsInput> | DiplomaCreateWithoutUserDetailsInput[] | DiplomaUncheckedCreateWithoutUserDetailsInput[]
+    connectOrCreate?: DiplomaCreateOrConnectWithoutUserDetailsInput | DiplomaCreateOrConnectWithoutUserDetailsInput[]
+    createMany?: DiplomaCreateManyUserDetailsInputEnvelope
+    connect?: DiplomaWhereUniqueInput | DiplomaWhereUniqueInput[]
+  }
+
   export type PaintingUncheckedCreateNestedManyWithoutUserDetailsInput = {
     create?: XOR<PaintingCreateWithoutUserDetailsInput, PaintingUncheckedCreateWithoutUserDetailsInput> | PaintingCreateWithoutUserDetailsInput[] | PaintingUncheckedCreateWithoutUserDetailsInput[]
     connectOrCreate?: PaintingCreateOrConnectWithoutUserDetailsInput | PaintingCreateOrConnectWithoutUserDetailsInput[]
@@ -10008,6 +12764,20 @@ export namespace Prisma {
     connectOrCreate?: ProjectCreateOrConnectWithoutUserDetailsInput | ProjectCreateOrConnectWithoutUserDetailsInput[]
     createMany?: ProjectCreateManyUserDetailsInputEnvelope
     connect?: ProjectWhereUniqueInput | ProjectWhereUniqueInput[]
+  }
+
+  export type CertificationUncheckedCreateNestedManyWithoutUserDetailsInput = {
+    create?: XOR<CertificationCreateWithoutUserDetailsInput, CertificationUncheckedCreateWithoutUserDetailsInput> | CertificationCreateWithoutUserDetailsInput[] | CertificationUncheckedCreateWithoutUserDetailsInput[]
+    connectOrCreate?: CertificationCreateOrConnectWithoutUserDetailsInput | CertificationCreateOrConnectWithoutUserDetailsInput[]
+    createMany?: CertificationCreateManyUserDetailsInputEnvelope
+    connect?: CertificationWhereUniqueInput | CertificationWhereUniqueInput[]
+  }
+
+  export type DiplomaUncheckedCreateNestedManyWithoutUserDetailsInput = {
+    create?: XOR<DiplomaCreateWithoutUserDetailsInput, DiplomaUncheckedCreateWithoutUserDetailsInput> | DiplomaCreateWithoutUserDetailsInput[] | DiplomaUncheckedCreateWithoutUserDetailsInput[]
+    connectOrCreate?: DiplomaCreateOrConnectWithoutUserDetailsInput | DiplomaCreateOrConnectWithoutUserDetailsInput[]
+    createMany?: DiplomaCreateManyUserDetailsInputEnvelope
+    connect?: DiplomaWhereUniqueInput | DiplomaWhereUniqueInput[]
   }
 
   export type UserUpdateOneRequiredWithoutDetailsNestedInput = {
@@ -10046,6 +12816,34 @@ export namespace Prisma {
     deleteMany?: ProjectScalarWhereInput | ProjectScalarWhereInput[]
   }
 
+  export type CertificationUpdateManyWithoutUserDetailsNestedInput = {
+    create?: XOR<CertificationCreateWithoutUserDetailsInput, CertificationUncheckedCreateWithoutUserDetailsInput> | CertificationCreateWithoutUserDetailsInput[] | CertificationUncheckedCreateWithoutUserDetailsInput[]
+    connectOrCreate?: CertificationCreateOrConnectWithoutUserDetailsInput | CertificationCreateOrConnectWithoutUserDetailsInput[]
+    upsert?: CertificationUpsertWithWhereUniqueWithoutUserDetailsInput | CertificationUpsertWithWhereUniqueWithoutUserDetailsInput[]
+    createMany?: CertificationCreateManyUserDetailsInputEnvelope
+    set?: CertificationWhereUniqueInput | CertificationWhereUniqueInput[]
+    disconnect?: CertificationWhereUniqueInput | CertificationWhereUniqueInput[]
+    delete?: CertificationWhereUniqueInput | CertificationWhereUniqueInput[]
+    connect?: CertificationWhereUniqueInput | CertificationWhereUniqueInput[]
+    update?: CertificationUpdateWithWhereUniqueWithoutUserDetailsInput | CertificationUpdateWithWhereUniqueWithoutUserDetailsInput[]
+    updateMany?: CertificationUpdateManyWithWhereWithoutUserDetailsInput | CertificationUpdateManyWithWhereWithoutUserDetailsInput[]
+    deleteMany?: CertificationScalarWhereInput | CertificationScalarWhereInput[]
+  }
+
+  export type DiplomaUpdateManyWithoutUserDetailsNestedInput = {
+    create?: XOR<DiplomaCreateWithoutUserDetailsInput, DiplomaUncheckedCreateWithoutUserDetailsInput> | DiplomaCreateWithoutUserDetailsInput[] | DiplomaUncheckedCreateWithoutUserDetailsInput[]
+    connectOrCreate?: DiplomaCreateOrConnectWithoutUserDetailsInput | DiplomaCreateOrConnectWithoutUserDetailsInput[]
+    upsert?: DiplomaUpsertWithWhereUniqueWithoutUserDetailsInput | DiplomaUpsertWithWhereUniqueWithoutUserDetailsInput[]
+    createMany?: DiplomaCreateManyUserDetailsInputEnvelope
+    set?: DiplomaWhereUniqueInput | DiplomaWhereUniqueInput[]
+    disconnect?: DiplomaWhereUniqueInput | DiplomaWhereUniqueInput[]
+    delete?: DiplomaWhereUniqueInput | DiplomaWhereUniqueInput[]
+    connect?: DiplomaWhereUniqueInput | DiplomaWhereUniqueInput[]
+    update?: DiplomaUpdateWithWhereUniqueWithoutUserDetailsInput | DiplomaUpdateWithWhereUniqueWithoutUserDetailsInput[]
+    updateMany?: DiplomaUpdateManyWithWhereWithoutUserDetailsInput | DiplomaUpdateManyWithWhereWithoutUserDetailsInput[]
+    deleteMany?: DiplomaScalarWhereInput | DiplomaScalarWhereInput[]
+  }
+
   export type PaintingUncheckedUpdateManyWithoutUserDetailsNestedInput = {
     create?: XOR<PaintingCreateWithoutUserDetailsInput, PaintingUncheckedCreateWithoutUserDetailsInput> | PaintingCreateWithoutUserDetailsInput[] | PaintingUncheckedCreateWithoutUserDetailsInput[]
     connectOrCreate?: PaintingCreateOrConnectWithoutUserDetailsInput | PaintingCreateOrConnectWithoutUserDetailsInput[]
@@ -10072,6 +12870,34 @@ export namespace Prisma {
     update?: ProjectUpdateWithWhereUniqueWithoutUserDetailsInput | ProjectUpdateWithWhereUniqueWithoutUserDetailsInput[]
     updateMany?: ProjectUpdateManyWithWhereWithoutUserDetailsInput | ProjectUpdateManyWithWhereWithoutUserDetailsInput[]
     deleteMany?: ProjectScalarWhereInput | ProjectScalarWhereInput[]
+  }
+
+  export type CertificationUncheckedUpdateManyWithoutUserDetailsNestedInput = {
+    create?: XOR<CertificationCreateWithoutUserDetailsInput, CertificationUncheckedCreateWithoutUserDetailsInput> | CertificationCreateWithoutUserDetailsInput[] | CertificationUncheckedCreateWithoutUserDetailsInput[]
+    connectOrCreate?: CertificationCreateOrConnectWithoutUserDetailsInput | CertificationCreateOrConnectWithoutUserDetailsInput[]
+    upsert?: CertificationUpsertWithWhereUniqueWithoutUserDetailsInput | CertificationUpsertWithWhereUniqueWithoutUserDetailsInput[]
+    createMany?: CertificationCreateManyUserDetailsInputEnvelope
+    set?: CertificationWhereUniqueInput | CertificationWhereUniqueInput[]
+    disconnect?: CertificationWhereUniqueInput | CertificationWhereUniqueInput[]
+    delete?: CertificationWhereUniqueInput | CertificationWhereUniqueInput[]
+    connect?: CertificationWhereUniqueInput | CertificationWhereUniqueInput[]
+    update?: CertificationUpdateWithWhereUniqueWithoutUserDetailsInput | CertificationUpdateWithWhereUniqueWithoutUserDetailsInput[]
+    updateMany?: CertificationUpdateManyWithWhereWithoutUserDetailsInput | CertificationUpdateManyWithWhereWithoutUserDetailsInput[]
+    deleteMany?: CertificationScalarWhereInput | CertificationScalarWhereInput[]
+  }
+
+  export type DiplomaUncheckedUpdateManyWithoutUserDetailsNestedInput = {
+    create?: XOR<DiplomaCreateWithoutUserDetailsInput, DiplomaUncheckedCreateWithoutUserDetailsInput> | DiplomaCreateWithoutUserDetailsInput[] | DiplomaUncheckedCreateWithoutUserDetailsInput[]
+    connectOrCreate?: DiplomaCreateOrConnectWithoutUserDetailsInput | DiplomaCreateOrConnectWithoutUserDetailsInput[]
+    upsert?: DiplomaUpsertWithWhereUniqueWithoutUserDetailsInput | DiplomaUpsertWithWhereUniqueWithoutUserDetailsInput[]
+    createMany?: DiplomaCreateManyUserDetailsInputEnvelope
+    set?: DiplomaWhereUniqueInput | DiplomaWhereUniqueInput[]
+    disconnect?: DiplomaWhereUniqueInput | DiplomaWhereUniqueInput[]
+    delete?: DiplomaWhereUniqueInput | DiplomaWhereUniqueInput[]
+    connect?: DiplomaWhereUniqueInput | DiplomaWhereUniqueInput[]
+    update?: DiplomaUpdateWithWhereUniqueWithoutUserDetailsInput | DiplomaUpdateWithWhereUniqueWithoutUserDetailsInput[]
+    updateMany?: DiplomaUpdateManyWithWhereWithoutUserDetailsInput | DiplomaUpdateManyWithWhereWithoutUserDetailsInput[]
+    deleteMany?: DiplomaScalarWhereInput | DiplomaScalarWhereInput[]
   }
 
   export type UserDetailsCreateNestedOneWithoutPaintingsInput = {
@@ -10146,6 +12972,39 @@ export namespace Prisma {
     upsert?: UserUpsertWithoutPasswordResetTokensInput
     connect?: UserWhereUniqueInput
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutPasswordResetTokensInput, UserUpdateWithoutPasswordResetTokensInput>, UserUncheckedUpdateWithoutPasswordResetTokensInput>
+  }
+
+  export type UserDetailsCreateNestedOneWithoutCertificationsInput = {
+    create?: XOR<UserDetailsCreateWithoutCertificationsInput, UserDetailsUncheckedCreateWithoutCertificationsInput>
+    connectOrCreate?: UserDetailsCreateOrConnectWithoutCertificationsInput
+    connect?: UserDetailsWhereUniqueInput
+  }
+
+  export type UserDetailsUpdateOneRequiredWithoutCertificationsNestedInput = {
+    create?: XOR<UserDetailsCreateWithoutCertificationsInput, UserDetailsUncheckedCreateWithoutCertificationsInput>
+    connectOrCreate?: UserDetailsCreateOrConnectWithoutCertificationsInput
+    upsert?: UserDetailsUpsertWithoutCertificationsInput
+    connect?: UserDetailsWhereUniqueInput
+    update?: XOR<XOR<UserDetailsUpdateToOneWithWhereWithoutCertificationsInput, UserDetailsUpdateWithoutCertificationsInput>, UserDetailsUncheckedUpdateWithoutCertificationsInput>
+  }
+
+  export type UserDetailsCreateNestedOneWithoutDiplomasInput = {
+    create?: XOR<UserDetailsCreateWithoutDiplomasInput, UserDetailsUncheckedCreateWithoutDiplomasInput>
+    connectOrCreate?: UserDetailsCreateOrConnectWithoutDiplomasInput
+    connect?: UserDetailsWhereUniqueInput
+  }
+
+  export type NullableEnumFileTypeFieldUpdateOperationsInput = {
+    set?: $Enums.FileType | null
+    unset?: boolean
+  }
+
+  export type UserDetailsUpdateOneRequiredWithoutDiplomasNestedInput = {
+    create?: XOR<UserDetailsCreateWithoutDiplomasInput, UserDetailsUncheckedCreateWithoutDiplomasInput>
+    connectOrCreate?: UserDetailsCreateOrConnectWithoutDiplomasInput
+    upsert?: UserDetailsUpsertWithoutDiplomasInput
+    connect?: UserDetailsWhereUniqueInput
+    update?: XOR<XOR<UserDetailsUpdateToOneWithWhereWithoutDiplomasInput, UserDetailsUpdateWithoutDiplomasInput>, UserDetailsUncheckedUpdateWithoutDiplomasInput>
   }
 
   export type NestedStringFilter<$PrismaModel = never> = {
@@ -10260,6 +13119,25 @@ export namespace Prisma {
     _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
+  export type NestedEnumFileTypeNullableFilter<$PrismaModel = never> = {
+    equals?: $Enums.FileType | EnumFileTypeFieldRefInput<$PrismaModel> | null
+    in?: $Enums.FileType[] | ListEnumFileTypeFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.FileType[] | ListEnumFileTypeFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumFileTypeNullableFilter<$PrismaModel> | $Enums.FileType | null
+    isSet?: boolean
+  }
+
+  export type NestedEnumFileTypeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.FileType | EnumFileTypeFieldRefInput<$PrismaModel> | null
+    in?: $Enums.FileType[] | ListEnumFileTypeFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.FileType[] | ListEnumFileTypeFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumFileTypeNullableWithAggregatesFilter<$PrismaModel> | $Enums.FileType | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedEnumFileTypeNullableFilter<$PrismaModel>
+    _max?: NestedEnumFileTypeNullableFilter<$PrismaModel>
+    isSet?: boolean
+  }
+
   export type PortfolioCreateWithoutUserInput = {
     id?: string
     title: string
@@ -10294,6 +13172,8 @@ export namespace Prisma {
     imageUrl?: string | null
     paintings?: PaintingCreateNestedManyWithoutUserDetailsInput
     projects?: ProjectCreateNestedManyWithoutUserDetailsInput
+    certifications?: CertificationCreateNestedManyWithoutUserDetailsInput
+    diplomas?: DiplomaCreateNestedManyWithoutUserDetailsInput
   }
 
   export type UserDetailsUncheckedCreateWithoutUserInput = {
@@ -10305,6 +13185,8 @@ export namespace Prisma {
     imageUrl?: string | null
     paintings?: PaintingUncheckedCreateNestedManyWithoutUserDetailsInput
     projects?: ProjectUncheckedCreateNestedManyWithoutUserDetailsInput
+    certifications?: CertificationUncheckedCreateNestedManyWithoutUserDetailsInput
+    diplomas?: DiplomaUncheckedCreateNestedManyWithoutUserDetailsInput
   }
 
   export type UserDetailsCreateOrConnectWithoutUserInput = {
@@ -10405,6 +13287,8 @@ export namespace Prisma {
     imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     paintings?: PaintingUpdateManyWithoutUserDetailsNestedInput
     projects?: ProjectUpdateManyWithoutUserDetailsNestedInput
+    certifications?: CertificationUpdateManyWithoutUserDetailsNestedInput
+    diplomas?: DiplomaUpdateManyWithoutUserDetailsNestedInput
   }
 
   export type UserDetailsUncheckedUpdateWithoutUserInput = {
@@ -10415,6 +13299,8 @@ export namespace Prisma {
     imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     paintings?: PaintingUncheckedUpdateManyWithoutUserDetailsNestedInput
     projects?: ProjectUncheckedUpdateManyWithoutUserDetailsNestedInput
+    certifications?: CertificationUncheckedUpdateManyWithoutUserDetailsNestedInput
+    diplomas?: DiplomaUncheckedUpdateManyWithoutUserDetailsNestedInput
   }
 
   export type ArticleUpsertWithWhereUniqueWithoutUserInput = {
@@ -10544,6 +13430,64 @@ export namespace Prisma {
     data: ProjectCreateManyUserDetailsInput | ProjectCreateManyUserDetailsInput[]
   }
 
+  export type CertificationCreateWithoutUserDetailsInput = {
+    id?: string
+    title: string
+    institution: string
+    dateAwarded: Date | string
+    extractedText?: string | null
+    logoUrl?: string | null
+    description?: string | null
+  }
+
+  export type CertificationUncheckedCreateWithoutUserDetailsInput = {
+    id?: string
+    title: string
+    institution: string
+    dateAwarded: Date | string
+    extractedText?: string | null
+    logoUrl?: string | null
+    description?: string | null
+  }
+
+  export type CertificationCreateOrConnectWithoutUserDetailsInput = {
+    where: CertificationWhereUniqueInput
+    create: XOR<CertificationCreateWithoutUserDetailsInput, CertificationUncheckedCreateWithoutUserDetailsInput>
+  }
+
+  export type CertificationCreateManyUserDetailsInputEnvelope = {
+    data: CertificationCreateManyUserDetailsInput | CertificationCreateManyUserDetailsInput[]
+  }
+
+  export type DiplomaCreateWithoutUserDetailsInput = {
+    id?: string
+    degree: string
+    fieldOfStudy: string
+    institution: string
+    dateAwarded: Date | string
+    diplomaUrl?: string | null
+    fileType?: $Enums.FileType | null
+  }
+
+  export type DiplomaUncheckedCreateWithoutUserDetailsInput = {
+    id?: string
+    degree: string
+    fieldOfStudy: string
+    institution: string
+    dateAwarded: Date | string
+    diplomaUrl?: string | null
+    fileType?: $Enums.FileType | null
+  }
+
+  export type DiplomaCreateOrConnectWithoutUserDetailsInput = {
+    where: DiplomaWhereUniqueInput
+    create: XOR<DiplomaCreateWithoutUserDetailsInput, DiplomaUncheckedCreateWithoutUserDetailsInput>
+  }
+
+  export type DiplomaCreateManyUserDetailsInputEnvelope = {
+    data: DiplomaCreateManyUserDetailsInput | DiplomaCreateManyUserDetailsInput[]
+  }
+
   export type UserUpsertWithoutDetailsInput = {
     update: XOR<UserUpdateWithoutDetailsInput, UserUncheckedUpdateWithoutDetailsInput>
     create: XOR<UserCreateWithoutDetailsInput, UserUncheckedCreateWithoutDetailsInput>
@@ -10629,6 +13573,66 @@ export namespace Prisma {
     userDetailsId?: StringFilter<"Project"> | string
   }
 
+  export type CertificationUpsertWithWhereUniqueWithoutUserDetailsInput = {
+    where: CertificationWhereUniqueInput
+    update: XOR<CertificationUpdateWithoutUserDetailsInput, CertificationUncheckedUpdateWithoutUserDetailsInput>
+    create: XOR<CertificationCreateWithoutUserDetailsInput, CertificationUncheckedCreateWithoutUserDetailsInput>
+  }
+
+  export type CertificationUpdateWithWhereUniqueWithoutUserDetailsInput = {
+    where: CertificationWhereUniqueInput
+    data: XOR<CertificationUpdateWithoutUserDetailsInput, CertificationUncheckedUpdateWithoutUserDetailsInput>
+  }
+
+  export type CertificationUpdateManyWithWhereWithoutUserDetailsInput = {
+    where: CertificationScalarWhereInput
+    data: XOR<CertificationUpdateManyMutationInput, CertificationUncheckedUpdateManyWithoutUserDetailsInput>
+  }
+
+  export type CertificationScalarWhereInput = {
+    AND?: CertificationScalarWhereInput | CertificationScalarWhereInput[]
+    OR?: CertificationScalarWhereInput[]
+    NOT?: CertificationScalarWhereInput | CertificationScalarWhereInput[]
+    id?: StringFilter<"Certification"> | string
+    title?: StringFilter<"Certification"> | string
+    institution?: StringFilter<"Certification"> | string
+    dateAwarded?: DateTimeFilter<"Certification"> | Date | string
+    extractedText?: StringNullableFilter<"Certification"> | string | null
+    logoUrl?: StringNullableFilter<"Certification"> | string | null
+    description?: StringNullableFilter<"Certification"> | string | null
+    userDetailsId?: StringFilter<"Certification"> | string
+  }
+
+  export type DiplomaUpsertWithWhereUniqueWithoutUserDetailsInput = {
+    where: DiplomaWhereUniqueInput
+    update: XOR<DiplomaUpdateWithoutUserDetailsInput, DiplomaUncheckedUpdateWithoutUserDetailsInput>
+    create: XOR<DiplomaCreateWithoutUserDetailsInput, DiplomaUncheckedCreateWithoutUserDetailsInput>
+  }
+
+  export type DiplomaUpdateWithWhereUniqueWithoutUserDetailsInput = {
+    where: DiplomaWhereUniqueInput
+    data: XOR<DiplomaUpdateWithoutUserDetailsInput, DiplomaUncheckedUpdateWithoutUserDetailsInput>
+  }
+
+  export type DiplomaUpdateManyWithWhereWithoutUserDetailsInput = {
+    where: DiplomaScalarWhereInput
+    data: XOR<DiplomaUpdateManyMutationInput, DiplomaUncheckedUpdateManyWithoutUserDetailsInput>
+  }
+
+  export type DiplomaScalarWhereInput = {
+    AND?: DiplomaScalarWhereInput | DiplomaScalarWhereInput[]
+    OR?: DiplomaScalarWhereInput[]
+    NOT?: DiplomaScalarWhereInput | DiplomaScalarWhereInput[]
+    id?: StringFilter<"Diploma"> | string
+    degree?: StringFilter<"Diploma"> | string
+    fieldOfStudy?: StringFilter<"Diploma"> | string
+    institution?: StringFilter<"Diploma"> | string
+    dateAwarded?: DateTimeFilter<"Diploma"> | Date | string
+    diplomaUrl?: StringNullableFilter<"Diploma"> | string | null
+    fileType?: EnumFileTypeNullableFilter<"Diploma"> | $Enums.FileType | null
+    userDetailsId?: StringFilter<"Diploma"> | string
+  }
+
   export type UserDetailsCreateWithoutPaintingsInput = {
     id?: string
     firstName: string
@@ -10638,6 +13642,8 @@ export namespace Prisma {
     imageUrl?: string | null
     user: UserCreateNestedOneWithoutDetailsInput
     projects?: ProjectCreateNestedManyWithoutUserDetailsInput
+    certifications?: CertificationCreateNestedManyWithoutUserDetailsInput
+    diplomas?: DiplomaCreateNestedManyWithoutUserDetailsInput
   }
 
   export type UserDetailsUncheckedCreateWithoutPaintingsInput = {
@@ -10649,6 +13655,8 @@ export namespace Prisma {
     phone?: string | null
     imageUrl?: string | null
     projects?: ProjectUncheckedCreateNestedManyWithoutUserDetailsInput
+    certifications?: CertificationUncheckedCreateNestedManyWithoutUserDetailsInput
+    diplomas?: DiplomaUncheckedCreateNestedManyWithoutUserDetailsInput
   }
 
   export type UserDetailsCreateOrConnectWithoutPaintingsInput = {
@@ -10675,6 +13683,8 @@ export namespace Prisma {
     imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     user?: UserUpdateOneRequiredWithoutDetailsNestedInput
     projects?: ProjectUpdateManyWithoutUserDetailsNestedInput
+    certifications?: CertificationUpdateManyWithoutUserDetailsNestedInput
+    diplomas?: DiplomaUpdateManyWithoutUserDetailsNestedInput
   }
 
   export type UserDetailsUncheckedUpdateWithoutPaintingsInput = {
@@ -10685,6 +13695,8 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     projects?: ProjectUncheckedUpdateManyWithoutUserDetailsNestedInput
+    certifications?: CertificationUncheckedUpdateManyWithoutUserDetailsNestedInput
+    diplomas?: DiplomaUncheckedUpdateManyWithoutUserDetailsNestedInput
   }
 
   export type UserDetailsCreateWithoutProjectsInput = {
@@ -10696,6 +13708,8 @@ export namespace Prisma {
     imageUrl?: string | null
     user: UserCreateNestedOneWithoutDetailsInput
     paintings?: PaintingCreateNestedManyWithoutUserDetailsInput
+    certifications?: CertificationCreateNestedManyWithoutUserDetailsInput
+    diplomas?: DiplomaCreateNestedManyWithoutUserDetailsInput
   }
 
   export type UserDetailsUncheckedCreateWithoutProjectsInput = {
@@ -10707,6 +13721,8 @@ export namespace Prisma {
     phone?: string | null
     imageUrl?: string | null
     paintings?: PaintingUncheckedCreateNestedManyWithoutUserDetailsInput
+    certifications?: CertificationUncheckedCreateNestedManyWithoutUserDetailsInput
+    diplomas?: DiplomaUncheckedCreateNestedManyWithoutUserDetailsInput
   }
 
   export type UserDetailsCreateOrConnectWithoutProjectsInput = {
@@ -10733,6 +13749,8 @@ export namespace Prisma {
     imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     user?: UserUpdateOneRequiredWithoutDetailsNestedInput
     paintings?: PaintingUpdateManyWithoutUserDetailsNestedInput
+    certifications?: CertificationUpdateManyWithoutUserDetailsNestedInput
+    diplomas?: DiplomaUpdateManyWithoutUserDetailsNestedInput
   }
 
   export type UserDetailsUncheckedUpdateWithoutProjectsInput = {
@@ -10743,6 +13761,8 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     paintings?: PaintingUncheckedUpdateManyWithoutUserDetailsNestedInput
+    certifications?: CertificationUncheckedUpdateManyWithoutUserDetailsNestedInput
+    diplomas?: DiplomaUncheckedUpdateManyWithoutUserDetailsNestedInput
   }
 
   export type UserCreateWithoutPortfoliosInput = {
@@ -10919,6 +13939,138 @@ export namespace Prisma {
     articles?: ArticleUncheckedUpdateManyWithoutUserNestedInput
   }
 
+  export type UserDetailsCreateWithoutCertificationsInput = {
+    id?: string
+    firstName: string
+    lastName: string
+    bio?: string | null
+    phone?: string | null
+    imageUrl?: string | null
+    user: UserCreateNestedOneWithoutDetailsInput
+    paintings?: PaintingCreateNestedManyWithoutUserDetailsInput
+    projects?: ProjectCreateNestedManyWithoutUserDetailsInput
+    diplomas?: DiplomaCreateNestedManyWithoutUserDetailsInput
+  }
+
+  export type UserDetailsUncheckedCreateWithoutCertificationsInput = {
+    id?: string
+    userId: string
+    firstName: string
+    lastName: string
+    bio?: string | null
+    phone?: string | null
+    imageUrl?: string | null
+    paintings?: PaintingUncheckedCreateNestedManyWithoutUserDetailsInput
+    projects?: ProjectUncheckedCreateNestedManyWithoutUserDetailsInput
+    diplomas?: DiplomaUncheckedCreateNestedManyWithoutUserDetailsInput
+  }
+
+  export type UserDetailsCreateOrConnectWithoutCertificationsInput = {
+    where: UserDetailsWhereUniqueInput
+    create: XOR<UserDetailsCreateWithoutCertificationsInput, UserDetailsUncheckedCreateWithoutCertificationsInput>
+  }
+
+  export type UserDetailsUpsertWithoutCertificationsInput = {
+    update: XOR<UserDetailsUpdateWithoutCertificationsInput, UserDetailsUncheckedUpdateWithoutCertificationsInput>
+    create: XOR<UserDetailsCreateWithoutCertificationsInput, UserDetailsUncheckedCreateWithoutCertificationsInput>
+    where?: UserDetailsWhereInput
+  }
+
+  export type UserDetailsUpdateToOneWithWhereWithoutCertificationsInput = {
+    where?: UserDetailsWhereInput
+    data: XOR<UserDetailsUpdateWithoutCertificationsInput, UserDetailsUncheckedUpdateWithoutCertificationsInput>
+  }
+
+  export type UserDetailsUpdateWithoutCertificationsInput = {
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    bio?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    user?: UserUpdateOneRequiredWithoutDetailsNestedInput
+    paintings?: PaintingUpdateManyWithoutUserDetailsNestedInput
+    projects?: ProjectUpdateManyWithoutUserDetailsNestedInput
+    diplomas?: DiplomaUpdateManyWithoutUserDetailsNestedInput
+  }
+
+  export type UserDetailsUncheckedUpdateWithoutCertificationsInput = {
+    userId?: StringFieldUpdateOperationsInput | string
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    bio?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    paintings?: PaintingUncheckedUpdateManyWithoutUserDetailsNestedInput
+    projects?: ProjectUncheckedUpdateManyWithoutUserDetailsNestedInput
+    diplomas?: DiplomaUncheckedUpdateManyWithoutUserDetailsNestedInput
+  }
+
+  export type UserDetailsCreateWithoutDiplomasInput = {
+    id?: string
+    firstName: string
+    lastName: string
+    bio?: string | null
+    phone?: string | null
+    imageUrl?: string | null
+    user: UserCreateNestedOneWithoutDetailsInput
+    paintings?: PaintingCreateNestedManyWithoutUserDetailsInput
+    projects?: ProjectCreateNestedManyWithoutUserDetailsInput
+    certifications?: CertificationCreateNestedManyWithoutUserDetailsInput
+  }
+
+  export type UserDetailsUncheckedCreateWithoutDiplomasInput = {
+    id?: string
+    userId: string
+    firstName: string
+    lastName: string
+    bio?: string | null
+    phone?: string | null
+    imageUrl?: string | null
+    paintings?: PaintingUncheckedCreateNestedManyWithoutUserDetailsInput
+    projects?: ProjectUncheckedCreateNestedManyWithoutUserDetailsInput
+    certifications?: CertificationUncheckedCreateNestedManyWithoutUserDetailsInput
+  }
+
+  export type UserDetailsCreateOrConnectWithoutDiplomasInput = {
+    where: UserDetailsWhereUniqueInput
+    create: XOR<UserDetailsCreateWithoutDiplomasInput, UserDetailsUncheckedCreateWithoutDiplomasInput>
+  }
+
+  export type UserDetailsUpsertWithoutDiplomasInput = {
+    update: XOR<UserDetailsUpdateWithoutDiplomasInput, UserDetailsUncheckedUpdateWithoutDiplomasInput>
+    create: XOR<UserDetailsCreateWithoutDiplomasInput, UserDetailsUncheckedCreateWithoutDiplomasInput>
+    where?: UserDetailsWhereInput
+  }
+
+  export type UserDetailsUpdateToOneWithWhereWithoutDiplomasInput = {
+    where?: UserDetailsWhereInput
+    data: XOR<UserDetailsUpdateWithoutDiplomasInput, UserDetailsUncheckedUpdateWithoutDiplomasInput>
+  }
+
+  export type UserDetailsUpdateWithoutDiplomasInput = {
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    bio?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    user?: UserUpdateOneRequiredWithoutDetailsNestedInput
+    paintings?: PaintingUpdateManyWithoutUserDetailsNestedInput
+    projects?: ProjectUpdateManyWithoutUserDetailsNestedInput
+    certifications?: CertificationUpdateManyWithoutUserDetailsNestedInput
+  }
+
+  export type UserDetailsUncheckedUpdateWithoutDiplomasInput = {
+    userId?: StringFieldUpdateOperationsInput | string
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    bio?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    paintings?: PaintingUncheckedUpdateManyWithoutUserDetailsNestedInput
+    projects?: ProjectUncheckedUpdateManyWithoutUserDetailsNestedInput
+    certifications?: CertificationUncheckedUpdateManyWithoutUserDetailsNestedInput
+  }
+
   export type PortfolioCreateManyUserInput = {
     id?: string
     title: string
@@ -11012,6 +14164,26 @@ export namespace Prisma {
     logoUrl: string
   }
 
+  export type CertificationCreateManyUserDetailsInput = {
+    id?: string
+    title: string
+    institution: string
+    dateAwarded: Date | string
+    extractedText?: string | null
+    logoUrl?: string | null
+    description?: string | null
+  }
+
+  export type DiplomaCreateManyUserDetailsInput = {
+    id?: string
+    degree: string
+    fieldOfStudy: string
+    institution: string
+    dateAwarded: Date | string
+    diplomaUrl?: string | null
+    fileType?: $Enums.FileType | null
+  }
+
   export type PaintingUpdateWithoutUserDetailsInput = {
     title?: StringFieldUpdateOperationsInput | string
     content?: StringFieldUpdateOperationsInput | string
@@ -11046,6 +14218,60 @@ export namespace Prisma {
     content?: StringFieldUpdateOperationsInput | string
     url?: StringFieldUpdateOperationsInput | string
     logoUrl?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type CertificationUpdateWithoutUserDetailsInput = {
+    title?: StringFieldUpdateOperationsInput | string
+    institution?: StringFieldUpdateOperationsInput | string
+    dateAwarded?: DateTimeFieldUpdateOperationsInput | Date | string
+    extractedText?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type CertificationUncheckedUpdateWithoutUserDetailsInput = {
+    title?: StringFieldUpdateOperationsInput | string
+    institution?: StringFieldUpdateOperationsInput | string
+    dateAwarded?: DateTimeFieldUpdateOperationsInput | Date | string
+    extractedText?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type CertificationUncheckedUpdateManyWithoutUserDetailsInput = {
+    title?: StringFieldUpdateOperationsInput | string
+    institution?: StringFieldUpdateOperationsInput | string
+    dateAwarded?: DateTimeFieldUpdateOperationsInput | Date | string
+    extractedText?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type DiplomaUpdateWithoutUserDetailsInput = {
+    degree?: StringFieldUpdateOperationsInput | string
+    fieldOfStudy?: StringFieldUpdateOperationsInput | string
+    institution?: StringFieldUpdateOperationsInput | string
+    dateAwarded?: DateTimeFieldUpdateOperationsInput | Date | string
+    diplomaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fileType?: NullableEnumFileTypeFieldUpdateOperationsInput | $Enums.FileType | null
+  }
+
+  export type DiplomaUncheckedUpdateWithoutUserDetailsInput = {
+    degree?: StringFieldUpdateOperationsInput | string
+    fieldOfStudy?: StringFieldUpdateOperationsInput | string
+    institution?: StringFieldUpdateOperationsInput | string
+    dateAwarded?: DateTimeFieldUpdateOperationsInput | Date | string
+    diplomaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fileType?: NullableEnumFileTypeFieldUpdateOperationsInput | $Enums.FileType | null
+  }
+
+  export type DiplomaUncheckedUpdateManyWithoutUserDetailsInput = {
+    degree?: StringFieldUpdateOperationsInput | string
+    fieldOfStudy?: StringFieldUpdateOperationsInput | string
+    institution?: StringFieldUpdateOperationsInput | string
+    dateAwarded?: DateTimeFieldUpdateOperationsInput | Date | string
+    diplomaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fileType?: NullableEnumFileTypeFieldUpdateOperationsInput | $Enums.FileType | null
   }
 
 

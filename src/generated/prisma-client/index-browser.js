@@ -172,6 +172,28 @@ exports.Prisma.PasswordResetTokenScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.CertificationScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  institution: 'institution',
+  dateAwarded: 'dateAwarded',
+  extractedText: 'extractedText',
+  logoUrl: 'logoUrl',
+  description: 'description',
+  userDetailsId: 'userDetailsId'
+};
+
+exports.Prisma.DiplomaScalarFieldEnum = {
+  id: 'id',
+  degree: 'degree',
+  fieldOfStudy: 'fieldOfStudy',
+  institution: 'institution',
+  dateAwarded: 'dateAwarded',
+  diplomaUrl: 'diplomaUrl',
+  fileType: 'fileType',
+  userDetailsId: 'userDetailsId'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -181,7 +203,10 @@ exports.Prisma.QueryMode = {
   default: 'default',
   insensitive: 'insensitive'
 };
-
+exports.FileType = exports.$Enums.FileType = {
+  IMAGE: 'IMAGE',
+  PDF: 'PDF'
+};
 
 exports.Prisma.ModelName = {
   User: 'User',
@@ -190,7 +215,9 @@ exports.Prisma.ModelName = {
   Project: 'Project',
   Portfolio: 'Portfolio',
   Article: 'Article',
-  PasswordResetToken: 'PasswordResetToken'
+  PasswordResetToken: 'PasswordResetToken',
+  Certification: 'Certification',
+  Diploma: 'Diploma'
 };
 
 /**

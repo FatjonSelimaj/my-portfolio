@@ -10,21 +10,35 @@ interface PaintingInput {
 }
 
 interface ProjectInput {
-  id: string;
+  id?: string;
   title: string;
   content: string;
   url: string;
   logoUrl?: string;
 }
 
-interface PortfolioInput {
-  id: string;
+interface CertificationInput {
+  id?: string;
   title: string;
-  content: string;
-  url: string;
+  institution: string;
+  dateAwarded: string;
+  credentialUrl?: string;
+  fileType?: "image" | "pdf";
+  extractedText?: string;
+  logoUrl?: string;
+  description?: string;
 }
 
-// Parsing e verifica del token da header Authorization
+
+interface DiplomaInput {
+  id?: string;
+  degree: string;
+  fieldOfStudy: string;
+  institution: string;
+  dateAwarded: string;
+  diplomaUrl?: string;
+}
+
 function getUserIdFromRequest(req: NextRequest): string | null {
   const authHeader = req.headers.get("authorization");
   const token = authHeader?.split(" ")[1];
@@ -37,44 +51,48 @@ function getUserIdFromRequest(req: NextRequest): string | null {
   }
 }
 
-// Helper per costruire la risposta utente con progetti unificati
 async function buildUserResponse(userId: string) {
   const details = await prisma.userDetails.findUnique({
     where: { userId },
-    include: { user: { select: { email: true } }, paintings: true },
+    include: {
+      user: { select: { email: true } },
+      paintings: true,
+      projects: true,
+      certifications: true,
+      diplomas: true,
+    },
   });
   if (!details) return null;
 
-  const [projModel, portModel] = await Promise.all([
-    prisma.project.findMany({ where: { userDetailsId: details.id } }),
-    prisma.portfolio.findMany({ where: { userId }, orderBy: { createdAt: "desc" } }),
-  ]);
+  const portfolios = await prisma.portfolio.findMany({
+    where: { userId },
+    orderBy: { createdAt: "desc" },
+  });
 
-  const projects = [
-    ...projModel.map((pr: ProjectInput) => ({
+  const unifiedProjects = [
+    ...details.projects.map(pr => ({
       id: pr.id,
       title: pr.title,
       content: pr.content,
       url: pr.url,
       logoUrl: pr.logoUrl || "",
+      type: "project" as const,
     })),
-    ...portModel.map((pf: PortfolioInput) => ({
+    ...portfolios.map(pf => ({
       id: pf.id,
       title: pf.title,
       content: pf.content,
       url: pf.url,
       logoUrl: "",
+      type: "portfolio" as const,
     })),
   ];
 
-  const paintings = details.paintings.map(painting => {
-    const entries = Object.entries(painting) as [keyof typeof painting, unknown][];
-    const filteredEntries = entries.filter(
-      ([, value]) => value !== null && value !== undefined && value !== ""
-    );
-
-    return Object.fromEntries(filteredEntries);
-  });
+  const paintings = details.paintings.map(p =>
+    Object.fromEntries(
+      Object.entries(p).filter(([, v]) => v != null && v !== "")
+    )
+  );
 
   return {
     firstName: details.firstName,
@@ -83,12 +101,13 @@ async function buildUserResponse(userId: string) {
     phone: details.phone || "",
     imageUrl: details.imageUrl || "",
     paintings,
-    projects,
+    projects: unifiedProjects,
+    certifications: details.certifications,
+    diplomas: details.diplomas,
     contact: { email: details.user.email, phone: details.phone || "" },
   };
 }
 
-// Gestione GET /api/userDetails
 export async function GET(req: NextRequest) {
   const userId = getUserIdFromRequest(req);
   if (!userId) {
@@ -96,17 +115,14 @@ export async function GET(req: NextRequest) {
   }
   try {
     const data = await buildUserResponse(userId);
-    if (!data) {
-      return NextResponse.json({ error: "Utente non trovato" }, { status: 404 });
-    }
+    if (!data) return NextResponse.json({ error: "Utente non trovato" }, { status: 404 });
     return NextResponse.json(data);
-  } catch (error) {
-    console.error("Errore GET /api/userDetails:", error);
+  } catch (err) {
+    console.error("Errore GET /api/userDetails:", err);
     return NextResponse.json({ error: "Errore interno" }, { status: 500 });
   }
 }
 
-// Gestione PUT /api/userDetails
 export async function PUT(req: NextRequest) {
   const userId = getUserIdFromRequest(req);
   if (!userId) {
@@ -121,9 +137,12 @@ export async function PUT(req: NextRequest) {
     imageUrl?: string;
     paintings: PaintingInput[];
     projects?: ProjectInput[];
+    certifications?: CertificationInput[];
+    diplomas?: DiplomaInput[];
   };
 
   try {
+    // upsert userDetails
     const details = await prisma.userDetails.upsert({
       where: { userId },
       create: {
@@ -143,6 +162,7 @@ export async function PUT(req: NextRequest) {
       },
     });
 
+    // Paintings
     await prisma.painting.deleteMany({ where: { userDetailsId: details.id } });
     if (Array.isArray(body.paintings)) {
       await Promise.all(
@@ -154,6 +174,7 @@ export async function PUT(req: NextRequest) {
       );
     }
 
+    // Projects
     await prisma.project.deleteMany({ where: { userDetailsId: details.id } });
     if (Array.isArray(body.projects)) {
       await Promise.all(
@@ -171,13 +192,58 @@ export async function PUT(req: NextRequest) {
       );
     }
 
-    const updated = await buildUserResponse(userId);
-    if (!updated) {
-      throw new Error("Utente non trovato dopo aggiornamento");
+    // Certifications: filtro prima le date valide
+    await prisma.certification.deleteMany({ where: { userDetailsId: details.id } });
+    if (Array.isArray(body.certifications)) {
+      const validCerts = body.certifications.filter(c =>
+        Boolean(c.title.trim()) &&
+        Boolean(c.dateAwarded.trim()) &&
+        !isNaN(Date.parse(c.dateAwarded))
+      );
+      await Promise.all(
+        validCerts.map(c =>
+          prisma.certification.create({
+            data: {
+              title: c.title,
+              institution: c.institution,
+              dateAwarded: new Date(c.dateAwarded),
+              userDetailsId: details.id,
+              description: c.description ?? '',
+            },
+          })
+        )
+      );
     }
+
+    // Diplomas
+    await prisma.diploma.deleteMany({ where: { userDetailsId: details.id } });
+    if (Array.isArray(body.diplomas)) {
+      const validDips = body.diplomas.filter(d =>
+        Boolean(d.degree.trim()) &&
+        Boolean(d.dateAwarded.trim()) &&
+        !isNaN(Date.parse(d.dateAwarded))
+      );
+      await Promise.all(
+        validDips.map(d =>
+          prisma.diploma.create({
+            data: {
+              degree: d.degree,
+              fieldOfStudy: d.fieldOfStudy,
+              institution: d.institution,
+              dateAwarded: new Date(d.dateAwarded),
+              diplomaUrl: d.diplomaUrl,
+              userDetailsId: details.id,
+            },
+          })
+        )
+      );
+    }
+
+    const updated = await buildUserResponse(userId);
+    if (!updated) throw new Error("Utente non trovato dopo aggiornamento");
     return NextResponse.json(updated);
-  } catch (error) {
-    console.error("Errore PUT /api/userDetails:", error);
+  } catch (err) {
+    console.error("Errore PUT /api/userDetails:", err);
     return NextResponse.json({ error: "Errore interno" }, { status: 500 });
   }
 }

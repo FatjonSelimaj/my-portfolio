@@ -8,6 +8,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum FileType {
+  IMAGE
+  PDF
+}
+
 model User {
   id                  String               @id @default(auto()) @map("_id") @db.ObjectId
   email               String               @unique
@@ -21,16 +26,18 @@ model User {
 }
 
 model UserDetails {
-  id        String     @id @default(auto()) @map("_id") @db.ObjectId
-  userId    String     @unique @db.ObjectId
-  user      User       @relation("UserToDetails", fields: [userId], references: [id])
-  firstName String
-  lastName  String
-  bio       String?
-  phone     String?
-  imageUrl  String?
-  paintings Painting[] @relation("UserPaintings")
-  projects  Project[]  @relation("UserProjects")
+  id             String          @id @default(auto()) @map("_id") @db.ObjectId
+  userId         String          @unique @db.ObjectId
+  user           User            @relation("UserToDetails", fields: [userId], references: [id])
+  firstName      String
+  lastName       String
+  bio            String?
+  phone          String?
+  imageUrl       String?
+  paintings      Painting[]      @relation("UserPaintings")
+  projects       Project[]       @relation("UserProjects")
+  certifications Certification[] @relation("UserCertifications")
+  diplomas       Diploma[]       @relation("UserDiplomas")
 }
 
 model Painting {
@@ -77,4 +84,28 @@ model PasswordResetToken {
   user      User     @relation("UserResetTokens", fields: [userId], references: [id])
   expiresAt DateTime
   createdAt DateTime @default(now())
+}
+
+model Certification {
+  id            String      @id @default(auto()) @map("_id") @db.ObjectId
+  title         String
+  institution   String
+  dateAwarded   DateTime
+  extractedText String?
+  logoUrl       String?
+  description   String? // ✅ deve esserci
+  userDetailsId String      @db.ObjectId
+  userDetails   UserDetails @relation("UserCertifications", fields: [userDetailsId], references: [id])
+}
+
+model Diploma {
+  id            String      @id @default(auto()) @map("_id") @db.ObjectId
+  degree        String
+  fieldOfStudy  String
+  institution   String
+  dateAwarded   DateTime
+  diplomaUrl    String?
+  fileType      FileType? // ← aggiunto
+  userDetailsId String      @db.ObjectId
+  userDetails   UserDetails @relation("UserDiplomas", fields: [userDetailsId], references: [id])
 }
