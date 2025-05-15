@@ -231,12 +231,11 @@ const config = {
     "db"
   ],
   "activeProvider": "mongodb",
-  "postinstall": false,
   "inlineDatasources": {
     "db": {
       "url": {
         "fromEnvVar": "DATABASE_URL",
-        "value": null
+        "value": "mongodb+srv://selimajfatjon16:1xm3Hy7HNxpKlJ2u@cluster0.4yoprqk.mongodb.net/portfolio?retryWrites=true&w=majority"
       }
     }
   },
