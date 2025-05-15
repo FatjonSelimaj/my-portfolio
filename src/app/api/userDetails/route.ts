@@ -30,15 +30,6 @@ interface CertificationInput {
 }
 
 
-interface DiplomaInput {
-  id?: string;
-  degree: string;
-  fieldOfStudy: string;
-  institution: string;
-  dateAwarded: string;
-  diplomaUrl?: string;
-}
-
 function getUserIdFromRequest(req: NextRequest): string | null {
   const authHeader = req.headers.get("authorization");
   const token = authHeader?.split(" ")[1];
@@ -103,7 +94,6 @@ async function buildUserResponse(userId: string) {
     paintings,
     projects: unifiedProjects,
     certifications: details.certifications,
-    diplomas: details.diplomas,
     contact: { email: details.user.email, phone: details.phone || "" },
   };
 }
@@ -138,7 +128,6 @@ export async function PUT(req: NextRequest) {
     paintings: PaintingInput[];
     projects?: ProjectInput[];
     certifications?: CertificationInput[];
-    diplomas?: DiplomaInput[];
   };
 
   try {
@@ -217,27 +206,6 @@ export async function PUT(req: NextRequest) {
 
     // Diplomas
     await prisma.diploma.deleteMany({ where: { userDetailsId: details.id } });
-    if (Array.isArray(body.diplomas)) {
-      const validDips = body.diplomas.filter(d =>
-        Boolean(d.degree.trim()) &&
-        Boolean(d.dateAwarded.trim()) &&
-        !isNaN(Date.parse(d.dateAwarded))
-      );
-      await Promise.all(
-        validDips.map(d =>
-          prisma.diploma.create({
-            data: {
-              degree: d.degree,
-              fieldOfStudy: d.fieldOfStudy,
-              institution: d.institution,
-              dateAwarded: new Date(d.dateAwarded),
-              diplomaUrl: d.diplomaUrl,
-              userDetailsId: details.id,
-            },
-          })
-        )
-      );
-    }
 
     const updated = await buildUserResponse(userId);
     if (!updated) throw new Error("Utente non trovato dopo aggiornamento");

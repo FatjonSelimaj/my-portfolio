@@ -197,7 +197,7 @@ export default function PublicPage() {
                 <p className="flex items-center gap-2"><FaPhone /> {data.contact.phone}</p>
                 <p className="flex items-center gap-2"><FaEnvelope /> {data.contact.email}</p>
               </div>
-              <h2 className="text-2xl font-semibold mb-4">Certificazioni</h2>
+              <h2 className="text-2xl font-semibold mb-4">Certificazioni/Diplomi</h2>
               {data.certifications!.length === 0 ? (
                 <p className="text-gray-500">Nessuna certificazione disponibile.</p>
               ) : (
