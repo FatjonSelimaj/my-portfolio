@@ -193,6 +193,7 @@ export default function PublicPage() {
                 className="prose mb-6"
                 dangerouslySetInnerHTML={{ __html: data.about }}
               />
+              
               <div className="border-l-4 border-green-500 bg-green-50 p-4 mb-8">
                 <p className="flex items-center gap-2"><FaPhone /> {data.contact.phone}</p>
                 <p className="flex items-center gap-2"><FaEnvelope /> {data.contact.email}</p>
