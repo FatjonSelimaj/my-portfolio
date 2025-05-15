@@ -51,3 +51,5 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ message: "Email inviata (se l'indirizzo esiste)." }, { status: 200 });
 }
+
+export const runtime = "nodejs";
