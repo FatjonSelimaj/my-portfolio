@@ -5,6 +5,14 @@ import { useRouter } from "next/navigation";
 import { FaSignOutAlt, FaCog, FaTimes, FaSave, FaUser } from "react-icons/fa";
 import Link from "next/link";
 
+// Interfaccia con id
+interface UserData {
+  id: string;
+  name: string;
+  email: string;
+  password: string;
+  gender: string;
+}
 // Tipi delle sezioni disponibili
 type SectionType = "settings" | "about" | "services" | "articles" | "contact";
 
@@ -13,7 +21,13 @@ export default function Dashboard() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedSection, setSelectedSection] = useState<SectionType | null>(null);
   const [modalMessage, setModalMessage] = useState<string | null>(null);
-  const [userData, setUserData] = useState({ name: "", email: "", password: "", gender: "male" });
+  const [userData, setUserData] = useState<UserData>({
+    id: "",
+    name: "",
+    email: "",
+    password: "",
+    gender: "male",
+  });
 
   // Logout helper
   const handleLogout = () => {
@@ -22,20 +36,27 @@ export default function Dashboard() {
     router.push("/");
   };
 
+  // Caricamento iniziale
   useEffect(() => {
     const token = localStorage.getItem("token");
-    const savedUser = localStorage.getItem("userData");
     if (!token) {
       setModalMessage("Sessione scaduta. Effettua nuovamente il login.");
-      router.replace("auth/login");
-    } else if (savedUser) {
-      try {
-        const parsed = JSON.parse(savedUser);
-        setUserData(prev => ({ ...prev, ...parsed, password: "" }));
-      } catch (err) {
-        console.warn("userData malformato nel localStorage", err);
-      }
+      router.replace("/auth/login");
+      return;
     }
+
+    fetch("/api/userData", {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then(res => res.json())
+      .then((user: UserData) => {
+        setUserData({ ...user, password: "" });
+        // Salvo userData inclusivo di id
+        localStorage.setItem("userData", JSON.stringify(user));
+      })
+      .catch(() => {
+        setModalMessage("Errore nel recupero dei dati utente.");
+      });
   }, [router]);
 
   const handleOpenModal = (section: SectionType) => {
@@ -130,7 +151,9 @@ export default function Dashboard() {
       </header>
 
       <main className="flex flex-col items-center justify-center flex-grow text-center px-4 sm:px-6 md:px-12">
-        <Link href="/public_page" className="text-white hover:text-gray-300">Area Pubblica</Link>
+        <Link href={`/public_page/${userData.id}`} className="text-white hover:text-gray-300">
+          Area Pubblica
+        </Link>
         <h2 className="text-3xl font-semibold mb-4">
           {userData.name}, {userData.gender === "female" ? "Benvenuta" : "Benvenuto"} nella tua Dashboard! 🎉
         </h2>
