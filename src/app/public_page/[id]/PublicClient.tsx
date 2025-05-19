@@ -6,287 +6,287 @@ import { FaPhone, FaEnvelope } from "react-icons/fa";
 import Link from "next/link";
 import Image from "next/image";
 
+// Helper per formattare la data in dd/MM/YYYY
+function formatDate(dateString: string) {
+  const d = new Date(dateString);
+  const day = String(d.getDate()).padStart(2, "0");
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const year = d.getFullYear();
+  return `${day}/${month}/${year}`;
+}
+
+// Utility per icone di fallback
 function getOnlineFallbackIcon(text: string, type: 'institution' | 'course'): string {
-    const lower = text.toLowerCase();
-    if (type === 'course') {
-        if (lower.includes('manutenzione')) return 'https://img.icons8.com/color/96/toolbox.png';
-        if (lower.includes('tecnica'))     return 'https://img.icons8.com/color/96/engineering.png';
-        if (lower.includes('informatica')) return 'https://img.icons8.com/color/96/laptop.png';
-        return 'https://img.icons8.com/ios-filled/50/square.png';
-    }
-    if (type === 'institution') {
-        if (lower.includes('marconi')) return 'https://img.icons8.com/color/96/school-building.png';
-        return 'https://img.icons8.com/color/96/graduation-cap.png';
-    }
+  const lower = text.toLowerCase();
+  if (type === 'course') {
+    if (lower.includes('manutenzione')) return 'https://img.icons8.com/color/96/toolbox.png';
+    if (lower.includes('tecnica'))     return 'https://img.icons8.com/color/96/engineering.png';
+    if (lower.includes('informatica')) return 'https://img.icons8.com/color/96/laptop.png';
     return 'https://img.icons8.com/ios-filled/50/square.png';
+  }
+  if (type === 'institution') {
+    if (lower.includes('marconi')) return 'https://img.icons8.com/color/96/school-building.png';
+    return 'https://img.icons8.com/color/96/graduation-cap.png';
+  }
+  return 'https://img.icons8.com/ios-filled/50/square.png';
 }
 
+// Logo fallback per istituzioni e corsi
 function FallbackLogo({ text, type }: { text: string; type: 'institution' | 'course' }) {
-    const domain = `${text.toLowerCase().replace(/[^a-z0-9]/g, '')}.${type === 'institution' ? 'it' : 'com'}`;
-    const [src, setSrc] = useState(`https://logo.clearbit.com/${domain}`);
-    const handleError = () => setSrc(getOnlineFallbackIcon(text, type));
-    return (
-        <Image
-            src={src}
-            alt={`Logo ${text}`}
-            width={60}
-            height={60}
-            className="object-contain"
-            onError={handleError}
-            unoptimized
-        />
-    );
+  const domain = `${text.toLowerCase().replace(/[^a-z0-9]/g, '')}.${type === 'institution' ? 'it' : 'com'}`;
+  const [src, setSrc] = useState(`https://logo.clearbit.com/${domain}`);
+  const handleError = () => setSrc(getOnlineFallbackIcon(text, type));
+  return (
+    <Image
+      src={src}
+      alt={text}
+      width={60}
+      height={60}
+      className="object-contain"
+      onError={handleError}
+      unoptimized
+    />
+  );
 }
 
+// Logo fallback per progetti
 function ProjectLogo({ url, title }: { url: string; title: string }) {
-    const domain = new URL(url).origin;
-    const [logoSrc, setLogoSrc] = useState(`${domain}/logo.png`);
-    const [attempt, setAttempt] = useState(1);
-    const handleError = () => {
-        if (attempt === 1) {
-            setLogoSrc(`${domain}/favicon.ico`);
-            setAttempt(2);
-        } else {
-            setLogoSrc('https://img.icons8.com/ios-filled/50/square.png');
-        }
-    };
-    return (
-        <Image
-            src={logoSrc}
-            alt={`Logo ${title}`}
-            width={160}
-            height={160}
-            className="object-contain"
-            onError={handleError}
-            unoptimized
-        />
-    );
+  const domain = new URL(url).origin;
+  const [logoSrc, setLogoSrc] = useState(`${domain}/logo.png`);
+  const [attempt, setAttempt] = useState(1);
+  const handleError = () => {
+    if (attempt === 1) {
+      setLogoSrc(`${domain}/favicon.ico`);
+      setAttempt(2);
+    } else {
+      setLogoSrc('https://img.icons8.com/ios-filled/50/square.png');
+    }
+  };
+  return (
+    <Image
+      src={logoSrc}
+      alt={title}
+      width={160}
+      height={160}
+      className="object-contain"
+      onError={handleError}
+      unoptimized
+    />
+  );
 }
 
+// Tipi dati
 interface Painting   { title: string; content: string; }
 interface Project    { id: string; title: string; content: string; url: string; logoUrl: string; }
 interface Certification {
-    id: string;
-    title: string;
-    institution: string;
-    dateAwarded: string;
-    extractedText: string;
-    logoUrl: string;
-    description: string;
+  id: string;
+  title: string;
+  institution: string;
+  dateAwarded: string;
+  extractedText: string;
+  logoUrl: string;
+  description: string;
 }
-interface Diploma    {
-    id: string;
-    degree: string;
-    fieldOfStudy: string;
-    institution: string;
-    dateAwarded: string;
-    diplomaUrl: string;
-    fileType: "image" | "pdf";
+interface Diploma {
+  id: string;
+  degree: string;
+  fieldOfStudy: string;
+  institution: string;
+  dateAwarded: string;
+  diplomaUrl: string;
+  fileType: "image" | "pdf";
 }
-interface ApiData    {
-    firstName: string;
-    lastName: string;
-    about: string;
-    imageUrl?: string;
-    paintings: Painting[];
-    projects: Project[];
-    certifications: Certification[];
-    diplomas: Diploma[];
-    contact: { phone: string; email: string; };
+interface ApiData {
+  firstName: string;
+  lastName: string;
+  about: string;
+  imageUrl?: string;
+  paintings: Painting[];
+  projects: Project[];
+  certifications: Certification[];
+  diplomas: Diploma[];
+  contact: { phone: string; email: string; };
 }
 
+// Componente principale
 export default function PublicClient() {
-    const { id } = useParams();
-    const [data, setData]       = useState<ApiData | null>(null);
-    const [selected, setSel]    = useState<"about" | `painting-${number}` | "projects">("about");
-    const [error, setError]     = useState<string | null>(null);
+  const { id } = useParams();
+  const [data, setData]    = useState<ApiData | null>(null);
+  const [selected, setSel] = useState<"about" | `painting-${number}` | "projects">("about");
+  const [error, setError]  = useState<string | null>(null);
 
-    useEffect(() => {
-        if (!id) {
-            setError("ID utente non specificato.");
-            return;
-        }
-        fetch(`/api/publicData/${id}`)
-            .then(res => {
-                if (!res.ok) throw new Error("Utente non trovato");
-                return res.json() as Promise<ApiData>;
-            })
-            .then(setData)
-            .catch(err => setError(err.message));
-    }, [id]);
+  useEffect(() => {
+    if (!id) {
+      setError("ID utente non specificato.");
+      return;
+    }
+    fetch(`/api/publicData/${id}`)
+      .then(res => {
+        if (!res.ok) throw new Error("Utente non trovato");
+        return res.json() as Promise<ApiData>;
+      })
+      .then(setData)
+      .catch(err => setError(err.message));
+  }, [id]);
 
-    if (error) return (
-        <div className="min-h-screen flex items-center justify-center text-red-600 p-4">
-            {error}
-        </div>
-    );
-    if (!data) return (
-        <div className="min-h-screen flex items-center justify-center">
-            Caricamento…
-        </div>
-    );
+  if (error) return (
+    <div className="min-h-screen flex items-center justify-center text-red-600 p-4">
+      {error}
+    </div>
+  );
+  if (!data) return (
+    <div className="min-h-screen flex items-center justify-center">
+      Caricamento…
+    </div>
+  );
 
-    const paintings = data.paintings.filter(p => p.title && p.content);
-    const projects  = data.projects.filter(p => p.title && p.url);
-    const idx       = selected.startsWith("painting-") ? +selected.split("-")[1] : -1;
-    const painting  = idx >= 0 ? paintings[idx] : null;
+  const paintings = data.paintings.filter(p => p.title && p.content);
+  const projects  = data.projects.filter(p => p.title && p.url);
+  const idx       = selected.startsWith("painting-") ? +selected.split("-")[1] : -1;
+  const painting  = idx >= 0 ? paintings[idx] : null;
 
-    return (
-        <div className="min-h-screen flex flex-col bg-white">
-            <header className="bg-white shadow p-4">
-                <nav className="flex gap-2 overflow-x-auto whitespace-nowrap">
-                    <button
-                        onClick={() => setSel("about")}
-                        className={`px-3 py-2 rounded font-semibold ${selected === "about" ? "bg-green-500 text-white" : "bg-blue-300 text-white"}`}
-                    >
-                        Chi Sono
-                    </button>
-                    {paintings.map((p, i) => (
-                        <button
-                            key={i}
-                            onClick={() => setSel(`painting-${i}` as const)}
-                            className={`px-3 py-2 rounded font-semibold ${selected === `painting-${i}` ? "bg-green-500 text-white" : "bg-blue-300 text-white"}`}
-                        >
-                            {p.title}
-                        </button>
-                    ))}
-                    {projects.length > 0 && (
-                        <button
-                            onClick={() => setSel("projects")}
-                            className={`px-3 py-2 rounded font-semibold ${selected === "projects" ? "bg-green-500 text-white" : "bg-blue-300 text-white"}`}
-                        >
-                            Progetti
-                        </button>
-                    )}
-                </nav>
-            </header>
+  return (
+    <div className="min-h-screen flex flex-col bg-white">
 
-            <main className="flex-grow px-6 py-8 space-y-12">
-                {selected === "about" && (
-                    <section className="max-w-3xl mx-auto space-y-6">
-                        <h1 className="text-3xl font-bold text-center">
-                            {data.firstName} {data.lastName}
-                        </h1>
+      {/* Navbar */}
+      <header className="bg-white shadow p-4">
+        <nav className="flex gap-2 overflow-x-auto whitespace-nowrap">
+          <button
+            onClick={() => setSel("about")}
+            className={`px-3 py-2 rounded font-semibold ${selected==="about" ? "bg-green-500 text-white" : "bg-blue-300 text-white"}`}
+          >Chi Sono</button>
+          {paintings.map((p,i) => (
+            <button
+              key={i}
+              onClick={() => setSel(`painting-${i}` as const)}
+              className={`px-3 py-2 rounded font-semibold ${selected===`painting-${i}` ? "bg-green-500 text-white" : "bg-blue-300 text-white"}`}
+            >{p.title}</button>
+          ))}
+          {projects.length > 0 && (
+            <button
+              onClick={() => setSel("projects")}
+              className={`px-3 py-2 rounded font-semibold ${selected==="projects" ? "bg-green-500 text-white" : "bg-blue-300 text-white"}`}
+            >Progetti</button>
+          )}
+        </nav>
+      </header>
 
-                        {data.imageUrl && (
-                            <div className="flex justify-center">
-                                <Image
-                                    src={data.imageUrl}
-                                    alt="Foto profilo"
-                                    width={128}
-                                    height={128}
-                                    className="rounded-full"
-                                    unoptimized
-                                />
-                            </div>
-                        )}
+      {/* Contenuto */}
+      <main className="flex-grow px-6 py-8 space-y-12">
 
-                        {/* Split dei paragrafi */}
-                        {data.about.split("\n\n").map((para, i) => (
-                            <p key={i} className="text-gray-700 leading-relaxed">
-                                {para}
-                            </p>
-                        ))}
+        {/* Sezione “Chi Sono” */}
+        {selected === "about" && (
+          <section className="max-w-3xl mx-auto space-y-6">
+            <h1 className="text-3xl font-bold text-center">
+              {data.firstName} {data.lastName}
+            </h1>
 
-                        <div className="bg-green-50 border-l-4 border-green-500 p-4 rounded-lg flex flex-col sm:flex-row gap-4">
-                            <p className="flex items-center gap-2 text-gray-800">
-                                <FaPhone /> {data.contact.phone}
-                            </p>
-                            <p className="flex items-center gap-2 text-gray-800">
-                                <FaEnvelope /> {data.contact.email}
-                            </p>
-                        </div>
+            {data.imageUrl && (
+              <div className="flex justify-center">
+                <Image
+                  src={data.imageUrl}
+                  alt="Foto profilo"
+                  width={128}
+                  height={128}
+                  className="rounded-full"
+                  unoptimized
+                />
+              </div>
+            )}
 
-                        <div className="space-y-6">
-                            <h2 className="text-2xl font-semibold">Certificazioni</h2>
-                            <ul className="space-y-4">
-                                {data.certifications.map(cert => (
-                                    <li key={cert.id} className="bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition">
-                                        <div className="flex items-center gap-4 mb-2">
-                                            <FallbackLogo text={cert.institution} type="institution" />
-                                            <div>
-                                                <h3 className="font-medium">{cert.title}</h3>
-                                                <p className="text-sm text-gray-500">{cert.dateAwarded}</p>
-                                            </div>
-                                        </div>
-                                        <p className="text-gray-700 mb-2">{cert.description}</p>
-                                        {cert.extractedText && (
-                                            <blockquote className="pl-4 border-l-4 border-green-500 italic text-gray-600">
-                                                {cert.extractedText}
-                                            </blockquote>
-                                        )}
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
+            {data.about.split("\n\n").map((para,i) => (
+              <p key={i} className="text-gray-700 leading-relaxed">
+                {para}
+              </p>
+            ))}
 
-                        <div className="space-y-6">
-                            <h2 className="text-2xl font-semibold">Diplomi</h2>
-                            <ul className="space-y-4">
-                                {data.diplomas.map(d => (
-                                    <li key={d.id} className="bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition">
-                                        <div className="flex items-center gap-4 mb-2">
-                                            <FallbackLogo text={d.institution} type="institution" />
-                                            <div>
-                                                <h3 className="font-medium">{d.degree} in {d.fieldOfStudy}</h3>
-                                                <p className="text-sm text-gray-500">{d.dateAwarded}</p>
-                                            </div>
-                                        </div>
-                                        {d.fileType === "pdf" ? (
-                                            <a
-                                                href={d.diplomaUrl}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="text-blue-600 underline"
-                                            >
-                                                Visualizza Diploma (PDF)
-                                            </a>
-                                        ) : (
-                                            <Image
-                                                src={d.diplomaUrl}
-                                                alt="Diploma"
-                                                width={200}
-                                                height={150}
-                                                className="rounded"
-                                                unoptimized
-                                            />
-                                        )}
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-                    </section>
-                )}
+            <div className="bg-green-50 border-l-4 border-green-500 p-4 rounded-lg flex flex-col sm:flex-row gap-4">
+              <a href={`tel:${data.contact.phone}`} className="flex items-center gap-2 text-gray-800 hover:text-green-700">
+                <FaPhone /> {data.contact.phone}
+              </a>
+              <a href={`mailto:${data.contact.email}`} className="flex items-center gap-2 text-gray-800 hover:text-green-700">
+                <FaEnvelope /> {data.contact.email}
+              </a>
+            </div>
+          </section>
+        )}
 
-                {painting && (
-                    <section className="max-w-3xl mx-auto">
-                        <h2 className="text-2xl font-semibold mb-2">{painting.title}</h2>
-                        {painting.content.split("\n").map((line, i) => (
-                            <p key={i} className="text-gray-700 leading-relaxed mb-2">
-                                {line}
-                            </p>
-                        ))}
-                    </section>
-                )}
+        {/* Sezione “Diplomi / Certificazioni” */}
+        {selected === "about" && (
+          <section className="max-w-3xl mx-auto space-y-6">
+            <h2 className="text-2xl font-semibold">Diplomi / Certificazioni</h2>
+            <ul className="space-y-4">
+              {data.certifications.map(cert => (
+                <li key={cert.id} className="bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition">
+                  <div className="flex items-center gap-4 mb-2">
+                    <FallbackLogo text={cert.institution} type="institution" />
+                    <div>
+                      <h3 className="font-medium">{cert.title}</h3>
+                      <p className="text-sm text-gray-500">{formatDate(cert.dateAwarded)}</p>
+                    </div>
+                  </div>
+                  {cert.description.split("\n\n").map((para, idx) => (
+                    <p key={idx} className="text-gray-700 mb-2 leading-relaxed">{para}</p>
+                  ))}
+                  {cert.extractedText && (
+                    <blockquote className="pl-4 border-l-4 border-green-500 italic text-gray-600">
+                      {cert.extractedText}
+                    </blockquote>
+                  )}
+                </li>
+              ))}
+              {data.diplomas.map(d => (
+                <li key={d.id} className="bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition">
+                  <div className="flex items-center gap-4 mb-2">
+                    <FallbackLogo text={d.institution} type="institution" />
+                    <div>
+                      <h3 className="font-medium">{d.degree} in {d.fieldOfStudy}</h3>
+                      <p className="text-sm text-gray-500">{formatDate(d.dateAwarded)}</p>
+                    </div>
+                  </div>
+                  {d.fileType === "pdf" ? (
+                    <a href={d.diplomaUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">
+                      Visualizza Diploma (PDF)
+                    </a>
+                  ) : (
+                    <Image src={d.diplomaUrl} alt="Diploma" width={200} height={150} className="rounded" unoptimized />
+                  )}
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
 
-                {selected === "projects" && (
-                    <section className="max-w-3xl mx-auto space-y-6">
-                        {projects.map(pr => (
-                            <Link key={pr.id} href={pr.url} className="block group bg-white p-4 rounded-lg shadow hover:shadow-md transition">
-                                <div className="flex justify-center mb-4">
-                                    <ProjectLogo url={pr.url} title={pr.title} />
-                                </div>
-                                <h3 className="text-lg font-semibold text-gray-800 group-hover:text-green-600 text-center">
-                                    {pr.title}
-                                </h3>
-                                <p className="mt-2 text-gray-600 text-center">{pr.content}</p>
-                            </Link>
-                        ))}
-                    </section>
-                )}
-            </main>
+        {/* Sezione “Quadri” */}
+        {painting && (
+          <section className="max-w-3xl mx-auto space-y-6">
+            <h2 className="text-2xl font-semibold">{painting.title}</h2>
+            {painting.content.split("\n\n").map((para,i) => (
+              <p key={i} className="text-gray-700 leading-relaxed">{para}</p>
+            ))}
+          </section>
+        )}
 
-            <footer className="bg-gray-100 p-4 text-center text-sm">© 2025 Portfolio Creator</footer>
-        </div>
-    );
+        {/* Sezione “Progetti” */}
+        {selected === "projects" && (
+          <section className="max-w-3xl mx-auto space-y-6">
+            {projects.map(pr => (
+              <Link key={pr.id} href={pr.url} className="block group bg-white p-4 rounded-lg shadow hover:shadow-md transition">
+                <div className="flex justify-center mb-4">
+                  <ProjectLogo url={pr.url} title={pr.title} />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-800 group-hover:text-green-600 text-center">{pr.title}</h3>
+                {pr.content.split("\n\n").map((para,i) => (
+                  <p key={i} className="mt-2 text-gray-600 leading-relaxed">{para}</p>
+                ))}
+              </Link>
+            ))}
+          </section>
+        )}
+      </main>
+
+      {/* Footer */}
+      <footer className="bg-gray-100 p-4 text-center text-sm">© 2025 Portfolio Creator</footer>
+    </div>
+  );
 }
