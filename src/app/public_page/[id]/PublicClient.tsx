@@ -151,7 +151,7 @@ export default function PublicClient() {
             {/* Navbar */}
             <header className="bg-blue-800">
                 <nav className="container mx-auto flex flex-wrap items-center justify-center px-4 py-3">
-                    {["about", ...paintings.map((_, i) => `painting-${i}`), ...(projects.length ? ["projects"] : [])].map((tab, idx) => {
+                    {["about", ...paintings.map((_, i) => `painting-${i}`), ...(projects.length ? ["projects"] : [])].map((tab) => {
                         const label =
                             tab === "about" ? "Chi Sono"
                                 : tab === "projects" ? "Progetti"
