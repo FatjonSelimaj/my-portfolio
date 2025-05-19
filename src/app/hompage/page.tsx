@@ -55,7 +55,7 @@ export default function Dashboard() {
         localStorage.setItem("userData", JSON.stringify(user));
       })
       .catch(() => {
-        setModalMessage("Errore nel recupero dei dati utente.");
+        setModalMessage("Fare il logout.");
       });
   }, [router]);
 
