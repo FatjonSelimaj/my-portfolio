@@ -151,9 +151,17 @@ export default function Dashboard() {
       </header>
 
       <main className="flex flex-col items-center justify-center flex-grow text-center px-4 sm:px-6 md:px-12">
-        <Link href={`/public_page/${userData.id}`} className="text-white hover:text-gray-300">
-          Area Pubblica
-        </Link>
+        {userData.id
+          ? (
+            <Link
+              href={`/public_page/${userData.id}`}
+              className="text-white hover:text-gray-300"
+            >
+              Area Pubblica
+            </Link>
+          )
+          : null
+        }
         <h2 className="text-3xl font-semibold mb-4">
           {userData.name}, {userData.gender === "female" ? "Benvenuta" : "Benvenuto"} nella tua Dashboard! 🎉
         </h2>
