@@ -1,6 +1,6 @@
 generator client {
   provider = "prisma-client-js"
-  output   = "../src/generated/prisma-client"  // o dove tu lo importi
+  output   = "../src/generated/prisma-client"
 }
 
 datasource db {
@@ -87,17 +87,16 @@ model PasswordResetToken {
 }
 
 model Certification {
-  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  id             String       @id @default(auto()) @map("_id") @db.ObjectId
   title          String
   institution    String
   dateAwarded    DateTime
   extractedText  String?
   logoUrl        String?
-  description    String?  // ✅ deve esserci
-  userDetailsId  String   @db.ObjectId
-  userDetails    UserDetails @relation("UserCertifications", fields: [userDetailsId], references: [id])
+  description    String?
+  userDetailsId  String       @db.ObjectId
+  userDetails    UserDetails  @relation("UserCertifications", fields: [userDetailsId], references: [id])
 }
-
 
 model Diploma {
   id            String      @id @default(auto()) @map("_id") @db.ObjectId
@@ -106,7 +105,12 @@ model Diploma {
   institution   String
   dateAwarded   DateTime
   diplomaUrl    String?
-  fileType      FileType? // ← aggiunto
+  fileType      FileType?
   userDetailsId String      @db.ObjectId
   userDetails   UserDetails @relation("UserDiplomas", fields: [userDetailsId], references: [id])
+}
+
+model PageVisit {
+  userId String @id @map("_id")
+  count  Int    @default(0)
 }

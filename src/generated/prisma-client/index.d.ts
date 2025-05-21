@@ -58,6 +58,11 @@ export type Certification = $Result.DefaultSelection<Prisma.$CertificationPayloa
  * 
  */
 export type Diploma = $Result.DefaultSelection<Prisma.$DiplomaPayload>
+/**
+ * Model PageVisit
+ * 
+ */
+export type PageVisit = $Result.DefaultSelection<Prisma.$PageVisitPayload>
 
 /**
  * Enums
@@ -257,6 +262,16 @@ export class PrismaClient<
     * ```
     */
   get diploma(): Prisma.DiplomaDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.pageVisit`: Exposes CRUD operations for the **PageVisit** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more PageVisits
+    * const pageVisits = await prisma.pageVisit.findMany()
+    * ```
+    */
+  get pageVisit(): Prisma.PageVisitDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -705,7 +720,8 @@ export namespace Prisma {
     Article: 'Article',
     PasswordResetToken: 'PasswordResetToken',
     Certification: 'Certification',
-    Diploma: 'Diploma'
+    Diploma: 'Diploma',
+    PageVisit: 'PageVisit'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -724,7 +740,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "userDetails" | "painting" | "project" | "portfolio" | "article" | "passwordResetToken" | "certification" | "diploma"
+      modelProps: "user" | "userDetails" | "painting" | "project" | "portfolio" | "article" | "passwordResetToken" | "certification" | "diploma" | "pageVisit"
       txIsolationLevel: never
     }
     model: {
@@ -1394,6 +1410,80 @@ export namespace Prisma {
           }
         }
       }
+      PageVisit: {
+        payload: Prisma.$PageVisitPayload<ExtArgs>
+        fields: Prisma.PageVisitFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.PageVisitFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PageVisitPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.PageVisitFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PageVisitPayload>
+          }
+          findFirst: {
+            args: Prisma.PageVisitFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PageVisitPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.PageVisitFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PageVisitPayload>
+          }
+          findMany: {
+            args: Prisma.PageVisitFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PageVisitPayload>[]
+          }
+          create: {
+            args: Prisma.PageVisitCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PageVisitPayload>
+          }
+          createMany: {
+            args: Prisma.PageVisitCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.PageVisitDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PageVisitPayload>
+          }
+          update: {
+            args: Prisma.PageVisitUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PageVisitPayload>
+          }
+          deleteMany: {
+            args: Prisma.PageVisitDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.PageVisitUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.PageVisitUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PageVisitPayload>
+          }
+          aggregate: {
+            args: Prisma.PageVisitAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregatePageVisit>
+          }
+          groupBy: {
+            args: Prisma.PageVisitGroupByArgs<ExtArgs>
+            result: $Utils.Optional<PageVisitGroupByOutputType>[]
+          }
+          findRaw: {
+            args: Prisma.PageVisitFindRawArgs<ExtArgs>
+            result: JsonObject
+          }
+          aggregateRaw: {
+            args: Prisma.PageVisitAggregateRawArgs<ExtArgs>
+            result: JsonObject
+          }
+          count: {
+            args: Prisma.PageVisitCountArgs<ExtArgs>
+            result: $Utils.Optional<PageVisitCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -1474,6 +1564,7 @@ export namespace Prisma {
     passwordResetToken?: PasswordResetTokenOmit
     certification?: CertificationOmit
     diploma?: DiplomaOmit
+    pageVisit?: PageVisitOmit
   }
 
   /* Types for Logging */
@@ -10804,6 +10895,939 @@ export namespace Prisma {
 
 
   /**
+   * Model PageVisit
+   */
+
+  export type AggregatePageVisit = {
+    _count: PageVisitCountAggregateOutputType | null
+    _avg: PageVisitAvgAggregateOutputType | null
+    _sum: PageVisitSumAggregateOutputType | null
+    _min: PageVisitMinAggregateOutputType | null
+    _max: PageVisitMaxAggregateOutputType | null
+  }
+
+  export type PageVisitAvgAggregateOutputType = {
+    count: number | null
+  }
+
+  export type PageVisitSumAggregateOutputType = {
+    count: number | null
+  }
+
+  export type PageVisitMinAggregateOutputType = {
+    userId: string | null
+    count: number | null
+  }
+
+  export type PageVisitMaxAggregateOutputType = {
+    userId: string | null
+    count: number | null
+  }
+
+  export type PageVisitCountAggregateOutputType = {
+    userId: number
+    count: number
+    _all: number
+  }
+
+
+  export type PageVisitAvgAggregateInputType = {
+    count?: true
+  }
+
+  export type PageVisitSumAggregateInputType = {
+    count?: true
+  }
+
+  export type PageVisitMinAggregateInputType = {
+    userId?: true
+    count?: true
+  }
+
+  export type PageVisitMaxAggregateInputType = {
+    userId?: true
+    count?: true
+  }
+
+  export type PageVisitCountAggregateInputType = {
+    userId?: true
+    count?: true
+    _all?: true
+  }
+
+  export type PageVisitAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which PageVisit to aggregate.
+     */
+    where?: PageVisitWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PageVisits to fetch.
+     */
+    orderBy?: PageVisitOrderByWithRelationInput | PageVisitOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: PageVisitWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PageVisits from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PageVisits.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned PageVisits
+    **/
+    _count?: true | PageVisitCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: PageVisitAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: PageVisitSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: PageVisitMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: PageVisitMaxAggregateInputType
+  }
+
+  export type GetPageVisitAggregateType<T extends PageVisitAggregateArgs> = {
+        [P in keyof T & keyof AggregatePageVisit]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregatePageVisit[P]>
+      : GetScalarType<T[P], AggregatePageVisit[P]>
+  }
+
+
+
+
+  export type PageVisitGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: PageVisitWhereInput
+    orderBy?: PageVisitOrderByWithAggregationInput | PageVisitOrderByWithAggregationInput[]
+    by: PageVisitScalarFieldEnum[] | PageVisitScalarFieldEnum
+    having?: PageVisitScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: PageVisitCountAggregateInputType | true
+    _avg?: PageVisitAvgAggregateInputType
+    _sum?: PageVisitSumAggregateInputType
+    _min?: PageVisitMinAggregateInputType
+    _max?: PageVisitMaxAggregateInputType
+  }
+
+  export type PageVisitGroupByOutputType = {
+    userId: string
+    count: number
+    _count: PageVisitCountAggregateOutputType | null
+    _avg: PageVisitAvgAggregateOutputType | null
+    _sum: PageVisitSumAggregateOutputType | null
+    _min: PageVisitMinAggregateOutputType | null
+    _max: PageVisitMaxAggregateOutputType | null
+  }
+
+  type GetPageVisitGroupByPayload<T extends PageVisitGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<PageVisitGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof PageVisitGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], PageVisitGroupByOutputType[P]>
+            : GetScalarType<T[P], PageVisitGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type PageVisitSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    userId?: boolean
+    count?: boolean
+  }, ExtArgs["result"]["pageVisit"]>
+
+
+
+  export type PageVisitSelectScalar = {
+    userId?: boolean
+    count?: boolean
+  }
+
+  export type PageVisitOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"userId" | "count", ExtArgs["result"]["pageVisit"]>
+
+  export type $PageVisitPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "PageVisit"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      userId: string
+      count: number
+    }, ExtArgs["result"]["pageVisit"]>
+    composites: {}
+  }
+
+  type PageVisitGetPayload<S extends boolean | null | undefined | PageVisitDefaultArgs> = $Result.GetResult<Prisma.$PageVisitPayload, S>
+
+  type PageVisitCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<PageVisitFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: PageVisitCountAggregateInputType | true
+    }
+
+  export interface PageVisitDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['PageVisit'], meta: { name: 'PageVisit' } }
+    /**
+     * Find zero or one PageVisit that matches the filter.
+     * @param {PageVisitFindUniqueArgs} args - Arguments to find a PageVisit
+     * @example
+     * // Get one PageVisit
+     * const pageVisit = await prisma.pageVisit.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends PageVisitFindUniqueArgs>(args: SelectSubset<T, PageVisitFindUniqueArgs<ExtArgs>>): Prisma__PageVisitClient<$Result.GetResult<Prisma.$PageVisitPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one PageVisit that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {PageVisitFindUniqueOrThrowArgs} args - Arguments to find a PageVisit
+     * @example
+     * // Get one PageVisit
+     * const pageVisit = await prisma.pageVisit.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends PageVisitFindUniqueOrThrowArgs>(args: SelectSubset<T, PageVisitFindUniqueOrThrowArgs<ExtArgs>>): Prisma__PageVisitClient<$Result.GetResult<Prisma.$PageVisitPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first PageVisit that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PageVisitFindFirstArgs} args - Arguments to find a PageVisit
+     * @example
+     * // Get one PageVisit
+     * const pageVisit = await prisma.pageVisit.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends PageVisitFindFirstArgs>(args?: SelectSubset<T, PageVisitFindFirstArgs<ExtArgs>>): Prisma__PageVisitClient<$Result.GetResult<Prisma.$PageVisitPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first PageVisit that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PageVisitFindFirstOrThrowArgs} args - Arguments to find a PageVisit
+     * @example
+     * // Get one PageVisit
+     * const pageVisit = await prisma.pageVisit.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends PageVisitFindFirstOrThrowArgs>(args?: SelectSubset<T, PageVisitFindFirstOrThrowArgs<ExtArgs>>): Prisma__PageVisitClient<$Result.GetResult<Prisma.$PageVisitPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more PageVisits that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PageVisitFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all PageVisits
+     * const pageVisits = await prisma.pageVisit.findMany()
+     * 
+     * // Get first 10 PageVisits
+     * const pageVisits = await prisma.pageVisit.findMany({ take: 10 })
+     * 
+     * // Only select the `userId`
+     * const pageVisitWithUserIdOnly = await prisma.pageVisit.findMany({ select: { userId: true } })
+     * 
+     */
+    findMany<T extends PageVisitFindManyArgs>(args?: SelectSubset<T, PageVisitFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PageVisitPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a PageVisit.
+     * @param {PageVisitCreateArgs} args - Arguments to create a PageVisit.
+     * @example
+     * // Create one PageVisit
+     * const PageVisit = await prisma.pageVisit.create({
+     *   data: {
+     *     // ... data to create a PageVisit
+     *   }
+     * })
+     * 
+     */
+    create<T extends PageVisitCreateArgs>(args: SelectSubset<T, PageVisitCreateArgs<ExtArgs>>): Prisma__PageVisitClient<$Result.GetResult<Prisma.$PageVisitPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many PageVisits.
+     * @param {PageVisitCreateManyArgs} args - Arguments to create many PageVisits.
+     * @example
+     * // Create many PageVisits
+     * const pageVisit = await prisma.pageVisit.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends PageVisitCreateManyArgs>(args?: SelectSubset<T, PageVisitCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a PageVisit.
+     * @param {PageVisitDeleteArgs} args - Arguments to delete one PageVisit.
+     * @example
+     * // Delete one PageVisit
+     * const PageVisit = await prisma.pageVisit.delete({
+     *   where: {
+     *     // ... filter to delete one PageVisit
+     *   }
+     * })
+     * 
+     */
+    delete<T extends PageVisitDeleteArgs>(args: SelectSubset<T, PageVisitDeleteArgs<ExtArgs>>): Prisma__PageVisitClient<$Result.GetResult<Prisma.$PageVisitPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one PageVisit.
+     * @param {PageVisitUpdateArgs} args - Arguments to update one PageVisit.
+     * @example
+     * // Update one PageVisit
+     * const pageVisit = await prisma.pageVisit.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends PageVisitUpdateArgs>(args: SelectSubset<T, PageVisitUpdateArgs<ExtArgs>>): Prisma__PageVisitClient<$Result.GetResult<Prisma.$PageVisitPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more PageVisits.
+     * @param {PageVisitDeleteManyArgs} args - Arguments to filter PageVisits to delete.
+     * @example
+     * // Delete a few PageVisits
+     * const { count } = await prisma.pageVisit.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends PageVisitDeleteManyArgs>(args?: SelectSubset<T, PageVisitDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more PageVisits.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PageVisitUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many PageVisits
+     * const pageVisit = await prisma.pageVisit.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends PageVisitUpdateManyArgs>(args: SelectSubset<T, PageVisitUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one PageVisit.
+     * @param {PageVisitUpsertArgs} args - Arguments to update or create a PageVisit.
+     * @example
+     * // Update or create a PageVisit
+     * const pageVisit = await prisma.pageVisit.upsert({
+     *   create: {
+     *     // ... data to create a PageVisit
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the PageVisit we want to update
+     *   }
+     * })
+     */
+    upsert<T extends PageVisitUpsertArgs>(args: SelectSubset<T, PageVisitUpsertArgs<ExtArgs>>): Prisma__PageVisitClient<$Result.GetResult<Prisma.$PageVisitPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more PageVisits that matches the filter.
+     * @param {PageVisitFindRawArgs} args - Select which filters you would like to apply.
+     * @example
+     * const pageVisit = await prisma.pageVisit.findRaw({
+     *   filter: { age: { $gt: 25 } }
+     * })
+     */
+    findRaw(args?: PageVisitFindRawArgs): Prisma.PrismaPromise<JsonObject>
+
+    /**
+     * Perform aggregation operations on a PageVisit.
+     * @param {PageVisitAggregateRawArgs} args - Select which aggregations you would like to apply.
+     * @example
+     * const pageVisit = await prisma.pageVisit.aggregateRaw({
+     *   pipeline: [
+     *     { $match: { status: "registered" } },
+     *     { $group: { _id: "$country", total: { $sum: 1 } } }
+     *   ]
+     * })
+     */
+    aggregateRaw(args?: PageVisitAggregateRawArgs): Prisma.PrismaPromise<JsonObject>
+
+
+    /**
+     * Count the number of PageVisits.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PageVisitCountArgs} args - Arguments to filter PageVisits to count.
+     * @example
+     * // Count the number of PageVisits
+     * const count = await prisma.pageVisit.count({
+     *   where: {
+     *     // ... the filter for the PageVisits we want to count
+     *   }
+     * })
+    **/
+    count<T extends PageVisitCountArgs>(
+      args?: Subset<T, PageVisitCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], PageVisitCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a PageVisit.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PageVisitAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends PageVisitAggregateArgs>(args: Subset<T, PageVisitAggregateArgs>): Prisma.PrismaPromise<GetPageVisitAggregateType<T>>
+
+    /**
+     * Group by PageVisit.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PageVisitGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends PageVisitGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: PageVisitGroupByArgs['orderBy'] }
+        : { orderBy?: PageVisitGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, PageVisitGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetPageVisitGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the PageVisit model
+   */
+  readonly fields: PageVisitFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for PageVisit.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__PageVisitClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the PageVisit model
+   */
+  interface PageVisitFieldRefs {
+    readonly userId: FieldRef<"PageVisit", 'String'>
+    readonly count: FieldRef<"PageVisit", 'Int'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * PageVisit findUnique
+   */
+  export type PageVisitFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PageVisit
+     */
+    select?: PageVisitSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PageVisit
+     */
+    omit?: PageVisitOmit<ExtArgs> | null
+    /**
+     * Filter, which PageVisit to fetch.
+     */
+    where: PageVisitWhereUniqueInput
+  }
+
+  /**
+   * PageVisit findUniqueOrThrow
+   */
+  export type PageVisitFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PageVisit
+     */
+    select?: PageVisitSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PageVisit
+     */
+    omit?: PageVisitOmit<ExtArgs> | null
+    /**
+     * Filter, which PageVisit to fetch.
+     */
+    where: PageVisitWhereUniqueInput
+  }
+
+  /**
+   * PageVisit findFirst
+   */
+  export type PageVisitFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PageVisit
+     */
+    select?: PageVisitSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PageVisit
+     */
+    omit?: PageVisitOmit<ExtArgs> | null
+    /**
+     * Filter, which PageVisit to fetch.
+     */
+    where?: PageVisitWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PageVisits to fetch.
+     */
+    orderBy?: PageVisitOrderByWithRelationInput | PageVisitOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for PageVisits.
+     */
+    cursor?: PageVisitWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PageVisits from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PageVisits.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of PageVisits.
+     */
+    distinct?: PageVisitScalarFieldEnum | PageVisitScalarFieldEnum[]
+  }
+
+  /**
+   * PageVisit findFirstOrThrow
+   */
+  export type PageVisitFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PageVisit
+     */
+    select?: PageVisitSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PageVisit
+     */
+    omit?: PageVisitOmit<ExtArgs> | null
+    /**
+     * Filter, which PageVisit to fetch.
+     */
+    where?: PageVisitWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PageVisits to fetch.
+     */
+    orderBy?: PageVisitOrderByWithRelationInput | PageVisitOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for PageVisits.
+     */
+    cursor?: PageVisitWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PageVisits from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PageVisits.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of PageVisits.
+     */
+    distinct?: PageVisitScalarFieldEnum | PageVisitScalarFieldEnum[]
+  }
+
+  /**
+   * PageVisit findMany
+   */
+  export type PageVisitFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PageVisit
+     */
+    select?: PageVisitSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PageVisit
+     */
+    omit?: PageVisitOmit<ExtArgs> | null
+    /**
+     * Filter, which PageVisits to fetch.
+     */
+    where?: PageVisitWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PageVisits to fetch.
+     */
+    orderBy?: PageVisitOrderByWithRelationInput | PageVisitOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing PageVisits.
+     */
+    cursor?: PageVisitWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PageVisits from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PageVisits.
+     */
+    skip?: number
+    distinct?: PageVisitScalarFieldEnum | PageVisitScalarFieldEnum[]
+  }
+
+  /**
+   * PageVisit create
+   */
+  export type PageVisitCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PageVisit
+     */
+    select?: PageVisitSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PageVisit
+     */
+    omit?: PageVisitOmit<ExtArgs> | null
+    /**
+     * The data needed to create a PageVisit.
+     */
+    data: XOR<PageVisitCreateInput, PageVisitUncheckedCreateInput>
+  }
+
+  /**
+   * PageVisit createMany
+   */
+  export type PageVisitCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many PageVisits.
+     */
+    data: PageVisitCreateManyInput | PageVisitCreateManyInput[]
+  }
+
+  /**
+   * PageVisit update
+   */
+  export type PageVisitUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PageVisit
+     */
+    select?: PageVisitSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PageVisit
+     */
+    omit?: PageVisitOmit<ExtArgs> | null
+    /**
+     * The data needed to update a PageVisit.
+     */
+    data: XOR<PageVisitUpdateInput, PageVisitUncheckedUpdateInput>
+    /**
+     * Choose, which PageVisit to update.
+     */
+    where: PageVisitWhereUniqueInput
+  }
+
+  /**
+   * PageVisit updateMany
+   */
+  export type PageVisitUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update PageVisits.
+     */
+    data: XOR<PageVisitUpdateManyMutationInput, PageVisitUncheckedUpdateManyInput>
+    /**
+     * Filter which PageVisits to update
+     */
+    where?: PageVisitWhereInput
+    /**
+     * Limit how many PageVisits to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * PageVisit upsert
+   */
+  export type PageVisitUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PageVisit
+     */
+    select?: PageVisitSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PageVisit
+     */
+    omit?: PageVisitOmit<ExtArgs> | null
+    /**
+     * The filter to search for the PageVisit to update in case it exists.
+     */
+    where: PageVisitWhereUniqueInput
+    /**
+     * In case the PageVisit found by the `where` argument doesn't exist, create a new PageVisit with this data.
+     */
+    create: XOR<PageVisitCreateInput, PageVisitUncheckedCreateInput>
+    /**
+     * In case the PageVisit was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<PageVisitUpdateInput, PageVisitUncheckedUpdateInput>
+  }
+
+  /**
+   * PageVisit delete
+   */
+  export type PageVisitDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PageVisit
+     */
+    select?: PageVisitSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PageVisit
+     */
+    omit?: PageVisitOmit<ExtArgs> | null
+    /**
+     * Filter which PageVisit to delete.
+     */
+    where: PageVisitWhereUniqueInput
+  }
+
+  /**
+   * PageVisit deleteMany
+   */
+  export type PageVisitDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which PageVisits to delete
+     */
+    where?: PageVisitWhereInput
+    /**
+     * Limit how many PageVisits to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * PageVisit findRaw
+   */
+  export type PageVisitFindRawArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The query predicate filter. If unspecified, then all documents in the collection will match the predicate. ${@link https://docs.mongodb.com/manual/reference/operator/query MongoDB Docs}.
+     */
+    filter?: InputJsonValue
+    /**
+     * Additional options to pass to the `find` command ${@link https://docs.mongodb.com/manual/reference/command/find/#command-fields MongoDB Docs}.
+     */
+    options?: InputJsonValue
+  }
+
+  /**
+   * PageVisit aggregateRaw
+   */
+  export type PageVisitAggregateRawArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * An array of aggregation stages to process and transform the document stream via the aggregation pipeline. ${@link https://docs.mongodb.com/manual/reference/operator/aggregation-pipeline MongoDB Docs}.
+     */
+    pipeline?: InputJsonValue[]
+    /**
+     * Additional options to pass to the `aggregate` command ${@link https://docs.mongodb.com/manual/reference/command/aggregate/#command-fields MongoDB Docs}.
+     */
+    options?: InputJsonValue
+  }
+
+  /**
+   * PageVisit without action
+   */
+  export type PageVisitDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PageVisit
+     */
+    select?: PageVisitSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PageVisit
+     */
+    omit?: PageVisitOmit<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -10915,6 +11939,14 @@ export namespace Prisma {
   export type DiplomaScalarFieldEnum = (typeof DiplomaScalarFieldEnum)[keyof typeof DiplomaScalarFieldEnum]
 
 
+  export const PageVisitScalarFieldEnum: {
+    userId: 'userId',
+    count: 'count'
+  };
+
+  export type PageVisitScalarFieldEnum = (typeof PageVisitScalarFieldEnum)[keyof typeof PageVisitScalarFieldEnum]
+
+
   export const SortOrder: {
     asc: 'asc',
     desc: 'desc'
@@ -10989,6 +12021,20 @@ export namespace Prisma {
    * Reference to a field of type 'Int[]'
    */
   export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'Float'
+   */
+  export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
+    
+
+
+  /**
+   * Reference to a field of type 'Float[]'
+   */
+  export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
     
   /**
    * Deep Input Types
@@ -11556,6 +12602,45 @@ export namespace Prisma {
     userDetailsId?: StringWithAggregatesFilter<"Diploma"> | string
   }
 
+  export type PageVisitWhereInput = {
+    AND?: PageVisitWhereInput | PageVisitWhereInput[]
+    OR?: PageVisitWhereInput[]
+    NOT?: PageVisitWhereInput | PageVisitWhereInput[]
+    userId?: StringFilter<"PageVisit"> | string
+    count?: IntFilter<"PageVisit"> | number
+  }
+
+  export type PageVisitOrderByWithRelationInput = {
+    userId?: SortOrder
+    count?: SortOrder
+  }
+
+  export type PageVisitWhereUniqueInput = Prisma.AtLeast<{
+    userId?: string
+    AND?: PageVisitWhereInput | PageVisitWhereInput[]
+    OR?: PageVisitWhereInput[]
+    NOT?: PageVisitWhereInput | PageVisitWhereInput[]
+    count?: IntFilter<"PageVisit"> | number
+  }, "userId">
+
+  export type PageVisitOrderByWithAggregationInput = {
+    userId?: SortOrder
+    count?: SortOrder
+    _count?: PageVisitCountOrderByAggregateInput
+    _avg?: PageVisitAvgOrderByAggregateInput
+    _max?: PageVisitMaxOrderByAggregateInput
+    _min?: PageVisitMinOrderByAggregateInput
+    _sum?: PageVisitSumOrderByAggregateInput
+  }
+
+  export type PageVisitScalarWhereWithAggregatesInput = {
+    AND?: PageVisitScalarWhereWithAggregatesInput | PageVisitScalarWhereWithAggregatesInput[]
+    OR?: PageVisitScalarWhereWithAggregatesInput[]
+    NOT?: PageVisitScalarWhereWithAggregatesInput | PageVisitScalarWhereWithAggregatesInput[]
+    userId?: StringWithAggregatesFilter<"PageVisit"> | string
+    count?: IntWithAggregatesFilter<"PageVisit"> | number
+  }
+
   export type UserCreateInput = {
     id?: string
     email: string
@@ -12111,6 +13196,37 @@ export namespace Prisma {
     userDetailsId?: StringFieldUpdateOperationsInput | string
   }
 
+  export type PageVisitCreateInput = {
+    userId: string
+    count?: number
+  }
+
+  export type PageVisitUncheckedCreateInput = {
+    userId: string
+    count?: number
+  }
+
+  export type PageVisitUpdateInput = {
+    count?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type PageVisitUncheckedUpdateInput = {
+    count?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type PageVisitCreateManyInput = {
+    userId: string
+    count?: number
+  }
+
+  export type PageVisitUpdateManyMutationInput = {
+    count?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type PageVisitUncheckedUpdateManyInput = {
+    count?: IntFieldUpdateOperationsInput | number
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -12549,6 +13665,56 @@ export namespace Prisma {
     _min?: NestedEnumFileTypeNullableFilter<$PrismaModel>
     _max?: NestedEnumFileTypeNullableFilter<$PrismaModel>
     isSet?: boolean
+  }
+
+  export type IntFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntFilter<$PrismaModel> | number
+  }
+
+  export type PageVisitCountOrderByAggregateInput = {
+    userId?: SortOrder
+    count?: SortOrder
+  }
+
+  export type PageVisitAvgOrderByAggregateInput = {
+    count?: SortOrder
+  }
+
+  export type PageVisitMaxOrderByAggregateInput = {
+    userId?: SortOrder
+    count?: SortOrder
+  }
+
+  export type PageVisitMinOrderByAggregateInput = {
+    userId?: SortOrder
+    count?: SortOrder
+  }
+
+  export type PageVisitSumOrderByAggregateInput = {
+    count?: SortOrder
+  }
+
+  export type IntWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedIntFilter<$PrismaModel>
+    _min?: NestedIntFilter<$PrismaModel>
+    _max?: NestedIntFilter<$PrismaModel>
   }
 
   export type PortfolioCreateNestedManyWithoutUserInput = {
@@ -13007,6 +14173,14 @@ export namespace Prisma {
     update?: XOR<XOR<UserDetailsUpdateToOneWithWhereWithoutDiplomasInput, UserDetailsUpdateWithoutDiplomasInput>, UserDetailsUncheckedUpdateWithoutDiplomasInput>
   }
 
+  export type IntFieldUpdateOperationsInput = {
+    set?: number
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
   export type NestedStringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -13136,6 +14310,33 @@ export namespace Prisma {
     _min?: NestedEnumFileTypeNullableFilter<$PrismaModel>
     _max?: NestedEnumFileTypeNullableFilter<$PrismaModel>
     isSet?: boolean
+  }
+
+  export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedIntFilter<$PrismaModel>
+    _min?: NestedIntFilter<$PrismaModel>
+    _max?: NestedIntFilter<$PrismaModel>
+  }
+
+  export type NestedFloatFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatFilter<$PrismaModel> | number
   }
 
   export type PortfolioCreateWithoutUserInput = {

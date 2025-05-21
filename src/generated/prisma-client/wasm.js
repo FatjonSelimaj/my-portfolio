@@ -194,6 +194,11 @@ exports.Prisma.DiplomaScalarFieldEnum = {
   userDetailsId: 'userDetailsId'
 };
 
+exports.Prisma.PageVisitScalarFieldEnum = {
+  userId: 'userId',
+  count: 'count'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -217,7 +222,8 @@ exports.Prisma.ModelName = {
   Article: 'Article',
   PasswordResetToken: 'PasswordResetToken',
   Certification: 'Certification',
-  Diploma: 'Diploma'
+  Diploma: 'Diploma',
+  PageVisit: 'PageVisit'
 };
 
 /**

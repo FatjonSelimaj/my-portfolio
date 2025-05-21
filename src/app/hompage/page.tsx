@@ -28,6 +28,8 @@ export default function Dashboard() {
     password: "",
     gender: "male",
   });
+  // Stato per conteggio visite
+  const [visitCount, setVisitCount] = useState<number | null>(null);
 
   // Logout helper
   const handleLogout = () => {
@@ -36,7 +38,18 @@ export default function Dashboard() {
     router.push("/");
   };
 
-  // Caricamento iniziale
+  // dentro Dashboard()
+  useEffect(() => {
+    if (!userData.id) return;
+
+    // GET per leggere il conteggio
+    fetch(`/api/publicData/${userData.id}/visits`)
+      .then(res => res.json())
+      .then((data: { visits: number }) => setVisitCount(data.visits))
+      .catch(err => console.error("Errore fetch visite:", err));
+  }, [userData.id]);
+
+  // Caricamento iniziale dati utente
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -51,13 +64,23 @@ export default function Dashboard() {
       .then(res => res.json())
       .then((user: UserData) => {
         setUserData({ ...user, password: "" });
-        // Salvo userData inclusivo di id
         localStorage.setItem("userData", JSON.stringify(user));
       })
       .catch(() => {
         setModalMessage("Fare il logout.");
       });
   }, [router]);
+
+  // Fetch conteggio visite pagina pubblica
+  useEffect(() => {
+    if (!userData.id) return;
+    fetch(`/api/publicData/${userData.id}/visits`)
+      .then(res => res.json())
+      .then((data: { visits: number }) => {
+        setVisitCount(data.visits);
+      })
+      .catch(err => console.error("Errore fetch visite:", err));
+  }, [userData.id]);
 
   const handleOpenModal = (section: SectionType) => {
     setSelectedSection(section);
@@ -101,7 +124,7 @@ export default function Dashboard() {
           );
         })
         .catch(err => {
-          if (err.name === 'AbortError') return; // timeout gestito sopra
+          if (err.name === 'AbortError') return;
 
           console.error("Errore nel recupero dei dati utente:", err);
           setModalMessage("Sessione scaduta. Effettua nuovamente il login.");
@@ -151,17 +174,19 @@ export default function Dashboard() {
       </header>
 
       <main className="flex flex-col items-center justify-center flex-grow text-center px-4 sm:px-6 md:px-12">
-        {userData.id
-          ? (
-            <Link
-              href={`/public_page/${userData.id}`}
-              className="text-white hover:text-gray-300"
-            >
-              Area Pubblica
-            </Link>
-          )
-          : null
-        }
+        {userData.id && (
+          <Link href={`/public_page/${userData.id}`} className="text-white hover:text-gray-300">
+            Area Pubblica
+          </Link>
+        )}
+
+        {/* Visualizzazione conteggio visite */}
+        {visitCount !== null && (
+          <p className="text-lg text-gray-200 mt-2">
+            Visite pagina pubblica: <span className="font-bold">{visitCount}</span>
+          </p>
+        )}
+
         <h2 className="text-3xl font-semibold mb-4">
           {userData.name}, {userData.gender === "female" ? "Benvenuta" : "Benvenuto"} nella tua Dashboard! 🎉
         </h2>
@@ -175,7 +200,6 @@ export default function Dashboard() {
             </div>
           </Link>
         </div>
-
       </main>
 
       {isModalOpen && selectedSection === "settings" && (

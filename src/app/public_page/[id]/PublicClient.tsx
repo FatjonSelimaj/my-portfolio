@@ -116,6 +116,18 @@ export default function PublicClient() {
     const [error, setError] = useState<string | null>(null);
     const [menuOpen, setMenuOpen] = useState(false);
 
+    const { userId } = useParams();
+
+    useEffect(() => {
+        if (!userId) return;
+
+        // Invia un POST per incrementare il contatore su ogni mount,
+        // ma non tiene in locale alcun visitCount
+        fetch(`/api/public_page/${userId}/visits`, {
+            method: "POST",
+        }).catch(console.error);
+    }, [userId]);
+
     useEffect(() => {
         if (!id) {
             setError("ID utente non specificato.");
@@ -248,7 +260,7 @@ export default function PublicClient() {
                                     {d.fileType === "pdf" ? (
                                         <a href={d.diplomaUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">Visualizza Diploma (PDF)</a>
                                     ) : (
-                                         <Image
+                                        <Image
                                             src={d.diplomaUrl}
                                             alt="Diploma"
                                             width={200}
