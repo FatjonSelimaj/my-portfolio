@@ -118,15 +118,33 @@ export default function PublicClient() {
 
     const { userId } = useParams();
 
-    useEffect(() => {
-        if (!userId) return;
+    const { id: pageOwnerId } = useParams();
+    const [visits, setVisits] = useState<number>(0);
 
-        // Invia un POST per incrementare il contatore su ogni mount,
-        // ma non tiene in locale alcun visitCount
-        fetch(`/api/public_page/${userId}/visits`, {
-            method: "POST",
-        }).catch(console.error);
-    }, [userId]);
+    useEffect(() => {
+        if (!pageOwnerId) return;
+
+        // 1) Recupera i dati utente salvati in locale
+        const stored = localStorage.getItem("userData");
+        if (stored) {
+            const me = JSON.parse(stored) as { id: string };
+            // 2) Se sono io il proprietario, non mandare il POST
+            if (me.id === pageOwnerId) {
+                // eventualmente puoi leggere il count via GET se vuoi vederlo
+                fetch(`/api/publicData/${pageOwnerId}/visits`)
+                    .then(res => res.json())
+                    .then(data => setVisits(data.visits))
+                    .catch(console.error);
+                return;
+            }
+        }
+
+        // 3) Altrimenti mando il POST per incrementare
+        fetch(`/api/publicData/${pageOwnerId}/visits`, { method: "POST" })
+            .then(res => res.json())
+            .then(data => setVisits(data.visits))
+            .catch(console.error);
+    }, [pageOwnerId]);
 
     useEffect(() => {
         if (!id) {
