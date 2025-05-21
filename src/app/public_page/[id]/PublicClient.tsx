@@ -115,33 +115,17 @@ export default function PublicClient() {
     const [selected, setSel] = useState<"about" | `painting-${number}` | "projects">("about");
     const [error, setError] = useState<string | null>(null);
     const [menuOpen, setMenuOpen] = useState(false);
-    const { id: pageOwnerId } = useParams();
     const [, setVisits] = useState<number>(0);
 
     useEffect(() => {
-        if (!pageOwnerId) return;
+        if (!id) return;
 
-        // 1) Recupera i dati utente salvati in locale
-        const stored = localStorage.getItem("userData");
-        if (stored) {
-            const me = JSON.parse(stored) as { id: string };
-            // 2) Se sono io il proprietario, non mandare il POST
-            if (me.id === pageOwnerId) {
-                // eventualmente puoi leggere il count via GET se vuoi vederlo
-                fetch(`/api/publicData/${pageOwnerId}/visits`)
-                    .then(res => res.json())
-                    .then(data => setVisits(data.visits))
-                    .catch(console.error);
-                return;
-            }
-        }
-
-        // 3) Altrimenti mando il POST per incrementare
-        fetch(`/api/publicData/${pageOwnerId}/visits`, { method: "POST" })
+        // Questo POST incrementa il contatore
+        fetch(`/api/publicData/${id}/visits`, { method: "POST" })
             .then(res => res.json())
             .then(data => setVisits(data.visits))
             .catch(console.error);
-    }, [pageOwnerId]);
+    }, [id]);
 
     useEffect(() => {
         if (!id) {
