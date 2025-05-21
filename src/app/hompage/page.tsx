@@ -38,17 +38,6 @@ export default function Dashboard() {
     router.push("/");
   };
 
-  // dentro Dashboard()
-  useEffect(() => {
-    if (!userData.id) return;
-
-    // GET per leggere il conteggio
-    fetch(`/api/publicData/${userData.id}/visits`)
-      .then(res => res.json())
-      .then((data: { visits: number }) => setVisitCount(data.visits))
-      .catch(err => console.error("Errore fetch visite:", err));
-  }, [userData.id]);
-
   // Caricamento iniziale dati utente
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -200,6 +189,7 @@ export default function Dashboard() {
             </div>
           </Link>
         </div>
+
       </main>
 
       {isModalOpen && selectedSection === "settings" && (
