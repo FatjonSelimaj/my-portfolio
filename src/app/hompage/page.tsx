@@ -126,7 +126,7 @@ export default function Dashboard() {
         .catch(err => {
           if (err.name === 'AbortError') return;
 
-          console.error("Errore nel recupero dei dati utente:", err);
+          console.error("Errore nel recupero dei dati utente, rifai il login:", err);
           setModalMessage("Sessione scaduta. Effettua nuovamente il login.");
           localStorage.removeItem("token");
           localStorage.removeItem("userData");

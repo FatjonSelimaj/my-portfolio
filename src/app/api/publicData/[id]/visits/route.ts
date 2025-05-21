@@ -1,10 +1,9 @@
-// src/app/api/public_page/[userId]/visits/route.ts
 import { NextRequest, NextResponse } from "next/server";
 
 const visitsStore: Record<string, number> = {};
 
 export async function GET(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: { userId: string } }
 ) {
   const { userId } = params;
@@ -13,7 +12,7 @@ export async function GET(
 }
 
 export async function POST(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: { userId: string } }
 ) {
   const { userId } = params;
