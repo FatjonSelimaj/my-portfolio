@@ -1,21 +1,22 @@
+// src/app/api/publicData/[id]/visits/route.ts
 import { NextRequest, NextResponse } from "next/server";
 
 const visitsStore: Record<string, number> = {};
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { userId: string } }
+  { params }: { params: { id: string } }    // <-- qui “id” non “userId”
 ) {
-  const { userId } = params;
-  const count = visitsStore[userId] ?? 0;
+  const { id } = params;
+  const count = visitsStore[id] ?? 0;
   return NextResponse.json({ visits: count });
 }
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { userId: string } }
+  { params }: { params: { id: string } }
 ) {
-  const { userId } = params;
-  visitsStore[userId] = (visitsStore[userId] ?? 0) + 1;
-  return NextResponse.json({ visits: visitsStore[userId] });
+  const { id } = params;
+  visitsStore[id] = (visitsStore[id] ?? 0) + 1;
+  return NextResponse.json({ visits: visitsStore[id] });
 }
