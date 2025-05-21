@@ -115,11 +115,8 @@ export default function PublicClient() {
     const [selected, setSel] = useState<"about" | `painting-${number}` | "projects">("about");
     const [error, setError] = useState<string | null>(null);
     const [menuOpen, setMenuOpen] = useState(false);
-
-    const { userId } = useParams();
-
     const { id: pageOwnerId } = useParams();
-    const [visits, setVisits] = useState<number>(0);
+    const [, setVisits] = useState<number>(0);
 
     useEffect(() => {
         if (!pageOwnerId) return;
