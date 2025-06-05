@@ -6,7 +6,6 @@ import { FaPhone, FaEnvelope, FaBars, FaTimes } from "react-icons/fa";
 import Link from "next/link";
 import Image from "next/image";
 
-// Helper per formattare la data in dd/MM/YYYY
 function formatDate(dateString: string) {
     const d = new Date(dateString);
     const day = String(d.getDate()).padStart(2, "0");
@@ -15,7 +14,6 @@ function formatDate(dateString: string) {
     return `${day}/${month}/${year}`;
 }
 
-// Utility per icone di fallback
 function getOnlineFallbackIcon(text: string, type: 'institution' | 'course'): string {
     const lower = text.toLowerCase();
     if (type === 'course') {
@@ -31,7 +29,6 @@ function getOnlineFallbackIcon(text: string, type: 'institution' | 'course'): st
     return 'https://img.icons8.com/ios-filled/50/square.png';
 }
 
-// Logo fallback per istituzioni e corsi
 function FallbackLogo({ text, type }: { text: string; type: 'institution' | 'course' }) {
     const domain = `${text.toLowerCase().replace(/[^a-z0-9]/g, '')}.${type === 'institution' ? 'it' : 'com'}`;
     const [src, setSrc] = useState(`https://logo.clearbit.com/${domain}`);
@@ -49,14 +46,13 @@ function FallbackLogo({ text, type }: { text: string; type: 'institution' | 'cou
     );
 }
 
-// Logo fallback per progetti
 function ProjectLogo({ url, title }: { url: string; title: string }) {
     const domain = new URL(url).origin;
     const [logoSrc, setLogoSrc] = useState(`${domain}/logo.png`);
     const [attempt, setAttempt] = useState(1);
     const handleError = () => {
         if (attempt === 1) {
-            setLogoSrc(`${domain}/favicon.ico`);
+            setLogoSrc(`${domain}/logo.png`);
             setAttempt(2);
         } else {
             setLogoSrc('https://img.icons8.com/ios-filled/50/square.png');
@@ -75,7 +71,6 @@ function ProjectLogo({ url, title }: { url: string; title: string }) {
     );
 }
 
-// Tipi dati
 interface Painting { title: string; content: string; }
 interface Project { id: string; title: string; content: string; url: string; logoUrl: string; }
 interface Certification {
@@ -108,7 +103,6 @@ interface ApiData {
     contact: { phone: string; email: string; };
 }
 
-// Componente principale
 export default function PublicClient() {
     const { id } = useParams();
     const [data, setData] = useState<ApiData | null>(null);
@@ -119,8 +113,6 @@ export default function PublicClient() {
 
     useEffect(() => {
         if (!id) return;
-
-        // Questo POST incrementa il contatore
         fetch(`/api/publicData/${id}/visits`, { method: "POST" })
             .then(res => res.json())
             .then(data => setVisits(data.visits))
@@ -141,16 +133,8 @@ export default function PublicClient() {
             .catch(err => setError(err.message));
     }, [id]);
 
-    if (error) return (
-        <div className="min-h-screen flex items-center justify-center text-red-600 p-4">
-            {error}
-        </div>
-    );
-    if (!data) return (
-        <div className="min-h-screen flex items-center justify-center">
-            Caricamento…
-        </div>
-    );
+    if (error) return <div className="min-h-screen flex items-center justify-center text-red-600 p-4">{error}</div>;
+    if (!data) return <div className="min-h-screen flex items-center justify-center text-gray-500">Caricamento…</div>;
 
     const paintings = data.paintings.filter(p => p.title && p.content);
     const projects = data.projects.filter(p => p.title && p.url);
@@ -161,36 +145,21 @@ export default function PublicClient() {
 
     return (
         <div className="min-h-screen flex flex-col bg-white">
-
-            {/* Navbar */}
-            <header className="bg-blue-800">
-                <nav className="container mx-auto flex items-center justify-between px-4 py-3">
-                    <div className="text-white text-xl font-semibold">Portfolio</div>
-
-                    {/* Hamburger per mobile */}
-                    <button
-                        className="text-white md:hidden focus:outline-none"
-                        onClick={() => setMenuOpen(!menuOpen)}
-                        aria-label="Toggle menu"
-                    >
+            <header className="bg-blue-900">
+                <nav className="container mx-auto flex items-center justify-between px-4 py-4">
+                    <div className="text-white text-2xl font-bold tracking-wide">Portfolio</div>
+                    <button className="text-white md:hidden" onClick={() => setMenuOpen(!menuOpen)} aria-label="Toggle menu">
                         {menuOpen ? <FaTimes /> : <FaBars />}
                     </button>
-
-                    {/* Menu */}
-                    <div className={`${menuOpen ? 'block' : 'hidden'} w-full md:flex md:items-center md:w-auto`}>
-                        <div className="flex flex-col md:flex-row md:space-x-4">
+                    <div className={`${menuOpen ? 'block' : 'hidden'} w-full md:flex md:items-center md:w-auto mt-4 md:mt-0`}> 
+                        <div className="flex flex-col md:flex-row md:space-x-6">
                             {tabs.map(tab => {
-                                const label =
-                                    tab === "about"
-                                        ? "Chi Sono"
-                                        : tab === "projects"
-                                            ? "Progetti"
-                                            : paintings[+tab.split("-")[1]].title;
+                                const label = tab === "about" ? "Chi Sono" : tab === "projects" ? "Progetti" : paintings[+tab.split("-")[1]].title;
                                 return (
                                     <button
                                         key={tab}
                                         onClick={() => { setSel(tab as typeof selected); setMenuOpen(false); }}
-                                        className={`mx-2 my-1 px-4 py-2 text-white font-medium transition ${selected === tab ? 'border-b-2 border-white' : 'opacity-75 hover:opacity-100'}`}
+                                        className={`px-4 py-2 font-medium text-white rounded transition ${selected === tab ? 'bg-green-500 text-blue-900' : 'hover:bg-blue-700'}`}
                                     >
                                         {label}
                                     </button>
@@ -201,10 +170,7 @@ export default function PublicClient() {
                 </nav>
             </header>
 
-            {/* Contenuto */}
-            <main className="flex-grow container mx-auto px-6 py-10 space-y-16">
-
-                {/* Sezione Chi Sono */}
+            <main className="flex-grow container mx-auto px-6 py-12 space-y-16">
                 {selected === "about" && (
                     <section className="space-y-8">
                         <h1 className="text-4xl font-bold text-center text-gray-900">{data.firstName} {data.lastName}</h1>
@@ -213,46 +179,47 @@ export default function PublicClient() {
                                 <Image src={data.imageUrl} alt="Foto profilo" width={128} height={128} className="rounded-full shadow-lg" unoptimized />
                             </div>
                         )}
-                        {data.about.split("\n\n").map((para, i) => (
-                            <p key={i} className="prose prose-lg mx-auto text-gray-700">{para}</p>
-                        ))}
-                        <div className="bg-green-50 border-l-4 border-green-500 p-4 rounded-lg flex flex-col sm:flex-row gap-6 items-center">
+                        <div className="max-w-3xl mx-auto space-y-4">
+                            {data.about.split("\n\n").map((para, i) => (
+                                <p key={i} className="text-gray-700 text-lg leading-relaxed">{para}</p>
+                            ))}
+                        </div>
+                        <div className="bg-green-50 border-l-4 border-green-500 p-4 rounded-lg flex flex-col sm:flex-row gap-6 items-center justify-center">
                             <a href={`tel:${data.contact.phone}`} className="flex items-center gap-2 text-gray-800 hover:text-green-700 transition"> <FaPhone /> {data.contact.phone} </a>
                             <a href={`mailto:${data.contact.email}`} className="flex items-center gap-2 text-gray-800 hover:text-green-700 transition"> <FaEnvelope /> {data.contact.email} </a>
                         </div>
                     </section>
                 )}
 
-                <hr className="border-gray-200" />
-
-                {/* Diplomi / Certificazioni */}
                 {selected === "about" && (
                     <section className="space-y-8">
-                        <h2 className="text-2xl font-semibold text-gray-900">Diplomi / Certificazioni</h2>
-                        <ul className="space-y-6">
+                        <h2 className="text-2xl font-semibold text-gray-900 border-b pb-2">Diplomi / Certificazioni</h2>
+                        <ul className="grid gap-8 md:grid-cols-2">
                             {data.certifications.map(cert => (
-                                <li key={cert.id} className="bg-white p-6 rounded-lg shadow hover:shadow-lg transition">
+                                <li key={cert.id} className="bg-white p-6 rounded-lg shadow hover:shadow-xl transition">
                                     <div className="flex items-center gap-4 mb-4">
                                         <FallbackLogo text={cert.institution} type="institution" />
                                         <div>
-                                            <h3 className="text-lg font-medium text-gray-800">{cert.title}</h3>
+                                            <h3 className="text-lg font-semibold text-gray-800">{cert.title}</h3>
                                             <p className="text-sm text-gray-500">{formatDate(cert.dateAwarded)}</p>
                                         </div>
                                     </div>
-                                    {cert.description.split("\n\n").map((para, idx) => (
-                                        <p key={idx} className="text-gray-700 mb-3 leading-relaxed">{para}</p>
-                                    ))}
-                                    {cert.extractedText && (
-                                        <blockquote className="pl-4 border-l-4 border-green-500 italic text-gray-600">{cert.extractedText}</blockquote>
-                                    )}
+                                    <div className="space-y-3">
+                                        {cert.description.split("\n\n").map((para, idx) => (
+                                            <p key={idx} className="text-gray-700 text-sm leading-relaxed">{para}</p>
+                                        ))}
+                                        {cert.extractedText && (
+                                            <blockquote className="pl-4 border-l-4 border-green-500 italic text-gray-600 text-sm">{cert.extractedText}</blockquote>
+                                        )}
+                                    </div>
                                 </li>
                             ))}
                             {data.diplomas.map(d => (
-                                <li key={d.id} className="bg-white p-6 rounded-lg shadow hover:shadow-lg transition">
+                                <li key={d.id} className="bg-white p-6 rounded-lg shadow hover:shadow-xl transition">
                                     <div className="flex items-center gap-4 mb-4">
                                         <FallbackLogo text={d.institution} type="institution" />
                                         <div>
-                                            <h3 className="text-lg font-medium text-gray-800">{d.degree} in {d.fieldOfStudy}</h3>
+                                            <h3 className="text-lg font-semibold text-gray-800">{d.degree} in {d.fieldOfStudy}</h3>
                                             <p className="text-sm text-gray-500">{formatDate(d.dateAwarded)}</p>
                                         </div>
                                     </div>
@@ -264,9 +231,8 @@ export default function PublicClient() {
                                             alt="Diploma"
                                             width={200}
                                             height={150}
-                                            className="rounded shadow w-auto"
+                                            className="rounded shadow"
                                             unoptimized
-                                            style={{ height: '150px', width: 'auto' }}
                                         />
                                     )}
                                 </li>
@@ -275,31 +241,25 @@ export default function PublicClient() {
                     </section>
                 )}
 
-                <hr className="border-gray-200" />
-
-                {/* Sezione Quadri */}
                 {selected.startsWith("painting-") && painting && (
                     <section className="space-y-6">
-                        <h2 className="text-2xl font-semibold text-gray-900">{painting.title}</h2>
+                        <h2 className="text-2xl font-semibold text-gray-900 border-b pb-2">{painting.title}</h2>
                         {painting.content.split("\n\n").map((para, i) => (
-                            <p key={i} className="text-gray-700 leading-relaxed">{para}</p>
+                            <p key={i} className="text-gray-700 leading-relaxed text-lg">{para}</p>
                         ))}
                     </section>
                 )}
 
-                <hr className="border-gray-200" />
-
-                {/* Sezione Progetti */}
                 {selected === "projects" && (
-                    <section className="space-y-8">
+                    <section className="space-y-12">
                         {projects.map(pr => (
-                            <Link key={pr.id} href={pr.url} className="block bg-white p-6 rounded-lg shadow hover:shadow-lg transition">
+                            <Link key={pr.id} href={pr.url} className="block bg-white p-6 rounded-lg shadow hover:shadow-xl transition">
                                 <div className="flex justify-center mb-4">
                                     <ProjectLogo url={pr.url} title={pr.title} />
                                 </div>
                                 <h3 className="text-lg font-semibold text-gray-800 text-center mb-3">{pr.title}</h3>
                                 {pr.content.split("\n\n").map((para, i) => (
-                                    <p key={i} className="text-gray-600 leading-relaxed">{para}</p>
+                                    <p key={i} className="text-gray-600 text-sm leading-relaxed">{para}</p>
                                 ))}
                             </Link>
                         ))}
@@ -307,7 +267,6 @@ export default function PublicClient() {
                 )}
             </main>
 
-            {/* Footer */}
             <footer className="bg-gray-100 py-6 text-center text-sm text-gray-500">
                 © 2025 Portfolio Creator
             </footer>
