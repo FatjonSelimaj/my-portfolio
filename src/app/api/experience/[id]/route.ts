@@ -7,40 +7,40 @@ const prisma = new PrismaClient();
 const JWT_SECRET = process.env.JWT_SECRET!;
 
 export async function PUT(req: NextRequest, context: { params: { id: string } }) {
-  try {
-    const authHeader = req.headers.get("authorization");
-    if (!authHeader) {
-      return NextResponse.json({ error: "Token mancante" }, { status: 401 });
+    try {
+        const authHeader = req.headers.get("authorization");
+        if (!authHeader) {
+            return NextResponse.json({ error: "Token mancante" }, { status: 401 });
+        }
+
+        const token = authHeader.replace(/^Bearer\s+/, "");
+        const decoded = jwt.verify(token, JWT_SECRET) as { id: string };
+        const userId = decoded.id;
+        const id = context.params.id;
+
+        const body = await req.json();
+        const { company, role, description, startDate, endDate } = body;
+
+        const updated = await prisma.experience.updateMany({
+            where: { id, userId },
+            data: {
+                company,
+                role,
+                description,
+                startDate: new Date(startDate),
+                endDate: endDate?.trim() ? new Date(endDate) : null,
+            },
+        });
+
+        if (updated.count === 0) {
+            return NextResponse.json({ error: "Esperienza non trovata" }, { status: 404 });
+        }
+
+        return NextResponse.json({ message: "Esperienza aggiornata" });
+    } catch (err) {
+        console.error("PUT /api/experience/[id]:", err);
+        return NextResponse.json({ error: "Errore interno" }, { status: 500 });
     }
-
-    const token = authHeader.replace(/^Bearer\s+/, "");
-    const decoded = jwt.verify(token, JWT_SECRET) as { id: string };
-    const userId = decoded.id;
-    const id = context.params.id;
-
-    const body = await req.json();
-    const { company, role, description, startDate, endDate } = body;
-
-    const updated = await prisma.experience.updateMany({
-      where: { id, userId },
-      data: {
-        company,
-        role,
-        description,
-        startDate: new Date(startDate),
-        endDate: endDate?.trim() ? new Date(endDate) : null,
-      },
-    });
-
-    if (updated.count === 0) {
-      return NextResponse.json({ error: "Esperienza non trovata" }, { status: 404 });
-    }
-
-    return NextResponse.json({ message: "Esperienza aggiornata" });
-  } catch (err) {
-    console.error("PUT /api/experience/[id]:", err);
-    return NextResponse.json({ error: "Errore interno" }, { status: 500 });
-  }
 }
 
 export async function DELETE(req: NextRequest, context: { params: { id: string } }) {
