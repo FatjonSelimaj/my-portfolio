@@ -1,14 +1,19 @@
+// src/app/api/publicData/[id]/route.ts
+
 import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient } from "@/generated/prisma-client";
+import { PrismaClient } from "@/generated/prisma-client"; // oppure "@prisma/client" se usi quello standard
 
 const prisma = new PrismaClient();
 
-export async function GET(
-  req: NextRequest,
-  context: { params: { id: string } }
-): Promise<NextResponse> {
+export async function GET(req: NextRequest): Promise<NextResponse> {
   try {
-    const userId = context.params.id;
+    const pathname = new URL(req.url).pathname;
+    const match = pathname.match(/\/api\/publicData\/([^/]+)$/);
+    const userId = match?.[1];
+
+    if (!userId) {
+      return NextResponse.json({ error: "ID utente mancante" }, { status: 400 });
+    }
 
     const userDetails = await prisma.userDetails.findUnique({
       where: { userId },
@@ -26,7 +31,7 @@ export async function GET(
 
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      select: { email: true, name: true }
+      select: { email: true, name: true },
     });
 
     const experiences = await prisma.experience.findMany({
