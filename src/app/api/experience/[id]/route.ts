@@ -112,12 +112,13 @@ export async function PATCH(req: NextRequest) {
 
 export async function GET(req: NextRequest): Promise<NextResponse> {
   try {
-    // Estrai l'id dalla URL
-    const id = req.nextUrl.pathname.split("/").slice(-2)[0];
+    // Estrai l'id dalla pathname: es. /api/publicData/abc123/experience
+    const segments = req.nextUrl.pathname.split("/");
+    const userId = segments[segments.length - 2]; // prende 'abc123'
 
     const experiences = await prisma.experience.findMany({
       where: {
-        userId: id,
+        userId,
         isPublic: true,
       },
       orderBy: {
