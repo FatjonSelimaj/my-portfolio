@@ -101,15 +101,26 @@ interface ApiData {
     certifications: Certification[];
     diplomas: Diploma[];
     contact: { phone: string; email: string; };
+    experiences?: Experience[]; // nuova proprietà opzionale
+}
+
+interface Experience {
+    id: string;
+    company: string;
+    role: string;
+    description: string;
+    startDate: string;
+    endDate?: string | null;
 }
 
 export default function PublicClient() {
     const { id } = useParams();
     const [data, setData] = useState<ApiData | null>(null);
-    const [selected, setSel] = useState<"about" | `painting-${number}` | "projects">("about");
     const [error, setError] = useState<string | null>(null);
     const [menuOpen, setMenuOpen] = useState(false);
     const [, setVisits] = useState<number>(0);
+    const [selected, setSel] = useState<"about" | `painting-${number}` | "projects" | "experiences">("about");
+
 
     useEffect(() => {
         if (!id) return;
@@ -136,12 +147,17 @@ export default function PublicClient() {
     if (error) return <div className="min-h-screen flex items-center justify-center text-red-600 p-4">{error}</div>;
     if (!data) return <div className="min-h-screen flex items-center justify-center text-gray-500">Caricamento…</div>;
 
+    // DEFINIZIONI UNICHE
     const paintings = data.paintings.filter(p => p.title && p.content);
     const projects = data.projects.filter(p => p.title && p.url);
     const idx = selected.startsWith("painting-") ? +selected.split("-")[1] : -1;
     const painting = idx >= 0 ? paintings[idx] : null;
-
-    const tabs = ["about", ...paintings.map((_, i) => `painting-${i}`), ...(projects.length ? ["projects"] : [])];
+    const tabs = [
+        "about",
+        ...paintings.map((_, i) => `painting-${i}`),
+        ...(projects.length ? ["projects"] : []),
+        ...(data.experiences?.length ? ["experiences"] : [])
+    ];
 
     return (
         <div className="min-h-screen flex flex-col bg-white">
@@ -151,10 +167,18 @@ export default function PublicClient() {
                     <button className="text-white md:hidden" onClick={() => setMenuOpen(!menuOpen)} aria-label="Toggle menu">
                         {menuOpen ? <FaTimes /> : <FaBars />}
                     </button>
-                    <div className={`${menuOpen ? 'block' : 'hidden'} w-full md:flex md:items-center md:w-auto mt-4 md:mt-0`}> 
+                    <div className={`${menuOpen ? 'block' : 'hidden'} w-full md:flex md:items-center md:w-auto mt-4 md:mt-0`}>
                         <div className="flex flex-col md:flex-row md:space-x-6">
                             {tabs.map(tab => {
-                                const label = tab === "about" ? "Chi Sono" : tab === "projects" ? "Progetti" : paintings[+tab.split("-")[1]].title;
+                                const label =
+                                    tab === "about"
+                                        ? "Chi Sono"
+                                        : tab === "projects"
+                                            ? "Progetti"
+                                            : tab === "experiences"
+                                                ? "Esperienze"
+                                                : paintings[+tab.split("-")[1]]?.title ?? "Opera";
+
                                 return (
                                     <button
                                         key={tab}
@@ -263,6 +287,27 @@ export default function PublicClient() {
                                 ))}
                             </Link>
                         ))}
+                    </section>
+                )}
+
+                {selected === "experiences" && data.experiences && data.experiences.length > 0 && (
+                    <section className="space-y-8">
+                        <h2 className="text-2xl font-semibold text-gray-900 border-b pb-2">Esperienze Lavorative</h2>
+                        <ul className="space-y-6">
+                            {data.experiences
+                                .slice()
+                                .sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime())
+                                .map(exp => (
+                                    <li key={exp.id} className="bg-white p-6 rounded-lg shadow hover:shadow-xl transition flex items-start gap-4">
+                                        <FallbackLogo text={exp.company} type="institution" />
+                                        <div>
+                                            <h3 className="text-lg font-semibold text-gray-800">{exp.role} @ {exp.company}</h3>
+                                            <p className="text-sm text-gray-500 mb-1">{formatDate(exp.startDate)} {exp.endDate ? `– ${formatDate(exp.endDate)}` : "– presente"}</p>
+                                            <p className="text-gray-700 text-sm leading-relaxed">{exp.description}</p>
+                                        </div>
+                                    </li>
+                                ))}
+                        </ul>
                     </section>
                 )}
             </main>

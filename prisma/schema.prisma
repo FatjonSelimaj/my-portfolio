@@ -23,6 +23,8 @@ model User {
   details             UserDetails?         @relation("UserToDetails")
   articles            Article[]            @relation("UserArticles")
   passwordResetTokens PasswordResetToken[] @relation("UserResetTokens")
+
+  Experience Experience[]
 }
 
 model UserDetails {
@@ -114,3 +116,18 @@ model PageVisit {
   userId String @id @map("_id")
   count  Int    @default(0)
 }
+
+model Experience {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String   @db.ObjectId
+  company     String
+  role        String
+  description String
+  startDate   DateTime
+  endDate     DateTime?
+  createdAt   DateTime @default(now())
+ isPublic Boolean @default(true)
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+

@@ -173,22 +173,30 @@ export default function UserDetails() {
       {/* Header */}
       <header className="bg-white text-gray-900 px-6 py-4 flex justify-between items-center shadow">
         <h1 className="text-2xl font-bold">Profilo Utente</h1>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           <Link href="/hompage">
             <button className="flex items-center gap-1 px-3 py-1 border border-blue-600 text-blue-600 rounded">
               <FaArrowLeft /> Torna
             </button>
           </Link>
+
+          <Link href="/experience-list">
+            <button className="flex items-center gap-1 px-3 py-1 border border-green-600 text-green-600 rounded">
+              📋 Esperienze
+            </button>
+          </Link>
+
           <button
             onClick={() => {
               localStorage.removeItem('token');
               router.push('/');
             }}
-            className="flex items-center gap-1 px-3 py-1 bg-red-600 rounded"
+            className="flex items-center gap-1 px-3 py-1 bg-red-600 rounded text-white"
           >
             <FaSignOutAlt /> Logout
           </button>
         </div>
+
       </header>
 
       {/* Main */}

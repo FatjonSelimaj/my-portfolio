@@ -199,6 +199,18 @@ exports.Prisma.PageVisitScalarFieldEnum = {
   count: 'count'
 };
 
+exports.Prisma.ExperienceScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  company: 'company',
+  role: 'role',
+  description: 'description',
+  startDate: 'startDate',
+  endDate: 'endDate',
+  createdAt: 'createdAt',
+  isPublic: 'isPublic'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -223,7 +235,8 @@ exports.Prisma.ModelName = {
   PasswordResetToken: 'PasswordResetToken',
   Certification: 'Certification',
   Diploma: 'Diploma',
-  PageVisit: 'PageVisit'
+  PageVisit: 'PageVisit',
+  Experience: 'Experience'
 };
 
 /**

@@ -190,6 +190,10 @@ export default function Dashboard() {
           </Link>
         </div>
 
+        <button onClick={() => router.push("/experience-list")} className="bg-blue-500 text-white px-4 py-2 mt-6 rounded">
+          ➕ Aggiungi Esperienza
+        </button>
+
       </main>
 
       {isModalOpen && selectedSection === "settings" && (
