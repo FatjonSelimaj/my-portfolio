@@ -112,9 +112,13 @@ export async function PATCH(req: NextRequest) {
 
 export async function GET(req: NextRequest): Promise<NextResponse> {
   try {
-    // Estrai l'id dalla pathname: es. /api/publicData/abc123/experience
-    const segments = req.nextUrl.pathname.split("/");
-    const userId = segments[segments.length - 2]; // prende 'abc123'
+    const url = new URL(req.url);
+    const parts = url.pathname.split("/");
+    const userId = parts[parts.length - 2]; // estrae l'ID da /publicData/[id]/experience
+
+    if (!userId) {
+      return NextResponse.json({ error: "ID mancante" }, { status: 400 });
+    }
 
     const experiences = await prisma.experience.findMany({
       where: {
@@ -128,7 +132,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
 
     return NextResponse.json(experiences);
   } catch (error) {
-    console.error("GET /api/publicData/[id]/experience:", error);
+    console.error("Errore nella GET /publicData/[id]/experience:", error);
     return NextResponse.json({ error: "Errore interno" }, { status: 500 });
   }
 }
