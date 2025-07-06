@@ -81,7 +81,7 @@ export default function AddExperiencePage() {
       setForm({ company: "", role: "", description: "", startDate: "", endDate: "", isPublic: true });
       setEditingId(null);
       fetchExperiences();
-    } catch (err) {
+    } catch {
       setMessage("Errore durante il salvataggio.");
     }
   };
@@ -117,7 +117,7 @@ export default function AddExperiencePage() {
       if (!res.ok) throw new Error("Errore nella cancellazione");
       setMessage("Esperienza eliminata!");
       fetchExperiences();
-    } catch (err) {
+    } catch {
       setMessage("Errore durante l'eliminazione.");
     } finally {
       setShowDeleteModal(false);
@@ -127,20 +127,24 @@ export default function AddExperiencePage() {
 
   const updateExperienceVisibility = async (id: string, isPublic: boolean) => {
     const token = localStorage.getItem("token");
-    await fetch(`/api/experience/${id}`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ isPublic }),
-    });
+    try {
+      await fetch(`/api/experience/${id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ isPublic }),
+      });
 
-    setExperiences((prev) =>
-      prev.map((exp) =>
-        exp.id === id ? { ...exp, isPublic } : exp
-      )
-    );
+      setExperiences((prev) =>
+        prev.map((exp) =>
+          exp.id === id ? { ...exp, isPublic } : exp
+        )
+      );
+    } catch {
+      setMessage("Errore durante l'aggiornamento della visibilità.");
+    }
   };
 
   return (
