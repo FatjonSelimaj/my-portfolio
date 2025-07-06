@@ -161,10 +161,14 @@ export default function PublicClient() {
 
     return (
         <div className="min-h-screen flex flex-col bg-white">
-            <header className="bg-blue-900">
+            <header className="bg-indigo-700 shadow-md sticky top-0 z-50">
                 <nav className="container mx-auto flex items-center justify-between px-4 py-4">
                     <div className="text-white text-2xl font-bold tracking-wide">Portfolio</div>
-                    <button className="text-white md:hidden" onClick={() => setMenuOpen(!menuOpen)} aria-label="Toggle menu">
+                    <button
+                        className="text-white md:hidden"
+                        onClick={() => setMenuOpen(!menuOpen)}
+                        aria-label="Toggle menu"
+                    >
                         {menuOpen ? <FaTimes /> : <FaBars />}
                     </button>
                     <div className={`${menuOpen ? 'block' : 'hidden'} w-full md:flex md:items-center md:w-auto mt-4 md:mt-0`}>
@@ -172,18 +176,20 @@ export default function PublicClient() {
                             {tabs.map(tab => {
                                 const label =
                                     tab === "about"
-                                        ? "Chi Sono"
+                                        ? "👤 Chi Sono"
                                         : tab === "projects"
-                                            ? "Progetti"
+                                            ? "💻 Progetti"
                                             : tab === "experiences"
-                                                ? "Esperienze"
-                                                : paintings[+tab.split("-")[1]]?.title ?? "Opera";
-
+                                                ? "🛠️ Esperienze"
+                                                : `🖼️ ${paintings[+tab.split("-")[1]]?.title ?? "Opera"}`;
                                 return (
                                     <button
                                         key={tab}
-                                        onClick={() => { setSel(tab as typeof selected); setMenuOpen(false); }}
-                                        className={`px-4 py-2 font-medium text-white rounded transition ${selected === tab ? 'bg-green-500 text-blue-900' : 'hover:bg-blue-700'}`}
+                                        onClick={() => {
+                                            setSel(tab as typeof selected);
+                                            setMenuOpen(false);
+                                        }}
+                                        className={`px-4 py-2 font-medium rounded-md text-sm tracking-wide ${selected === tab ? 'bg-white text-indigo-700 shadow' : 'text-white hover:bg-indigo-600'}`}
                                     >
                                         {label}
                                     </button>
@@ -194,70 +200,87 @@ export default function PublicClient() {
                 </nav>
             </header>
 
-            <main className="flex-grow container mx-auto px-6 py-12 space-y-16">
+            <main className="flex-grow max-w-5xl mx-auto px-4 sm:px-6 py-10 space-y-16">
                 {selected === "about" && (
-                    <section className="space-y-8">
-                        <h1 className="text-4xl font-bold text-center text-gray-900">{data.firstName} {data.lastName}</h1>
-                        {data.imageUrl && (
-                            <div className="flex justify-center">
-                                <Image src={data.imageUrl} alt="Foto profilo" width={128} height={128} className="rounded-full shadow-lg" unoptimized />
+                    <section className="space-y-10">
+                        <div className="text-center">
+                            <h1 className="text-5xl font-extrabold text-gray-900 mb-4">
+                                {data.firstName} {data.lastName}
+                            </h1>
+                            {data.imageUrl && (
+                                <div className="flex justify-center mb-4">
+                                    <Image
+                                        src={data.imageUrl}
+                                        alt="Foto profilo"
+                                        width={160}
+                                        height={160}
+                                        className="rounded-full border-4 border-indigo-300 shadow-xl"
+                                        unoptimized
+                                    />
+                                </div>
+                            )}
+                            <div className="max-w-3xl mx-auto text-gray-700 text-lg leading-relaxed space-y-6">
+                                {data.about.split("\n\n").map((para, i) => (
+                                    <p key={i}>{para}</p>
+                                ))}
                             </div>
-                        )}
-                        <div className="max-w-3xl mx-auto space-y-4">
-                            {data.about.split("\n\n").map((para, i) => (
-                                <p key={i} className="text-gray-700 text-lg leading-relaxed">{para}</p>
-                            ))}
                         </div>
-                        <div className="bg-green-50 border-l-4 border-green-500 p-4 rounded-lg flex flex-col sm:flex-row gap-6 items-center justify-center">
-                            <a href={`tel:${data.contact.phone}`} className="flex items-center gap-2 text-gray-800 hover:text-green-700 transition"> <FaPhone /> {data.contact.phone} </a>
-                            <a href={`mailto:${data.contact.email}`} className="flex items-center gap-2 text-gray-800 hover:text-green-700 transition"> <FaEnvelope /> {data.contact.email} </a>
+
+                        <div className="flex flex-col sm:flex-row gap-6 items-center justify-center bg-indigo-50 border-l-4 border-indigo-500 p-6 rounded-lg shadow">
+                            <a href={`tel:${data.contact.phone}`} className="flex items-center gap-2 text-gray-800 hover:text-indigo-700 transition">
+                                <FaPhone /> {data.contact.phone}
+                            </a>
+                            <a href={`mailto:${data.contact.email}`} className="flex items-center gap-2 text-gray-800 hover:text-indigo-700 transition">
+                                <FaEnvelope /> {data.contact.email}
+                            </a>
                         </div>
                     </section>
                 )}
 
                 {selected === "about" && (
-                    <section className="space-y-8">
-                        <h2 className="text-2xl font-semibold text-gray-900 border-b pb-2">Diplomi / Certificazioni</h2>
+                    <section className="space-y-10">
+                        <h2 className="text-3xl font-semibold text-gray-900 border-b pb-2">📜 Diplomi e Certificazioni</h2>
                         <ul className="grid gap-8 md:grid-cols-2">
                             {data.certifications.map(cert => (
-                                <li key={cert.id} className="bg-white p-6 rounded-lg shadow hover:shadow-xl transition">
+                                <li key={cert.id} className="relative bg-white p-6 rounded-lg shadow-md hover:shadow-xl transition transform hover:scale-[1.01]">
+                                    <span className="absolute top-2 right-2 text-xs bg-indigo-100 text-indigo-800 px-2 py-1 rounded">
+                                        {new Date(cert.dateAwarded).getFullYear()}
+                                    </span>
                                     <div className="flex items-center gap-4 mb-4">
                                         <FallbackLogo text={cert.institution} type="institution" />
                                         <div>
-                                            <h3 className="text-lg font-semibold text-gray-800">{cert.title}</h3>
+                                            <h3 className="text-lg font-bold text-gray-800">{cert.title}</h3>
                                             <p className="text-sm text-gray-500">{formatDate(cert.dateAwarded)}</p>
                                         </div>
                                     </div>
-                                    <div className="space-y-3">
+                                    <div className="space-y-2 text-sm text-gray-700">
                                         {cert.description.split("\n\n").map((para, idx) => (
-                                            <p key={idx} className="text-gray-700 text-sm leading-relaxed">{para}</p>
+                                            <p key={idx}>{para}</p>
                                         ))}
                                         {cert.extractedText && (
-                                            <blockquote className="pl-4 border-l-4 border-green-500 italic text-gray-600 text-sm">{cert.extractedText}</blockquote>
+                                            <blockquote className="pl-4 border-l-4 border-indigo-500 italic text-gray-600">
+                                                {cert.extractedText}
+                                            </blockquote>
                                         )}
                                     </div>
                                 </li>
                             ))}
                             {data.diplomas.map(d => (
-                                <li key={d.id} className="bg-white p-6 rounded-lg shadow hover:shadow-xl transition">
+                                <li key={d.id} className="relative bg-white p-6 rounded-lg shadow-md hover:shadow-xl transition transform hover:scale-[1.01]">
+                                    <span className="absolute top-2 right-2 text-xs bg-indigo-100 text-indigo-800 px-2 py-1 rounded">
+                                        {new Date(d.dateAwarded).getFullYear()}
+                                    </span>
                                     <div className="flex items-center gap-4 mb-4">
                                         <FallbackLogo text={d.institution} type="institution" />
                                         <div>
-                                            <h3 className="text-lg font-semibold text-gray-800">{d.degree} in {d.fieldOfStudy}</h3>
+                                            <h3 className="text-lg font-bold text-gray-800">{d.degree} in {d.fieldOfStudy}</h3>
                                             <p className="text-sm text-gray-500">{formatDate(d.dateAwarded)}</p>
                                         </div>
                                     </div>
                                     {d.fileType === "pdf" ? (
-                                        <a href={d.diplomaUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">Visualizza Diploma (PDF)</a>
+                                        <a href={d.diplomaUrl} target="_blank" rel="noopener noreferrer" className="text-indigo-600 underline">Visualizza Diploma (PDF)</a>
                                     ) : (
-                                        <Image
-                                            src={d.diplomaUrl}
-                                            alt="Diploma"
-                                            width={200}
-                                            height={150}
-                                            className="rounded shadow"
-                                            unoptimized
-                                        />
+                                        <Image src={d.diplomaUrl} alt="Diploma" width={200} height={150} className="rounded shadow" unoptimized />
                                     )}
                                 </li>
                             ))}
@@ -267,46 +290,52 @@ export default function PublicClient() {
 
                 {selected.startsWith("painting-") && painting && (
                     <section className="space-y-6">
-                        <h2 className="text-2xl font-semibold text-gray-900 border-b pb-2">{painting.title}</h2>
-                        {painting.content.split("\n\n").map((para, i) => (
-                            <p key={i} className="text-gray-700 leading-relaxed text-lg">{para}</p>
-                        ))}
+                        <h2 className="text-3xl font-semibold text-gray-900 border-b pb-2">🖌️ {painting.title}</h2>
+                        <div className="text-gray-700 text-lg leading-relaxed space-y-4">
+                            {painting.content.split("\n\n").map((para, i) => (
+                                <p key={i}>{para}</p>
+                            ))}
+                        </div>
                     </section>
                 )}
 
                 {selected === "projects" && (
                     <section className="space-y-12">
+                        <h2 className="text-3xl font-semibold text-gray-900 border-b pb-2">💼 Progetti Realizzati</h2>
                         {projects.map(pr => (
-                            <Link key={pr.id} href={pr.url} className="block bg-white p-6 rounded-lg shadow hover:shadow-xl transition">
+                            <Link
+                                key={pr.id}
+                                href={pr.url}
+                                className="block bg-white p-6 rounded-lg shadow hover:shadow-xl transition transform hover:scale-[1.01]"
+                            >
                                 <div className="flex justify-center mb-4">
                                     <ProjectLogo url={pr.url} title={pr.title} />
                                 </div>
-                                <h3 className="text-lg font-semibold text-gray-800 text-center mb-3">{pr.title}</h3>
-                                {pr.content.split("\n\n").map((para, i) => (
-                                    <p key={i} className="text-gray-600 text-sm leading-relaxed">{para}</p>
-                                ))}
+                                <h3 className="text-xl font-semibold text-gray-800 text-center mb-2">{pr.title}</h3>
+                                <div className="text-gray-600 text-sm leading-relaxed space-y-2">
+                                    {pr.content.split("\n\n").map((para, i) => (
+                                        <p key={i}>{para}</p>
+                                    ))}
+                                </div>
                             </Link>
                         ))}
                     </section>
                 )}
 
                 {selected === "experiences" && data.experiences && data.experiences.length > 0 && (
-                    <section className="space-y-8">
-                        <h2 className="text-2xl font-semibold text-gray-900 border-b pb-2">Esperienze Lavorative</h2>
+                    <section className="space-y-10">
+                        <h2 className="text-3xl font-semibold text-gray-900 border-b pb-2">🧑‍💼 Esperienze Lavorative</h2>
                         <ul className="space-y-6">
-                            {data.experiences
-                                .slice()
-                                .sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime())
-                                .map(exp => (
-                                    <li key={exp.id} className="bg-white p-6 rounded-lg shadow hover:shadow-xl transition flex items-start gap-4">
-                                        <FallbackLogo text={exp.company} type="institution" />
-                                        <div>
-                                            <h3 className="text-lg font-semibold text-gray-800">{exp.role} @ {exp.company}</h3>
-                                            <p className="text-sm text-gray-500 mb-1">{formatDate(exp.startDate)} {exp.endDate ? `– ${formatDate(exp.endDate)}` : "– presente"}</p>
-                                            <p className="text-gray-700 text-sm leading-relaxed">{exp.description}</p>
-                                        </div>
-                                    </li>
-                                ))}
+                            {data.experiences.slice().sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime()).map(exp => (
+                                <li key={exp.id} className="bg-white p-6 rounded-lg shadow-md hover:shadow-xl transition transform hover:scale-[1.01] flex items-start gap-4">
+                                    <FallbackLogo text={exp.company} type="institution" />
+                                    <div>
+                                        <h3 className="text-lg font-semibold text-gray-800">{exp.role} @ {exp.company}</h3>
+                                        <p className="text-sm text-gray-500 mb-1">{formatDate(exp.startDate)} {exp.endDate ? `– ${formatDate(exp.endDate)}` : "– presente"}</p>
+                                        <p className="text-gray-700 text-sm leading-relaxed">{exp.description}</p>
+                                    </div>
+                                </li>
+                            ))}
                         </ul>
                     </section>
                 )}
