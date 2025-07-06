@@ -109,3 +109,25 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ error: "Errore interno" }, { status: 500 });
   }
 }
+
+export async function GET(req: NextRequest): Promise<NextResponse> {
+  try {
+    // Estrai l'id dalla URL
+    const id = req.nextUrl.pathname.split("/").slice(-2)[0];
+
+    const experiences = await prisma.experience.findMany({
+      where: {
+        userId: id,
+        isPublic: true,
+      },
+      orderBy: {
+        startDate: "desc",
+      },
+    });
+
+    return NextResponse.json(experiences);
+  } catch (error) {
+    console.error("GET /api/publicData/[id]/experience:", error);
+    return NextResponse.json({ error: "Errore interno" }, { status: 500 });
+  }
+}
