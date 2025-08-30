@@ -318,7 +318,7 @@ export default function Dashboard() {
           </button>
           <button
             onClick={handleLogout}
-            className="cursor-pointer flex items-center gap-2 bg-red-500 text-white px-4 py-2 rounded-lg shadow hover:bg-red-600 transition-all"
+            className="cursor-pointer  flex items-center gap-2 bg-red-500 text-white px-4 py-2 rounded-lg shadow hover:bg-red-600 transition-all"
           >
             <FaSignOutAlt /> Logout
           </button>
