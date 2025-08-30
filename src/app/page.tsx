@@ -9,9 +9,9 @@ export default function Home() {
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-gray-200">Portfolio Creator</h1>
         <nav>
           <ul className="flex gap-4">
-            <li><a href="#features" className="text-blue-600 hover:underline">Features</a></li>
-            <li><a href="#about" className="text-blue-600 hover:underline">About</a></li>
-            <li><a href="#contact" className="text-blue-600 hover:underline">Contact</a></li>
+            <li><a href="#features" className="text-blue-600 hover:underline cursor-pointer">Features</a></li>
+            <li><a href="#about" className="text-blue-600 hover:underline cursor-pointer">About</a></li>
+            <li><a href="#contact" className="text-blue-600 hover:underline cursor-pointer">Contact</a></li>
           </ul>
         </nav>
       </header>

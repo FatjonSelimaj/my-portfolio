@@ -92,7 +92,7 @@ export default function Register() {
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+              className="cursor-pointer absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
             >
               {showPassword ? <FaEyeSlash /> : <FaEye />}
             </button>
@@ -101,7 +101,7 @@ export default function Register() {
           {/* Pulsante Registrati */}
           <button
             type="submit"
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-all shadow-md flex items-center justify-center gap-2"
+            className="cursor-pointer bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-all shadow-md flex items-center justify-center gap-2"
           >
             <FaUserPlus />
             Registrati
@@ -114,7 +114,7 @@ export default function Register() {
           {/* Bottone Torna Indietro */}
           <button
             onClick={() => router.push("/")}
-            className="flex items-center text-gray-700 hover:text-gray-900 text-lg font-semibold transition-all"
+            className="cursor-pointer flex items-center text-gray-700 hover:text-gray-900 text-lg font-semibold transition-all"
           >
             <FaArrowCircleLeft className="mr-2 text-2xl" />
             Torna indietro
@@ -124,7 +124,7 @@ export default function Register() {
           <p className="text-lg font-semibold text-gray-800">Sei già registrato/a?</p>
           <button
             onClick={() => router.push("/auth/login")}
-            className="flex items-center text-green-600 hover:text-green-700 text-lg font-medium transition-all"
+            className="cursor-pointer flex items-center text-green-600 hover:text-green-700 text-lg font-medium transition-all"
           >
             <FaSignInAlt className="mr-2 text-2xl" />
             Accedi

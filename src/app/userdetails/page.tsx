@@ -175,13 +175,13 @@ export default function UserDetails() {
         <h1 className="text-2xl font-bold">Profilo Utente</h1>
         <div className="flex gap-2 flex-wrap">
           <Link href="/hompage">
-            <button className="flex items-center gap-1 px-3 py-1 border border-blue-600 text-blue-600 rounded">
+            <button className="cursor-pointer flex items-center gap-1 px-3 py-1 border border-blue-600 text-blue-600 rounded">
               <FaArrowLeft /> Torna
             </button>
           </Link>
 
           <Link href="/experience-list">
-            <button className="flex items-center gap-1 px-3 py-1 border border-green-600 text-green-600 rounded">
+            <button className="cursor-pointer flex items-center gap-1 px-3 py-1 border border-green-600 text-green-600 rounded">
               📋 Esperienze
             </button>
           </Link>
@@ -191,7 +191,7 @@ export default function UserDetails() {
               localStorage.removeItem('token');
               router.push('/');
             }}
-            className="flex items-center gap-1 px-3 py-1 bg-red-600 rounded text-white"
+            className="cursor-pointer flex items-center gap-1 px-3 py-1 bg-red-600 rounded text-white"
           >
             <FaSignOutAlt /> Logout
           </button>
@@ -259,7 +259,7 @@ export default function UserDetails() {
 
         {/* Quadri e Progetti */}
         <section className="bg-white text-gray-900 p-6 rounded mb-6">
-          <h2 className="text-xl mb-4">Quadri</h2>
+          <h2 className="text-xl mb-4">Informazioni Aggiuntive</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
             {user.paintings.map((p, i) => (
               <div key={i} className="border p-4 rounded">
@@ -399,7 +399,7 @@ export default function UserDetails() {
 
           <button
             onClick={handleSaveDetails}
-            className="mt-4 bg-blue-600 text-white px-4 py-2 rounded flex items-center gap-2"
+            className="cursor-pointer mt-4 bg-blue-600 text-white px-4 py-2 rounded flex items-center gap-2"
           >
             <FaSave /> Salva tutto
           </button>
@@ -413,7 +413,7 @@ export default function UserDetails() {
             <p>{modalMessage}</p>
             <button
               onClick={() => setModalMessage(null)}
-              className="mt-4 bg-blue-600 text-white px-4 py-2 rounded"
+              className="cursor-pointer mt-4 bg-blue-600 text-white px-4 py-2 rounded"
             >
               OK
             </button>
