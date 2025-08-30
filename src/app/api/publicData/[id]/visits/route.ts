@@ -1,36 +1,41 @@
-import type { NextRequest } from "next/server";
-import { NextResponse } from "next/server";
+// src/app/api/publicData/[id]/visits/route.ts
+import { NextRequest, NextResponse } from "next/server";
 
-export const runtime = "nodejs";
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
+// Struttura: { [userId]: { [year-week]: count } }
+const visitsStore: Record<string, Record<string, number>> = {};
 
-let prisma: import("@prisma/client").PrismaClient | null = null;
-async function getPrisma() {
-  if (!prisma) {
-    const { PrismaClient } = await import("@prisma/client");
-    prisma = new PrismaClient();
-  }
-  return prisma;
+// Helper per ottenere la settimana ISO (es. "2025-W23")
+function getCurrentYearWeek(): string {
+  const now = new Date();
+  const year = now.getFullYear();
+
+  // Calcola numero della settimana ISO
+  const firstJan = new Date(now.getFullYear(), 0, 1);
+  const days = Math.floor((now.getTime() - firstJan.getTime()) / (24 * 60 * 60 * 1000));
+  const week = Math.ceil((days + firstJan.getDay() + 1) / 7);
+
+  return `${year}-W${week}`;
 }
 
-export async function POST(
-  _req: NextRequest,
-  { params }: { params: { id: string } }
-) {
-  try {
-    const userId = params.id;
-    const db = await getPrisma();
+export async function GET(req: NextRequest, context: any) {
+  const id = context.params.id;
+  const currentWeek = getCurrentYearWeek();
 
-    const updated = await db.pageVisit.upsert({
-      where: { userId },
-      update: { count: { increment: 1 } },
-      create: { userId, count: 1 },
-    });
+  const userVisits = visitsStore[id] || {};
+  const count = userVisits[currentWeek] || 0;
 
-    return NextResponse.json({ visits: updated.count });
-  } catch (err) {
-    console.error("visits error:", err);
-    return NextResponse.json({ message: "Errore server." }, { status: 500 });
+  return NextResponse.json({ visits: count });
+}
+
+export async function POST(req: NextRequest, context: any) {
+  const id = context.params.id;
+  const currentWeek = getCurrentYearWeek();
+
+  if (!visitsStore[id]) {
+    visitsStore[id] = {};
   }
+
+  visitsStore[id][currentWeek] = (visitsStore[id][currentWeek] ?? 0) + 1;
+
+  return NextResponse.json({ visits: visitsStore[id][currentWeek] });
 }

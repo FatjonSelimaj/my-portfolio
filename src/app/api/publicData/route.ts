@@ -1,36 +1,36 @@
-import type { NextRequest } from "next/server";
-import { NextResponse } from "next/server";
+// src/app/api/publicData/[id]/route.ts
 
-export const runtime = "nodejs";
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
+import { NextRequest, NextResponse } from "next/server";
+import { PrismaClient } from "@/generated/prisma-client"; // o "@prisma/client" se non usi un client generato
 
-let prisma: import("@prisma/client").PrismaClient | null = null;
-async function getPrisma() {
-  if (!prisma) {
-    const { PrismaClient } = await import("@prisma/client");
-    prisma = new PrismaClient();
-  }
-  return prisma;
-}
+const prisma = new PrismaClient();
 
-export async function POST(
-  _req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function GET(req: NextRequest): Promise<NextResponse> {
   try {
-    const userId = params.id;
-    const db = await getPrisma();
+    const { pathname } = new URL(req.url);
+    const match = pathname.match(/\/api\/publicData\/([^/]+)$/);
 
-    const updated = await db.pageVisit.upsert({
+    if (!match || !match[1]) {
+      return NextResponse.json({ error: "ID utente mancante o non valido" }, { status: 400 });
+    }
+
+    const userId = match[1];
+
+    const userDetails = await prisma.userDetails.findUnique({
       where: { userId },
-      update: { count: { increment: 1 } },
-      create: { userId, count: 1 },
+      include: {
+        user: { select: { name: true, email: true, gender: true } },
+        // puoi includere anche altri dati pubblici, se vuoi
+      },
     });
 
-    return NextResponse.json({ visits: updated.count });
-  } catch (err) {
-    console.error("visits error:", err);
-    return NextResponse.json({ message: "Errore server." }, { status: 500 });
+    if (!userDetails) {
+      return NextResponse.json({ error: "Utente non trovato" }, { status: 404 });
+    }
+
+    return NextResponse.json(userDetails);
+  } catch (error) {
+    console.error("GET /api/publicData/[id]:", error);
+    return NextResponse.json({ error: "Errore interno" }, { status: 500 });
   }
 }
