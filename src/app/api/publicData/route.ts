@@ -1,36 +1,41 @@
-// src/app/api/publicData/[id]/route.ts
+import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 
-import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient } from "@/generated/prisma-client"; // o "@prisma/client" se non usi un client generato
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
-const prisma = new PrismaClient();
+let prisma: import("@prisma/client").PrismaClient | null = null;
+async function getPrisma() {
+  if (!prisma) {
+    const { PrismaClient } = await import("@prisma/client");
+    prisma = new PrismaClient();
+  }
+  return prisma;
+}
 
-export async function GET(req: NextRequest): Promise<NextResponse> {
+export async function POST(
+  _req: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
-    const { pathname } = new URL(req.url);
-    const match = pathname.match(/\/api\/publicData\/([^/]+)$/);
-
-    if (!match || !match[1]) {
-      return NextResponse.json({ error: "ID utente mancante o non valido" }, { status: 400 });
+    const userId = params?.id;
+    if (!userId) {
+      return NextResponse.json({ message: "ID non valido." }, { status: 400 });
     }
 
-    const userId = match[1];
+    const db = await getPrisma();
 
-    const userDetails = await prisma.userDetails.findUnique({
+    // PageVisit: userId è @id (PK) nel tuo schema → upsert
+    const updated = await db.pageVisit.upsert({
       where: { userId },
-      include: {
-        user: { select: { name: true, email: true, gender: true } },
-        // puoi includere anche altri dati pubblici, se vuoi
-      },
+      update: { count: { increment: 1 } },
+      create: { userId, count: 1 }
     });
 
-    if (!userDetails) {
-      return NextResponse.json({ error: "Utente non trovato" }, { status: 404 });
-    }
-
-    return NextResponse.json(userDetails);
-  } catch (error) {
-    console.error("GET /api/publicData/[id]:", error);
-    return NextResponse.json({ error: "Errore interno" }, { status: 500 });
+    return NextResponse.json({ visits: updated.count }, { status: 200 });
+  } catch (err) {
+    console.error("visits error:", err);
+    return NextResponse.json({ message: "Errore server." }, { status: 500 });
   }
 }
