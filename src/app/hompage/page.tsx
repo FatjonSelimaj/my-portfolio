@@ -461,7 +461,7 @@ export default function Dashboard() {
                 disabled={settingsSaving}
                 className={`cursor-pointer px-4 py-2 text-white rounded ${
                   settingsSaving
-                    ? "cursor-pointer bg-blue-300 cursor-not-allowed"
+                    ? "cursor-pointer bg-blue-300"
                     : " bg-blue-600 hover:bg-blue-700"
                 }`}
               >
