@@ -19,21 +19,16 @@ export async function POST(
   { params }: { params: { id: string } }
 ) {
   try {
-    const userId = params?.id;
-    if (!userId) {
-      return NextResponse.json({ message: "ID non valido." }, { status: 400 });
-    }
-
+    const userId = params.id;
     const db = await getPrisma();
 
-    // PageVisit: userId è @id (PK) nel tuo schema → upsert
     const updated = await db.pageVisit.upsert({
       where: { userId },
       update: { count: { increment: 1 } },
-      create: { userId, count: 1 }
+      create: { userId, count: 1 },
     });
 
-    return NextResponse.json({ visits: updated.count }, { status: 200 });
+    return NextResponse.json({ visits: updated.count });
   } catch (err) {
     console.error("visits error:", err);
     return NextResponse.json({ message: "Errore server." }, { status: 500 });
