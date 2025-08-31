@@ -66,17 +66,18 @@ function PaintingIcon({ title }: { title: string }) {
   return <Image src={src} alt={title} width={56} height={56} className="w-14 h-14 object-contain" unoptimized />;
 }
 
-/** Logo Progetti: clearbit → favicon → fallback */
-function ProjectLogo({ url, title }: { url: string; title: string }) {
+/** Logo Progetti: logoUrl → clearbit → favicon → fallback */
+function ProjectLogo({ url, title, logoUrl }: { url: string; title: string; logoUrl?: string }) {
   const host = getHost(url);
   const [attempt, setAttempt] = useState(0);
   const srcs = useMemo(() => {
     const list: string[] = [];
+    if (logoUrl) list.push(logoUrl);
     if (host) list.push(`https://logo.clearbit.com/${host}`);
     if (host) list.push(`https://${host}/favicon.ico`);
     list.push("https://img.icons8.com/ios-filled/100/external-link.png");
     return list;
-  }, [host]);
+  }, [host, logoUrl]);
 
   const [src, setSrc] = useState(srcs[0]);
   useEffect(() => { setSrc(srcs[0]); setAttempt(0); }, [srcs]);
@@ -103,26 +104,26 @@ function ProjectLogo({ url, title }: { url: string; title: string }) {
 }
 
 /* ---------- types ---------- */
-interface Painting { title: string; content: string; }
-interface Project { id: string; title: string; content: string; url: string; logoUrl: string; }
-interface Certification { id: string; title: string; institution: string; dateAwarded: string; extractedText: string; logoUrl: string; description: string; }
+interface Painting { title?: string; content?: string; }
+interface Project { id: string; title?: string; content?: string; url: string; logoUrl?: string; }
+interface Certification { id: string; title: string; institution: string; dateAwarded: string; extractedText?: string; logoUrl?: string; description?: string; }
 interface Diploma { id: string; degree: string; fieldOfStudy: string; institution: string; dateAwarded: string; diplomaUrl: string; fileType: "image" | "pdf"; }
 interface ApiData {
   firstName: string; lastName: string; about: string; imageUrl?: string;
-  paintings: Painting[]; projects: Project[]; certifications: Certification[];
-  diplomas: Diploma[]; contact: { phone: string; email: string; };
+  paintings?: Painting[]; projects?: Project[]; certifications?: Certification[];
+  diplomas?: Diploma[]; contact: { phone?: string; email?: string; };
   experiences?: Experience[];
 }
 interface Experience { id: string; company: string; role: string; description: string; startDate: string; endDate?: string | null; }
 
-/* ---------- shared styles (quadrate e piene) ---------- */
+/* ---------- shared styles (quadrate + scroll) ---------- */
 const CARD_WRAPPER = "w-full max-w-[760px] mx-auto";
 const CARD_SQUARE = "aspect-square rounded-2xl border bg-white shadow-sm ring-1 ring-transparent hover:ring-indigo-100 hover:shadow-xl transition overflow-hidden";
-const CARD_TOP = "min-h-[38%] flex items-center justify-center border-b bg-gradient-to-br from-gray-50 to-white";
-const CARD_BOTTOM = "h-[62%] flex flex-col p-6";
+const CARD_TOP = "min-h-[38%] flex items-center justify-center border-b bg-gradient-to-br from-gray-50 to-white px-6";
+const CARD_BOTTOM = "h-[62%] flex flex-col p-6 overflow-hidden";
 const TITLE = "font-semibold text-gray-900";
 const META = "text-xs text-gray-500";
-const EXCERPT = "mt-2 text-sm text-gray-700 leading-relaxed";
+const SCROLLER = "mt-3 grow overflow-auto pr-1 space-y-2 text-sm text-gray-700 leading-relaxed";
 
 /* ---------- component ---------- */
 export default function PublicClient() {
@@ -131,43 +132,53 @@ export default function PublicClient() {
   const [error, setError] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
 
-  // sezioni per highlight
-  const [active, setActive] = useState<"about" | "paintings" | "projects" | "experiences">("about");
+  const [active, setActive] = useState<"about" | "bio" | "paintings" | "projects" | "experiences">("about");
 
   // refs
-  const aboutRef = useRef<HTMLElement | null>(null);        // ora è l’HERO
+  const aboutRef = useRef<HTMLElement | null>(null); // HERO
+  const bioRef = useRef<HTMLElement | null>(null);
   const paintingsRef = useRef<HTMLElement | null>(null);
   const projectsRef = useRef<HTMLElement | null>(null);
   const experiencesRef = useRef<HTMLElement | null>(null);
   const contactsRef = useRef<HTMLElement | null>(null);
 
+  // visits
   useEffect(() => {
     if (!id) return;
     fetch(`/api/publicData/${id}/visits`, { method: "POST" }).catch(() => {});
   }, [id]);
 
+  // data
   useEffect(() => {
     if (!id) { setError("ID utente non specificato."); return; }
-    fetch(`/api/publicData/${id}`)
+    fetch(`/api/publicData/${id}`, { cache: "no-store" })
       .then((res) => { if (!res.ok) throw new Error("Utente non trovato"); return res.json() as Promise<ApiData>; })
       .then(setData)
       .catch((err) => setError(err.message));
   }, [id]);
 
-  const paintings = useMemo(() => data?.paintings.filter(p => p.title && p.content) ?? [], [data]);
-  const projects  = useMemo(() => data?.projects.filter(p => p.title && p.url) ?? [], [data]);
+  const paintings = useMemo(() => (data?.paintings ?? []).filter(p => (p.title || p.content)), [data?.paintings]);
+  const projects  = useMemo(() => (data?.projects ?? []).filter(p => p.url), [data?.projects]);
+  const certs     = useMemo(() => data?.certifications ?? [], [data?.certifications]);
+  const diplomas  = useMemo(() => data?.diplomas ?? [], [data?.diplomas]);
   const hasExp    = (data?.experiences?.length ?? 0) > 0;
 
-  // menu senza contatti
+  // About: 1° paragrafo in HERO, resto in “Bio”
+  const aboutParas = useMemo(() => (data?.about || "").split(/\n\s*\n/).map(s => s.trim()).filter(Boolean), [data?.about]);
+  const aboutFirst = aboutParas[0] || "";
+  const aboutRest  = aboutParas.slice(1);
+
+  // menu (senza contatti)
   const navItems = useMemo(
     () =>
       [
-        { id: "about",       label: "Chi sono",  ref: aboutRef,       show: true },
-        { id: "paintings",   label: "Opere",     ref: paintingsRef,   show: paintings.length > 0 },
-        { id: "projects",    label: "Progetti",  ref: projectsRef,    show: projects.length > 0 },
-        { id: "experiences", label: "Esperienze",ref: experiencesRef, show: hasExp },
+        { id: "about", label: "Chi sono",  ref: aboutRef,       show: true },
+        { id: "bio",   label: "Bio",       ref: bioRef,         show: aboutRest.length > 0 },
+        { id: "paintings", label: "Opere", ref: paintingsRef,   show: paintings.length > 0 },
+        { id: "projects",  label: "Progetti", ref: projectsRef, show: projects.length > 0 },
+        { id: "experiences", label: "Esperienze", ref: experiencesRef, show: hasExp },
       ].filter(i => i.show),
-    [paintings.length, projects.length, hasExp]
+    [aboutRest.length, paintings.length, projects.length, hasExp]
   );
 
   const scrollToRef = (el: HTMLElement | null) => {
@@ -179,6 +190,7 @@ export default function PublicClient() {
   useEffect(() => {
     const sections: Array<{ key: typeof active; el: HTMLElement | null }> = [
       { key: "about", el: aboutRef.current },
+      { key: "bio", el: bioRef.current },
       { key: "paintings", el: paintingsRef.current },
       { key: "projects", el: projectsRef.current },
       { key: "experiences", el: experiencesRef.current },
@@ -195,7 +207,7 @@ export default function PublicClient() {
     );
     sections.forEach(s => s.el && obs.observe(s.el));
     return () => obs.disconnect();
-  }, [navItems.length]);
+  }, [navItems.length, active]);
 
   if (error) return <div className="min-h-screen flex items-center justify-center text-red-600 p-6">{error}</div>;
   if (!data)  return <div className="min-h-screen flex items-center justify-center text-gray-500">Caricamento…</div>;
@@ -247,20 +259,19 @@ export default function PublicClient() {
         </nav>
       </header>
 
-      {/* ---------- HERO = "CHI SONO" (con foto in alto a destra) ---------- */}
+      {/* ---------- HERO = "CHI SONO" (foto in alto a destra) ---------- */}
       <section id="section-about" data-section-id="about" ref={aboutRef} className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-indigo-500 to-purple-600" />
         <div className="absolute -top-24 -left-24 w-72 h-72 rounded-full bg-white/10 blur-3xl" />
         <div className="absolute bottom-0 right-0 w-80 h-80 rounded-full bg-white/10 blur-3xl" />
         <div className="container mx-auto px-4 py-16 sm:py-20 relative">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-            {/* Testo Chi sono */}
             <div className="lg:col-span-7 text-white">
               <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight">
                 {data.firstName} {data.lastName}
               </h1>
               <p className="mt-4 text-lg sm:text-xl text-indigo-50 leading-relaxed">
-                {data.about.split("\n\n")[0] || "Portfolio personale e progetti selezionati"}
+                {aboutFirst || "Portfolio personale e progetti selezionati"}
               </p>
 
               <div className="mt-8 flex flex-wrap gap-3">
@@ -281,7 +292,6 @@ export default function PublicClient() {
               </div>
             </div>
 
-            {/* Foto profilo in alto a destra */}
             <div className="lg:col-span-5 lg:justify-self-end">
               {data.imageUrl && (
                 <Image
@@ -298,18 +308,28 @@ export default function PublicClient() {
         </div>
       </section>
 
+      {/* ---------- BIO (resto del “Chi sono”) ---------- */}
+      {aboutRest.length > 0 && (
+        <section id="section-bio" data-section-id="bio" ref={bioRef} className="bg-white scroll-mt-24">
+          <div className="container mx-auto px-4 py-12">
+            <div className="max-w-[760px] mx-auto text-gray-700 leading-relaxed space-y-4">
+              {aboutRest.map((para, i) => (<p key={i}>{para}</p>))}
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* ---------- MAIN ---------- */}
       <main className="flex-grow">
-        {/* Diplomi & Certificazioni (card QUADRATE piene, UNA sotto l’altra) */}
+        {/* Diplomi & Certificazioni (card quadrate con scroll) */}
         <section className="bg-white">
           <div className="container mx-auto px-4 py-16">
             <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-gray-900 mb-8">Diplomi & Certificazioni</h2>
 
             <div className="flex flex-col gap-10">
-              {data.certifications.map((cert) => (
+              {certs.map((cert) => (
                 <article key={cert.id} className={`${CARD_WRAPPER} ${CARD_SQUARE}`}>
-                  {/* top */}
-                  <div className={`${CARD_TOP}`}>
+                  <div className={CARD_TOP}>
                     <div className="flex items-center gap-3">
                       <FallbackLogo text={cert.institution} type="institution" />
                       <div className="text-gray-700">
@@ -318,29 +338,28 @@ export default function PublicClient() {
                       </div>
                     </div>
                   </div>
-                  {/* bottom */}
-                  <div className={`${CARD_BOTTOM}`}>
-                    <h3 className={`${TITLE}`}>{cert.title}</h3>
-                    <p className={`${META}`}>{new Date(cert.dateAwarded).getFullYear()}</p>
-                    <div className={EXCERPT}>
-                      {cert.description?.trim()
-                        ? <p className="line-clamp-6">{cert.description}</p>
-                        : <p className="italic text-gray-500">Nessuna descrizione disponibile.</p>}
+                  <div className={CARD_BOTTOM}>
+                    <h3 className={TITLE}>{cert.title}</h3>
+                    <p className={META}>{new Date(cert.dateAwarded).getFullYear()}</p>
+
+                    <div className={SCROLLER}>
+                      {cert.description && <p>{cert.description}</p>}
                       {cert.extractedText && (
-                        <blockquote className="mt-3 pl-3 border-l-2 border-indigo-200 text-gray-600 italic text-sm line-clamp-3">
+                        <blockquote className="pl-3 border-l-2 border-indigo-200 italic">
                           {cert.extractedText}
                         </blockquote>
                       )}
+                      {!cert.description && !cert.extractedText && (
+                        <p className="italic text-gray-500">Nessuna descrizione disponibile.</p>
+                      )}
                     </div>
-                    <div className="mt-auto" />
                   </div>
                 </article>
               ))}
 
-              {data.diplomas.map((d) => (
+              {diplomas.map((d) => (
                 <article key={d.id} className={`${CARD_WRAPPER} ${CARD_SQUARE}`}>
-                  {/* top */}
-                  <div className={`${CARD_TOP}`}>
+                  <div className={CARD_TOP}>
                     <div className="flex items-center gap-3">
                       <FallbackLogo text={d.institution} type="institution" />
                       <div className="text-gray-700">
@@ -349,32 +368,32 @@ export default function PublicClient() {
                       </div>
                     </div>
                   </div>
-                  {/* bottom */}
-                  <div className={`${CARD_BOTTOM}`}>
-                    <h3 className={`${TITLE}`}>{d.degree} in {d.fieldOfStudy}</h3>
-                    <p className={`${META}`}>{new Date(d.dateAwarded).getFullYear()}</p>
+                  <div className={CARD_BOTTOM}>
+                    <h3 className={TITLE}>{d.degree} in {d.fieldOfStudy}</h3>
+                    <p className={META}>{new Date(d.dateAwarded).getFullYear()}</p>
 
-                    {d.fileType === "pdf" ? (
-                      <a
-                        href={d.diplomaUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="mt-4 inline-flex w-fit items-center gap-2 rounded-full border px-3 py-1.5 text-sm text-indigo-700 hover:bg-indigo-50"
-                      >
-                        Visualizza Diploma (PDF)
-                      </a>
-                    ) : (
-                      <Image
-                        src={d.diplomaUrl}
-                        alt="Diploma"
-                        width={800}
-                        height={800}
-                        className="mt-4 w-full h-40 rounded-xl border object-cover"
-                        unoptimized
-                      />
-                    )}
-
-                    <div className="mt-auto" />
+                    <div className={SCROLLER}>
+                      {d.fileType === "pdf" ? (
+                        <a
+                          href={d.diplomaUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex w-fit items-center gap-2 rounded-full border px-3 py-1.5 text-sm text-indigo-700 hover:bg-indigo-50"
+                        >
+                          Visualizza Diploma (PDF)
+                        </a>
+                      ) : (
+                        <Image
+                          src={d.diplomaUrl}
+                          alt="Diploma"
+                          width={800}
+                          height={800}
+                          className="w-full rounded-xl border object-cover"
+                          style={{ maxHeight: 220 }}
+                          unoptimized
+                        />
+                      )}
+                    </div>
                   </div>
                 </article>
               ))}
@@ -382,7 +401,7 @@ export default function PublicClient() {
           </div>
         </section>
 
-        {/* Opere – card quadrate UNA sotto l’altra */}
+        {/* Opere – card quadrate con scroll */}
         {paintings.length > 0 && (
           <section id="section-paintings" data-section-id="paintings" ref={paintingsRef} className="bg-gray-50 scroll-mt-24">
             <div className="container mx-auto px-4 py-16">
@@ -391,25 +410,23 @@ export default function PublicClient() {
               <div className="flex flex-col gap-10">
                 {paintings.map((p, i) => (
                   <article key={i} className={`${CARD_WRAPPER} ${CARD_SQUARE}`}>
-                    {/* top */}
-                    <div className={`${CARD_TOP}`}>
+                    <div className={CARD_TOP}>
                       <div className="flex items-center gap-3">
-                        <PaintingIcon title={p.title} />
+                        <PaintingIcon title={p.title || "Opera"} />
                         <div className="text-gray-700">
-                          <div className="text-sm">{p.title}</div>
+                          <div className="text-sm">{p.title || "Opera"}</div>
                           <div className="text-[11px] opacity-70">Opera</div>
                         </div>
                       </div>
                     </div>
-                    {/* bottom */}
-                    <div className={`${CARD_BOTTOM}`}>
-                      <h3 className={`${TITLE}`}>{p.title}</h3>
-                      <div className={`${EXCERPT}`}>
-                        {p.content.split("\n\n").map((para, idx) => (
-                          <p key={idx} className="line-clamp-6">{para}</p>
+                    <div className={CARD_BOTTOM}>
+                      {p.title && <h3 className={TITLE}>{p.title}</h3>}
+                      <div className={SCROLLER}>
+                        {(p.content || "").split(/\n\s*\n/).filter(Boolean).map((para, idx) => (
+                          <p key={idx}>{para}</p>
                         ))}
+                        {!p.content && <p className="italic text-gray-500">Nessun testo disponibile.</p>}
                       </div>
-                      <div className="mt-auto" />
                     </div>
                   </article>
                 ))}
@@ -418,22 +435,24 @@ export default function PublicClient() {
           </section>
         )}
 
-        {/* Progetti – card quadrate UNA sotto l’altra */}
+        {/* Progetti – card quadrate con scroll */}
         {projects.length > 0 && (
           <section id="section-projects" data-section-id="projects" ref={projectsRef} className="bg-white scroll-mt-24">
             <div className="container mx-auto px-4 py-16">
-              <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-gray-900 mb-8">
-                Progetti Realizzati
-              </h2>
+              <div className="flex items-end justify-between gap-4 mb-2">
+                <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-gray-900">
+                  Progetti Realizzati
+                </h2>
+                <span className="text-sm text-gray-500">{projects.length} progetti</span>
+              </div>
 
               <div className="flex flex-col gap-10">
                 {projects.map((pr) => (
                   <Link key={pr.id} href={pr.url} className={`${CARD_WRAPPER} ${CARD_SQUARE} hover:-translate-y-0.5`}>
-                    {/* top */}
-                    <div className={`${CARD_TOP}`}>
+                    <div className={CARD_TOP}>
                       <div className="flex items-center gap-3">
                         <div className="shrink-0 flex items-center justify-center rounded-2xl border bg-gray-50 w-16 h-16">
-                          <ProjectLogo url={pr.url} title={pr.title} />
+                          <ProjectLogo url={pr.url} title={pr.title || "Progetto"} logoUrl={pr.logoUrl} />
                         </div>
                         <div className="text-gray-700">
                           <div className="text-sm">Visita progetto</div>
@@ -441,11 +460,11 @@ export default function PublicClient() {
                         </div>
                       </div>
                     </div>
-                    {/* bottom */}
-                    <div className={`${CARD_BOTTOM}`}>
-                      <h3 className={`${TITLE}`}>{pr.title}</h3>
-                      <p className={`${EXCERPT} line-clamp-6`}>{pr.content}</p>
-                      <div className="mt-auto" />
+                    <div className={CARD_BOTTOM}>
+                      {pr.title && <h3 className={TITLE}>{pr.title}</h3>}
+                      <div className={SCROLLER}>
+                        {pr.content ? <p>{pr.content}</p> : <p className="italic text-gray-500">Nessuna descrizione.</p>}
+                      </div>
                     </div>
                   </Link>
                 ))}
@@ -484,13 +503,13 @@ export default function PublicClient() {
           </section>
         )}
 
-        {/* Contatti (fuori dal menù) */}
+        {/* Contatti */}
         <section id="section-contacts" ref={contactsRef} className="bg-white scroll-mt-24">
           <div className="container mx-auto px-4 py-16">
             <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-gray-900 mb-8">Contatti</h2>
 
             <div className="flex flex-col gap-6 max-w-[760px] mx-auto">
-              {data.contact.phone && (
+              {data.contact?.phone && (
                 <a href={`tel:${data.contact.phone}`} className="w-full rounded-2xl border bg-white shadow-sm hover:shadow-lg transition">
                   <div className="p-5 flex items-center gap-3">
                     <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-indigo-100 text-indigo-700">
@@ -504,7 +523,7 @@ export default function PublicClient() {
                 </a>
               )}
 
-              {data.contact.email && (
+              {data.contact?.email && (
                 <a href={`mailto:${data.contact.email}?subject=Contatto%20dal%20portfolio`} className="w-full rounded-2xl border bg-white shadow-sm hover:shadow-lg transition">
                   <div className="p-5 flex items-center gap-3">
                     <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-indigo-100 text-indigo-700">
@@ -520,12 +539,14 @@ export default function PublicClient() {
             </div>
 
             <div className="mt-8 flex justify-center">
-              <Link
-                href={`mailto:${data.contact.email}?subject=Contatto%20dal%20portfolio`}
-                className="inline-flex items-center justify-center px-6 py-3 rounded-full bg-indigo-600 text-white font-semibold shadow hover:shadow-md hover:-translate-y-0.5 transition"
-              >
-                Scrivimi
-              </Link>
+              {data.contact?.email && (
+                <Link
+                  href={`mailto:${data.contact.email}?subject=Contatto%20dal%20portfolio`}
+                  className="inline-flex items-center justify-center px-6 py-3 rounded-full bg-indigo-600 text-white font-semibold shadow hover:shadow-md hover:-translate-y-0.5 transition"
+                >
+                  Scrivimi
+                </Link>
+              )}
             </div>
           </div>
         </section>
@@ -536,8 +557,8 @@ export default function PublicClient() {
         <div className="container mx-auto px-4 text-sm text-gray-500 flex flex-col sm:flex-row items-center justify-between gap-3">
           <span>© {new Date().getFullYear()} Portfolio Creator</span>
           <div className="flex items-center gap-4">
-            {data.contact.phone && <a className="hover:text-gray-700" href={`tel:${data.contact.phone}`}>{data.contact.phone}</a>}
-            {data.contact.email && <a className="hover:text-gray-700" href={`mailto:${data.contact.email}`}>{data.contact.email}</a>}
+            {data.contact?.phone && <a className="hover:text-gray-700" href={`tel:${data.contact.phone}`}>{data.contact.phone}</a>}
+            {data.contact?.email && <a className="hover:text-gray-700" href={`mailto:${data.contact.email}`}>{data.contact.email}</a>}
           </div>
         </div>
       </footer>
