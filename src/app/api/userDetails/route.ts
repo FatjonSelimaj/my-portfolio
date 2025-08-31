@@ -215,3 +215,6 @@ export async function PUT(req: NextRequest) {
     return NextResponse.json({ error: "Errore interno" }, { status: 500 });
   }
 }
+
+export const runtime = 'nodejs';        // forza Node.js runtime
+export const dynamic = 'force-dynamic'; // evita l'ISR su questa API
