@@ -154,7 +154,7 @@ export default function Dashboard() {
     const token = localStorage.getItem("token");
     if (!token) {
       setModalMessage("Sessione scaduta. Effettua nuovamente il login.");
-      router.replace("/auth/login");
+      router.replace("/page");
       return;
     }
 

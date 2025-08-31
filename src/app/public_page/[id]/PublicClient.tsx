@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import { FaPhone, FaEnvelope, FaBars, FaTimes } from "react-icons/fa";
 import Link from "next/link";
 import Image from "next/image";
 
+/* ---------------------- utils ---------------------- */
 function formatDate(dateString: string) {
   const d = new Date(dateString);
   const day = String(d.getDate()).padStart(2, "0");
@@ -29,6 +30,24 @@ function getOnlineFallbackIcon(text: string, type: "institution" | "course"): st
   return "https://img.icons8.com/ios-filled/50/square.png";
 }
 
+function getPaintingIcon(title: string) {
+  const t = title.toLowerCase();
+  if (t.includes("ritratto") || t.includes("portrait")) return "https://img.icons8.com/color/96/portrait.png";
+  if (t.includes("paesaggio") || t.includes("landscape")) return "https://img.icons8.com/color/96/landscape.png";
+  if (t.includes("astratt")) return "https://img.icons8.com/color/96/abstract.png";
+  if (t.includes("mare") || t.includes("sea") || t.includes("oceano")) return "https://img.icons8.com/color/96/sea-waves.png";
+  return "https://img.icons8.com/color/96/art-prices.png";
+}
+
+function getHost(u: string): string | null {
+  try {
+    return new URL(u).hostname;
+  } catch {
+    return null;
+  }
+}
+
+/* ---------------------- small components ---------------------- */
 function FallbackLogo({ text, type }: { text: string; type: "institution" | "course" }) {
   const domain = `${text.toLowerCase().replace(/[^a-z0-9]/g, "")}.${type === "institution" ? "it" : "com"}`;
   const [src, setSrc] = useState(`https://logo.clearbit.com/${domain}`);
@@ -37,72 +56,144 @@ function FallbackLogo({ text, type }: { text: string; type: "institution" | "cou
     <Image
       src={src}
       alt={text}
-      width={60}
-      height={60}
-      className="object-contain w-auto h-auto"
+      width={56}
+      height={56}
+      className="object-contain w-14 h-14"
       onError={handleError}
       unoptimized
     />
   );
 }
 
+function PaintingIcon({ title }: { title: string }) {
+  const src = getPaintingIcon(title);
+  return <Image src={src} alt={title} width={56} height={56} className="w-14 h-14 object-contain" unoptimized />;
+}
+
+/** Logo per Progetti: clearbit → favicon → fallback */
 function ProjectLogo({ url, title }: { url: string; title: string }) {
-  const domain = new URL(url).origin;
-  const [logoSrc, setLogoSrc] = useState(`${domain}/logo.png`);
-  const [attempt, setAttempt] = useState(1);
+  const host = getHost(url);
+  const [attempt, setAttempt] = useState(0);
+  const srcs = useMemo(() => {
+    const list: string[] = [];
+    if (host) list.push(`https://logo.clearbit.com/${host}`);
+    if (host) list.push(`https://${host}/favicon.ico`);
+    list.push("https://img.icons8.com/ios-filled/100/external-link.png");
+    return list;
+  }, [host]);
+
+  const [src, setSrc] = useState(srcs[0]);
+  useEffect(() => {
+    setSrc(srcs[0]);
+    setAttempt(0);
+  }, [srcs]);
+
   const handleError = () => {
-    if (attempt === 1) {
-      setLogoSrc(`${domain}/logo.png`);
-      setAttempt(2);
-    } else {
-      setLogoSrc("https://img.icons8.com/ios-filled/50/square.png");
+    const next = attempt + 1;
+    if (next < srcs.length) {
+      setAttempt(next);
+      setSrc(srcs[next]);
     }
   };
+
   return (
-    <Image src={logoSrc} alt={title} width={160} height={160} className="object-contain" onError={handleError} unoptimized />
+    <Image
+      src={src}
+      alt={title}
+      width={64}
+      height={64}
+      className="object-contain w-16 h-16"
+      onError={handleError}
+      unoptimized
+    />
   );
 }
 
-interface Painting { title: string; content: string; }
-interface Project { id: string; title: string; content: string; url: string; logoUrl: string; }
+/* ---------------------- types ---------------------- */
+interface Painting {
+  title: string;
+  content: string;
+}
+interface Project {
+  id: string;
+  title: string;
+  content: string;
+  url: string;
+  logoUrl: string;
+}
 interface Certification {
-  id: string; title: string; institution: string; dateAwarded: string;
-  extractedText: string; logoUrl: string; description: string;
+  id: string;
+  title: string;
+  institution: string;
+  dateAwarded: string;
+  extractedText: string;
+  logoUrl: string;
+  description: string;
 }
 interface Diploma {
-  id: string; degree: string; fieldOfStudy: string; institution: string;
-  dateAwarded: string; diplomaUrl: string; fileType: "image" | "pdf";
+  id: string;
+  degree: string;
+  fieldOfStudy: string;
+  institution: string;
+  dateAwarded: string;
+  diplomaUrl: string;
+  fileType: "image" | "pdf";
 }
 interface ApiData {
-  firstName: string; lastName: string; about: string; imageUrl?: string;
-  paintings: Painting[]; projects: Project[]; certifications: Certification[];
-  diplomas: Diploma[]; contact: { phone: string; email: string; };
+  firstName: string;
+  lastName: string;
+  about: string;
+  imageUrl?: string;
+  paintings: Painting[];
+  projects: Project[];
+  certifications: Certification[];
+  diplomas: Diploma[];
+  contact: { phone: string; email: string };
   experiences?: Experience[];
 }
 interface Experience {
-  id: string; company: string; role: string; description: string;
-  startDate: string; endDate?: string | null;
+  id: string;
+  company: string;
+  role: string;
+  description: string;
+  startDate: string;
+  endDate?: string | null;
 }
 
-// ➜ aggiungiamo "contacts" ai tab
-type TabKey = "about" | `painting-${number}` | "projects" | "experiences" | "contacts";
+/* ---------------------- shared styles ---------------------- */
+const CARD_SQUARE =
+  "group bg-white border rounded-2xl shadow-sm hover:shadow-lg transition aspect-square p-5 flex flex-col overflow-hidden";
+const CARD_WRAP = "w-full max-w-[420px]"; // card singola, 1 sotto l'altra
+const CARD_HEAD = "flex items-start gap-3";
+const CARD_TITLE = "font-semibold text-gray-900 truncate";
+const CARD_META = "text-xs text-gray-500";
+const CARD_BODY = "mt-3 text-gray-700 text-sm leading-relaxed overflow-hidden line-clamp-5";
+const CARD_MEDIA = "mt-3 w-full h-40 rounded-xl border object-cover";
 
+/* ---------------------- component ---------------------- */
 export default function PublicClient() {
   const { id } = useParams();
   const [data, setData] = useState<ApiData | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [, setVisits] = useState<number>(0);
-  const [selected, setSel] = useState<TabKey>("about");
 
+  // active section
+  const [active, setActive] = useState<"about" | "paintings" | "projects" | "experiences">("about");
+
+  // refs
+  const aboutRef = useRef<HTMLElement | null>(null);
+  const paintingsRef = useRef<HTMLElement | null>(null);
+  const projectsRef = useRef<HTMLElement | null>(null);
+  const experiencesRef = useRef<HTMLElement | null>(null);
+  const contactsRef = useRef<HTMLElement | null>(null);
+
+  // visits
   useEffect(() => {
     if (!id) return;
-    fetch(`/api/publicData/${id}/visits`, { method: "POST" })
-      .then((res) => res.json())
-      .then((d) => setVisits(d.visits))
-      .catch(console.error);
+    fetch(`/api/publicData/${id}/visits`, { method: "POST" }).catch(() => {});
   }, [id]);
 
+  // data
   useEffect(() => {
     if (!id) {
       setError("ID utente non specificato.");
@@ -117,262 +208,390 @@ export default function PublicClient() {
       .catch((err) => setError(err.message));
   }, [id]);
 
-  if (error) return <div className="min-h-screen flex items-center justify-center text-red-600 p-4">{error}</div>;
-  if (!data) return <div className="min-h-screen flex items-center justify-center text-gray-500">Caricamento…</div>;
+  const paintings = useMemo(() => data?.paintings.filter((p) => p.title && p.content) ?? [], [data]);
+  const projects = useMemo(() => data?.projects.filter((p) => p.title && p.url) ?? [], [data]);
+  const hasExperiences = (data?.experiences?.length ?? 0) > 0;
 
-  const paintings = data.paintings.filter((p) => p.title && p.content);
-  const projects = data.projects.filter((p) => p.title && p.url);
-  const idx = selected.startsWith("painting-") ? +selected.split("-")[1] : -1;
-  const painting = idx >= 0 ? paintings[idx] : null;
+  // menu items (senza contatti)
+  const navItems = useMemo(
+    () =>
+      [
+        { id: "about", label: "Chi sono", ref: aboutRef, show: true },
+        { id: "paintings", label: "Opere", ref: paintingsRef, show: paintings.length > 0 },
+        { id: "projects", label: "Progetti", ref: projectsRef, show: projects.length > 0 },
+        { id: "experiences", label: "Esperienze", ref: experiencesRef, show: hasExperiences },
+      ].filter((i) => i.show),
+    [paintings.length, projects.length, hasExperiences]
+  );
 
-  const tabs: TabKey[] = [
-    "about",
-    ...paintings.map((_, i) => `painting-${i}` as const),
-    ...(projects.length ? (["projects"] as const) : []),
-    ...(data.experiences?.length ? (["experiences"] as const) : []),
-    "contacts", // ➜ nuova voce
-  ];
-
-  const tabLabel = (tab: TabKey) => {
-    if (tab === "about") return "Chi sono";
-    if (tab === "projects") return "Progetti";
-    if (tab === "experiences") return "Esperienze";
-    if (tab === "contacts") return "Contatti";
-    const i = Number(tab.split("-")[1] ?? -1);
-    return paintings[i]?.title ?? "Opera";
-    // nessuna emoji/icone nel testo del menù
+  // smooth scroll
+  const scrollToRef = (el: HTMLElement | null) => {
+    if (!el) return;
+    const y = el.getBoundingClientRect().top + window.scrollY - 80;
+    window.scrollTo({ top: y, behavior: "smooth" });
   };
+
+  // intersection observer per highlight
+  useEffect(() => {
+    const sections: Array<{ key: typeof active; el: HTMLElement | null }> = [
+      { key: "about", el: aboutRef.current },
+      { key: "paintings", el: paintingsRef.current },
+      { key: "projects", el: projectsRef.current },
+      { key: "experiences", el: experiencesRef.current },
+    ];
+    const obs = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((e) => e.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+        if (visible) {
+          const id = visible.target.getAttribute("data-section-id") as typeof active | null;
+          if (id && id !== active) setActive(id);
+        }
+      },
+      { rootMargin: "-40% 0px -50% 0px", threshold: [0.25, 0.5, 0.75] }
+    );
+    sections.forEach((s) => s.el && obs.observe(s.el));
+    return () => obs.disconnect();
+  }, [navItems.length]);
+
+  if (error) return <div className="min-h-screen flex items-center justify-center text-red-600 p-6">{error}</div>;
+  if (!data) return <div className="min-h-screen flex items-center justify-center text-gray-500">Caricamento…</div>;
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
-      <header className="bg-indigo-700 shadow-md sticky top-0 z-50">
-        <nav className="container mx-auto flex items-center justify-between px-4 py-4">
-          <div className="text-white text-2xl font-bold tracking-wide">Portfolio</div>
+      {/* ---------------------- HEADER ---------------------- */}
+      <header className="sticky top-0 z-50 backdrop-blur bg-white/70 border-b">
+        <nav className="container mx-auto flex items-center justify-between px-4 py-3">
+          <div className="font-extrabold text-xl tracking-tight text-indigo-700">
+            {data.firstName} {data.lastName}
+          </div>
 
-          {/* toggle mobile */}
           <button
-            className="text-white md:hidden cursor-pointer"
-            onClick={() => setMenuOpen(!menuOpen)}
+            className="md:hidden p-2 rounded hover:bg-indigo-50 text-indigo-700"
+            onClick={() => setMenuOpen((v) => !v)}
             aria-label="Apri/chiudi menu"
           >
             {menuOpen ? <FaTimes /> : <FaBars />}
           </button>
 
-          {/* menu + contatti header */}
-          <div className={`${menuOpen ? "block" : "hidden"} w-full md:flex md:items-center md:justify-between md:w-auto mt-4 md:mt-0`}>
-            {/* tabs */}
-            <div className="flex flex-col md:flex-row md:space-x-6">
-              {tabs.map((tab) => (
+          {/* nav (niente contatti) + CTA a destra */}
+          <div className={`${menuOpen ? "block" : "hidden"} md:flex md:items-center md:gap-6 w-full md:w-auto mt-3 md:mt-0`}>
+            <div className="flex flex-wrap items-center gap-2 md:gap-3">
+              {navItems.map((item) => (
                 <button
-                  key={tab}
+                  key={item.id}
                   onClick={() => {
-                    setSel(tab);
                     setMenuOpen(false);
-                    // se vuoi anche scroll automatico verso la sezione:
-                    if (tab === "contacts") {
-                      setTimeout(() => {
-                        const el = document.getElementById("section-contacts");
-                        el?.scrollIntoView({ behavior: "smooth", block: "start" });
-                      }, 50);
-                    } else {
-                      window.scrollTo({ top: 0, behavior: "smooth" });
-                    }
+                    scrollToRef(item.ref.current);
                   }}
-                  className={`px-4 py-2 font-medium rounded-md text-sm tracking-wide cursor-pointer ${
-                    selected === tab ? "bg-white text-indigo-700 shadow" : "text-white hover:bg-indigo-600"
-                  }`}
+                  className={`px-3.5 py-2 rounded-2xl text-sm font-medium transition
+                    ${active === item.id ? "bg-indigo-600 text-white shadow" : "text-indigo-700 hover:bg-indigo-100"}
+                  `}
                 >
-                  {tabLabel(tab)}
+                  {item.label}
                 </button>
               ))}
             </div>
 
-           
+            <div className="mt-3 md:mt-0 flex items-center gap-3">
+              <button
+                onClick={() => scrollToRef(contactsRef.current)}
+                className="ml-1 inline-flex items-center justify-center px-4 py-2 rounded-2xl bg-indigo-600 text-white text-sm font-semibold shadow hover:shadow-md transition"
+              >
+                Contatti
+              </button>
+            </div>
           </div>
         </nav>
       </header>
 
-      <main className="flex-grow max-w-5xl mx-auto px-4 sm:px-6 py-10 space-y-16">
-        {selected === "about" && (
-          <section className="space-y-10">
-            <div className="text-center">
-              <h1 className="text-5xl font-extrabold text-gray-900 mb-4">
-                {data.firstName} {data.lastName}
-              </h1>
-              {data.imageUrl && (
-                <div className="flex justify-center mb-4">
-                  <Image
-                    src={data.imageUrl}
-                    alt="Foto profilo"
-                    width={160}
-                    height={160}
-                    className="rounded-full border-4 border-indigo-300 shadow-xl"
-                    unoptimized
-                  />
-                </div>
+      {/* ---------------------- HERO ---------------------- */}
+      <section className="relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-indigo-500 to-purple-600"></div>
+        <div
+          className="absolute inset-0 opacity-20"
+          style={{ backgroundImage: "radial-gradient(circle at 20% 20%, white, transparent 35%)" }}
+        />
+        <div className="container mx-auto px-4 py-20 relative">
+          <div className="max-w-3xl text-white">
+            <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight">
+              {data.firstName} {data.lastName}
+            </h1>
+            <p className="mt-4 text-lg sm:text-xl text-indigo-50 leading-relaxed">
+              {data.about.split("\n\n")[0] || "Portfolio personale e progetti selezionati"}
+            </p>
+
+            <div className="mt-8 flex flex-wrap gap-3">
+              <button
+                onClick={() => scrollToRef(contactsRef.current)}
+                className="inline-flex items-center justify-center px-5 py-3 rounded-2xl bg-white text-indigo-700 font-semibold shadow hover:shadow-md transition"
+              >
+                Contatti
+              </button>
+              {projects.length > 0 && (
+                <button
+                  onClick={() => scrollToRef(projectsRef.current)}
+                  className="inline-flex items-center justify-center px-5 py-3 rounded-2xl border border-white/70 text-white hover:bg-white/10 transition"
+                >
+                  Vedi progetti
+                </button>
               )}
-              <div className="max-w-3xl mx-auto text-gray-700 text-lg leading-relaxed space-y-6">
-                {data.about.split("\n\n").map((para, i) => (
-                  <p key={i}>{para}</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ---------------------- MAIN ---------------------- */}
+      <main className="flex-grow">
+        {/* About & Education */}
+        <section id="section-about" data-section-id="about" ref={aboutRef} className="bg-white scroll-mt-24">
+          <div className="container mx-auto px-4 py-14">
+            <div className="grid gap-10 lg:grid-cols-3">
+              <div className="lg:col-span-1">
+                <h2 className="text-2xl font-bold text-gray-900">Chi sono</h2>
+                <p className="mt-3 text-gray-600 leading-relaxed">{data.about}</p>
+                {data.imageUrl && (
+                  <div className="mt-6">
+                    <Image
+                      src={data.imageUrl}
+                      alt="Foto profilo"
+                      width={220}
+                      height={220}
+                      className="rounded-2xl border shadow-sm object-cover"
+                      unoptimized
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* Card 1:1 una sotto l'altra */}
+              <div className="lg:col-span-2">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Diplomi & Certificazioni</h3>
+
+                <div className="flex flex-col items-center gap-6">
+                  {data.certifications.map((cert) => (
+                    <div key={cert.id} className={`${CARD_SQUARE} ${CARD_WRAP}`}>
+                      <div className={CARD_HEAD}>
+                        <FallbackLogo text={cert.institution} type="institution" />
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2">
+                            <h4 className={CARD_TITLE}>{cert.title}</h4>
+                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 whitespace-nowrap">
+                              {new Date(cert.dateAwarded).getFullYear()}
+                            </span>
+                          </div>
+                          <p className={CARD_META}>{formatDate(cert.dateAwarded)}</p>
+                        </div>
+                      </div>
+
+                      <div className={CARD_BODY}>
+                        {cert.description && <p className="mb-2">{cert.description}</p>}
+                        {cert.extractedText && (
+                          <blockquote className="pl-3 border-l-2 border-indigo-200 text-gray-600 italic text-sm line-clamp-3">
+                            {cert.extractedText}
+                          </blockquote>
+                        )}
+                      </div>
+
+                      <div className="mt-auto" />
+                    </div>
+                  ))}
+
+                  {data.diplomas.map((d) => (
+                    <div key={d.id} className={`${CARD_SQUARE} ${CARD_WRAP}`}>
+                      <div className={CARD_HEAD}>
+                        <FallbackLogo text={d.institution} type="institution" />
+                        <div className="min-w-0">
+                          <h4 className={CARD_TITLE}>
+                            {d.degree} in {d.fieldOfStudy}
+                          </h4>
+                          <p className={CARD_META}>{formatDate(d.dateAwarded)}</p>
+                        </div>
+                      </div>
+
+                      {d.fileType === "pdf" ? (
+                        <a
+                          href={d.diplomaUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="mt-3 inline-block text-indigo-600 underline"
+                        >
+                          Visualizza Diploma (PDF)
+                        </a>
+                      ) : (
+                        <Image src={d.diplomaUrl} alt="Diploma" width={400} height={400} className={CARD_MEDIA} unoptimized />
+                      )}
+
+                      <div className="mt-auto" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Opere – UNA sotto l’altra, card 1:1 con icona */}
+        {paintings.length > 0 && (
+          <section id="section-paintings" data-section-id="paintings" ref={paintingsRef} className="bg-gray-50 scroll-mt-24">
+            <div className="container mx-auto px-4 py-14">
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">Opere</h2>
+
+              <div className="flex flex-col items-center gap-6">
+                {paintings.map((p, i) => (
+                  <article key={i} className={`${CARD_SQUARE} ${CARD_WRAP}`}>
+                    <div className={CARD_HEAD}>
+                      <PaintingIcon title={p.title} />
+                      <h3 className={`${CARD_TITLE} text-base`}>{p.title}</h3>
+                    </div>
+                    <div className={CARD_BODY}>
+                      {p.content.split("\n\n").map((para, idx) => (
+                        <p key={idx} className="line-clamp-4">
+                          {para}
+                        </p>
+                      ))}
+                    </div>
+                    <div className="mt-auto" />
+                  </article>
                 ))}
               </div>
             </div>
           </section>
         )}
 
-        {selected === "about" && (
-          <section className="space-y-10">
-            <h2 className="text-3xl font-semibold text-gray-900 border-b pb-2">Diplomi e Certificazioni</h2>
-            <ul className="grid gap-8 md:grid-cols-2">
-              {data.certifications.map((cert) => (
-                <li key={cert.id} className="relative bg-white p-6 rounded-lg shadow-md hover:shadow-xl transition transform hover:scale-[1.01]">
-                  <span className="absolute top-2 right-2 text-xs bg-indigo-100 text-indigo-800 px-2 py-1 rounded">
-                    {new Date(cert.dateAwarded).getFullYear()}
-                  </span>
-                  <div className="flex items-center gap-4 mb-4">
-                    <FallbackLogo text={cert.institution} type="institution" />
-                    <div>
-                      <h3 className="text-lg font-bold text-gray-800">{cert.title}</h3>
-                      <p className="text-sm text-gray-500">{formatDate(cert.dateAwarded)}</p>
-                    </div>
-                  </div>
-                  <div className="space-y-2 text-sm text-gray-700">
-                    {cert.description.split("\n\n").map((para, idx) => (
-                      <p key={idx}>{para}</p>
-                    ))}
-                    {cert.extractedText && <blockquote className="pl-4 border-l-4 border-indigo-500 italic text-gray-600">{cert.extractedText}</blockquote>}
-                  </div>
-                </li>
-              ))}
-              {data.diplomas.map((d) => (
-                <li key={d.id} className="relative bg-white p-6 rounded-lg shadow-md hover:shadow-xl transition transform hover:scale-[1.01]">
-                  <span className="absolute top-2 right-2 text-xs bg-indigo-100 text-indigo-800 px-2 py-1 rounded">
-                    {new Date(d.dateAwarded).getFullYear()}
-                  </span>
-                  <div className="flex items-center gap-4 mb-4">
-                    <FallbackLogo text={d.institution} type="institution" />
-                    <div>
-                      <h3 className="text-lg font-bold text-gray-800">
-                        {d.degree} in {d.fieldOfStudy}
-                      </h3>
-                      <p className="text-sm text-gray-500">{formatDate(d.dateAwarded)}</p>
-                    </div>
-                  </div>
-                  {d.fileType === "pdf" ? (
-                    <a href={d.diplomaUrl} target="_blank" rel="noopener noreferrer" className="text-indigo-600 underline">
-                      Visualizza Diploma (PDF)
-                    </a>
-                  ) : (
-                    <Image src={d.diplomaUrl} alt="Diploma" width={200} height={150} className="rounded shadow" unoptimized />
-                  )}
-                </li>
-              ))}
-            </ul>
-          </section>
-        )}
+        {/* Progetti – UNA card sotto l’altra, con logo auto */}
+        {projects.length > 0 && (
+          <section id="section-projects" data-section-id="projects" ref={projectsRef} className="bg-white scroll-mt-24">
+            <div className="container mx-auto px-4 py-14">
+              <div className="flex items-end justify-between gap-4 mb-6">
+                <h2 className="text-2xl font-bold text-gray-900">Progetti Realizzati</h2>
+                <span className="text-sm text-gray-500">{projects.length} progetti</span>
+              </div>
 
-        {selected.startsWith("painting-") && painting && (
-          <section className="space-y-6">
-            <h2 className="text-3xl font-semibold text-gray-900 border-b pb-2">{painting.title}</h2>
-            <div className="text-gray-700 text-lg leading-relaxed space-y-4">
-              {painting.content.split("\n\n").map((para, i) => (
-                <p key={i}>{para}</p>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {selected === "projects" && (
-          <section className="space-y-12">
-            <h2 className="text-3xl font-semibold text-gray-900 border-b pb-2">Progetti Realizzati</h2>
-            {projects.map((pr) => (
-              <Link key={pr.id} href={pr.url} className="block bg-white p-6 rounded-lg shadow hover:shadow-xl transition transform hover:scale-[1.01]">
-                <div className="flex justify-center mb-4">
-                  <ProjectLogo url={pr.url} title={pr.title} />
-                </div>
-                <h3 className="text-xl font-semibold text-gray-800 text-center mb-2">{pr.title}</h3>
-                <div className="text-gray-600 text-sm leading-relaxed space-y-2">
-                  {pr.content.split("\n\n").map((para, i) => (
-                    <p key={i}>{para}</p>
-                  ))}
-                </div>
-              </Link>
-            ))}
-          </section>
-        )}
-
-        {selected === "experiences" && data.experiences && data.experiences.length > 0 && (
-          <section className="space-y-10">
-            <h2 className="text-3xl font-semibold text-gray-900 border-b pb-2">Esperienze Lavorative</h2>
-            <ul className="space-y-6">
-              {data.experiences
-                .slice()
-                .sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime())
-                .map((exp) => (
-                  <li key={exp.id} className="bg-white p-6 rounded-lg shadow-md hover:shadow-xl transition transform hover:scale-[1.01] flex items-start gap-4">
-                    <FallbackLogo text={exp.company} type="institution" />
-                    <div>
-                      <h3 className="text-lg font-semibold text-gray-800">
-                        {exp.role} @ {exp.company}
-                      </h3>
-                      <p className="text-sm text-gray-500 mb-1">
-                        {formatDate(exp.startDate)} {exp.endDate ? `– ${formatDate(exp.endDate)}` : "– presente"}
-                      </p>
-                      <p className="text-gray-700 text-sm leading-relaxed">{exp.description}</p>
+              <div className="flex flex-col items-center gap-6">
+                {projects.map((pr) => (
+                  <Link key={pr.id} href={pr.url} className={`${CARD_SQUARE} ${CARD_WRAP} hover:-translate-y-0.5`}>
+                    <div className="flex items-center gap-3">
+                      <div className="shrink-0 flex items-center justify-center rounded-2xl border bg-gray-50 w-16 h-16">
+                        <ProjectLogo url={pr.url} title={pr.title} />
+                      </div>
+                      <h3 className={`${CARD_TITLE} text-base`}>{pr.title}</h3>
                     </div>
-                  </li>
+
+                    <div className={`${CARD_BODY} mt-2`}>
+                      <p className="line-clamp-5">{pr.content}</p>
+                    </div>
+
+                    <div className="mt-auto" />
+                  </Link>
                 ))}
-            </ul>
+              </div>
+            </div>
           </section>
         )}
 
-        {/* ➜ Sezione CONTATTI (raggiunta dal tab "Contatti") */}
-        {selected === "contacts" && (
-          <section id="section-contacts" className="space-y-8">
-            <h2 className="text-3xl font-semibold text-gray-900 border-b pb-2">Contatti</h2>
+        {/* Esperienze – timeline verticale (già una sotto l’altra) */}
+        {hasExperiences && (
+          <section id="section-experiences" data-section-id="experiences" ref={experiencesRef} className="bg-gray-50 scroll-mt-24">
+            <div className="container mx-auto px-4 py-14">
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">Esperienze Lavorative</h2>
+              <ol className="relative border-s-2 border-indigo-100">
+                {data!.experiences!
+                  .slice()
+                  .sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime())
+                  .map((exp) => (
+                    <li key={exp.id} className="mb-10 ms-6">
+                      <span className="absolute -start-3 flex h-6 w-6 items-center justify-center rounded-full bg-indigo-600 ring-4 ring-white"></span>
+                      <div className="bg-white border rounded-2xl p-5 shadow-sm hover:shadow-md transition">
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <h3 className="text-lg font-semibold text-gray-900">
+                            {exp.role} @ {exp.company}
+                          </h3>
+                          <p className="text-xs text-gray-500">
+                            {formatDate(exp.startDate)} {exp.endDate ? `– ${formatDate(exp.endDate)}` : "– presente"}
+                          </p>
+                        </div>
+                        <p className="mt-2 text-sm text-gray-700">{exp.description}</p>
+                      </div>
+                    </li>
+                  ))}
+              </ol>
+            </div>
+          </section>
+        )}
 
-            <div className="grid gap-6 md:grid-cols-2">
-              <a
-                href={`tel:${data.contact.phone}`}
-                className="flex items-center gap-3 p-4 rounded-lg border bg-white hover:shadow-md transition cursor-pointer"
-              >
-                <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-indigo-100 text-indigo-700">
-                  <FaPhone />
-                </span>
-                <div>
-                  <div className="text-sm text-gray-500">Telefono</div>
-                  <div className="font-medium text-gray-800">{data.contact.phone}</div>
-                </div>
-              </a>
+        {/* Contatti (non nel menù) */}
+        <section id="section-contacts" ref={contactsRef} className="bg-white scroll-mt-24">
+          <div className="container mx-auto px-4 py-14">
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">Contatti</h2>
 
-              <a
-                href={`mailto:${data.contact.email}?subject=Contatto%20dal%20portfolio`}
-                className="flex items-center gap-3 p-4 rounded-lg border bg-white hover:shadow-md transition cursor-pointer"
-              >
-                <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-indigo-100 text-indigo-700">
-                  <FaEnvelope />
-                </span>
-                <div>
-                  <div className="text-sm text-gray-500">Email</div>
-                  <div className="font-medium text-gray-800">{data.contact.email}</div>
-                </div>
-              </a>
+            <div className="flex flex-col items-center gap-6">
+              {data.contact.phone && (
+                <a
+                  href={`tel:${data.contact.phone}`}
+                  className={`${CARD_SQUARE} ${CARD_WRAP} !aspect-auto p-4`}
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-indigo-100 text-indigo-700">
+                      <FaPhone />
+                    </span>
+                    <div>
+                      <div className="text-sm text-gray-500">Telefono</div>
+                      <div className="font-medium text-gray-900">{data.contact.phone}</div>
+                    </div>
+                  </div>
+                </a>
+              )}
+
+              {data.contact.email && (
+                <a
+                  href={`mailto:${data.contact.email}?subject=Contatto%20dal%20portfolio`}
+                  className={`${CARD_SQUARE} ${CARD_WRAP} !aspect-auto p-4`}
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-indigo-100 text-indigo-700">
+                      <FaEnvelope />
+                    </span>
+                    <div>
+                      <div className="text-sm text-gray-500">Email</div>
+                      <div className="font-medium text-gray-900">{data.contact.email}</div>
+                    </div>
+                  </div>
+                </a>
+              )}
             </div>
 
-            {/* CTA rapida */}
-            <div className="pt-2">
+            <div className="mt-8 flex justify-center">
               <Link
                 href={`mailto:${data.contact.email}?subject=Contatto%20dal%20portfolio`}
-                className="inline-flex items-center justify-center px-5 py-3 rounded-lg bg-indigo-600 text-white font-medium hover:bg-indigo-700 transition cursor-pointer"
+                className="inline-flex items-center justify-center px-6 py-3 rounded-2xl bg-indigo-600 text-white font-semibold shadow hover:shadow-md hover:-translate-y-0.5 transition"
               >
                 Scrivimi
               </Link>
             </div>
-          </section>
-        )}
+          </div>
+        </section>
       </main>
 
-      <footer className="bg-gray-100 py-6 text-center text-sm text-gray-500">© 2025 Portfolio Creator</footer>
+      {/* ---------------------- FOOTER ---------------------- */}
+      <footer className="bg-gray-100 py-8">
+        <div className="container mx-auto px-4 text-sm text-gray-500 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <span>© {new Date().getFullYear()} Portfolio Creator</span>
+          <div className="flex items-center gap-4">
+            {data.contact.phone && (
+              <a className="hover:text-gray-700" href={`tel:${data.contact.phone}`}>
+                {data.contact.phone}
+              </a>
+            )}
+            {data.contact.email && (
+              <a className="hover:text-gray-700" href={`mailto:${data.contact.email}`}>
+                {data.contact.email}
+              </a>
+            )}
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
