@@ -1,27 +1,41 @@
-// app/hooks/useVersionRefresh.ts
 "use client";
+import { useEffect } from "react";
 
-import { useEffect, useState } from "react";
-
-export function useVersionRefresh(intervalMs = 60000) {
-  const currentBuild = process.env.NEXT_PUBLIC_BUILD_ID;
-  const [updateAvailable, setUpdateAvailable] = useState(false);
+type Opts = { pollMs?: number; delayMs?: number };
+export function useAutoReloadOnDeploy({ pollMs = 10000, delayMs = 60000 }: Opts = {}) {
+  const currentId = process.env.NEXT_PUBLIC_BUILD_ID!;
+  const currentAt = Number(process.env.NEXT_PUBLIC_BUILD_AT || Date.now());
 
   useEffect(() => {
-    let t: any;
+    let timer: any;
+    let reloadTimer: any;
+
     async function check() {
       try {
         const res = await fetch("/api/version", { cache: "no-store" });
-        const { buildId } = await res.json();
-        if (buildId && buildId !== currentBuild) {
-          setUpdateAvailable(true);
+        const { buildId, buildAt } = await res.json();
+        if (buildId && buildId !== currentId) {
+          // nuova build rilevata: calcola quando ricaricare
+          const target = Number(buildAt) + delayMs;
+          const now = Date.now();
+          const wait = Math.max(0, target - now);
+
+          // pianifica reload una sola volta
+          if (!reloadTimer) {
+            reloadTimer = setTimeout(() => {
+              window.location.reload();
+            }, wait);
+          }
+          return; // smetti pure di fare polling se vuoi
         }
       } catch {}
-      t = setTimeout(check, intervalMs);
+      timer = setTimeout(check, pollMs);
     }
-    check();
-    return () => clearTimeout(t);
-  }, [currentBuild, intervalMs]);
 
-  return { updateAvailable };
+    check();
+    return () => {
+      clearTimeout(timer);
+      clearTimeout(reloadTimer);
+    };
+  }, [currentId, currentAt, pollMs, delayMs]);
 }

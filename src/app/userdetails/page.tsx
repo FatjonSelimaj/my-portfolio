@@ -111,7 +111,7 @@ export default function UserDetails() {
           }),
         });
       })
-      .catch(() => setModalMessage('Errore nel recupero dei dati.'));
+      .catch(() => setModalMessage('Errore nel recupero dei dati, fai il logout, e rieffettua il login.'));
   }, [router]);
 
   // ===== Handlers (dichiarate prima dell'uso nelle sezioni) =====
