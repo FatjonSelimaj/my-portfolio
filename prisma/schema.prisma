@@ -27,14 +27,22 @@ model User {
 }
 
 model UserDetails {
-  id             String          @id @default(auto()) @map("_id") @db.ObjectId
-  userId         String          @unique @db.ObjectId
-  user           User            @relation("UserToDetails", fields: [userId], references: [id])
-  firstName      String
-  lastName       String
-  bio            String?
-  phone          String?
-  imageUrl       String?
+  id        String  @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String  @unique @db.ObjectId
+  user      User    @relation("UserToDetails", fields: [userId], references: [id])
+  firstName String
+  lastName  String
+  bio       String?
+  phone     String?
+  imageUrl  String?
+
+  // ➕ Nuovi campi social media (tutti opzionali)
+  facebookUrl  String?
+  instagramUrl String?
+  twitterUrl   String?
+  linkedinUrl  String?
+  githubUrl    String?
+
   paintings      Painting[]      @relation("UserPaintings")
   projects       Project[]       @relation("UserProjects")
   certifications Certification[] @relation("UserCertifications")
@@ -88,15 +96,15 @@ model PasswordResetToken {
 }
 
 model Certification {
-  id             String       @id @default(auto()) @map("_id") @db.ObjectId
-  title          String
-  institution    String
-  dateAwarded    DateTime
-  extractedText  String?
-  logoUrl        String?
-  description    String?
-  userDetailsId  String       @db.ObjectId
-  userDetails    UserDetails  @relation("UserCertifications", fields: [userDetailsId], references: [id])
+  id            String      @id @default(auto()) @map("_id") @db.ObjectId
+  title         String
+  institution   String
+  dateAwarded   DateTime
+  extractedText String?
+  logoUrl       String?
+  description   String?
+  userDetailsId String      @db.ObjectId
+  userDetails   UserDetails @relation("UserCertifications", fields: [userDetailsId], references: [id])
 }
 
 model Diploma {
@@ -117,16 +125,15 @@ model PageVisit {
 }
 
 model Experience {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  userId      String   @db.ObjectId
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String    @db.ObjectId
   company     String
   role        String
   description String
   startDate   DateTime
   endDate     DateTime?
-  createdAt   DateTime @default(now())
- isPublic Boolean @default(true)
+  createdAt   DateTime  @default(now())
+  isPublic    Boolean   @default(true)
 
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
-

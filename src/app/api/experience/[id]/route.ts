@@ -1,138 +1,92 @@
-// src/app/api/experience/[id]/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient } from "@/generated/prisma-client";
-import jwt from "jsonwebtoken";
+import { prisma } from "@/lib/prisma";
+import { requireUserId } from "@/lib/auth";
 
-const prisma = new PrismaClient();
-const JWT_SECRET = process.env.JWT_SECRET!;
+export const runtime = "nodejs";
 
-// Utility per estrarre l'ID dalla URL
-function getIdFromRequest(req: NextRequest): string {
-  const segments = req.nextUrl.pathname.split("/");
-  return segments[segments.length - 1];
+function handleError(err: unknown) {
+  console.error("API /api/experience/[id] error:", err);
+  const anyErr = err as any;
+  const status = typeof anyErr?.status === "number" ? anyErr.status : 500;
+  const msg =
+    status === 401
+      ? "Non autorizzato"
+      : process.env.NODE_ENV === "development"
+      ? (anyErr?.message ?? "Errore interno")
+      : "Errore interno";
+  return NextResponse.json({ error: msg }, { status });
 }
 
-export async function PUT(req: NextRequest) {
+export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const id = getIdFromRequest(req);
+    const userId = requireUserId(req);
+    const body = await req.json();
+    const { company, role, description = "", startDate, endDate, isPublic = true } = body ?? {};
 
-    const authHeader = req.headers.get("authorization");
-    if (!authHeader) {
-      return NextResponse.json({ error: "Token mancante" }, { status: 401 });
+    if (!company || !role || !startDate) {
+      return NextResponse.json(
+        { error: "Campi obbligatori mancanti (company, role, startDate)" },
+        { status: 400 }
+      );
     }
 
-    const token = authHeader.replace(/^Bearer\s+/, "");
-    const decoded = jwt.verify(token, JWT_SECRET) as { id: string };
-    const userId = decoded.id;
+    // assicurati che l'elemento sia dell'utente
+    const existing = await prisma.experience.findUnique({ where: { id: params.id } });
+    if (!existing || existing.userId !== userId) {
+      return NextResponse.json({ error: "Non trovato" }, { status: 404 });
+    }
 
-    const body = await req.json();
-    const { company, role, description, startDate, endDate } = body;
-
-    const updated = await prisma.experience.updateMany({
-      where: { id, userId },
+    const updated = await prisma.experience.update({
+      where: { id: params.id },
       data: {
-        company,
-        role,
-        description,
+        company: String(company).trim(),
+        role: String(role).trim(),
+        description: String(description ?? ""),
         startDate: new Date(startDate),
-        endDate: endDate?.trim() ? new Date(endDate) : null,
+        endDate: endDate?.toString().trim() ? new Date(endDate) : null,
+        isPublic: Boolean(isPublic),
       },
     });
 
-    if (updated.count === 0) {
-      return NextResponse.json({ error: "Esperienza non trovata" }, { status: 404 });
-    }
-
-    return NextResponse.json({ message: "Esperienza aggiornata" });
+    return NextResponse.json(updated, { status: 200 });
   } catch (err) {
-    console.error("PUT /api/experience/[id]:", err);
-    return NextResponse.json({ error: "Errore interno" }, { status: 500 });
+    return handleError(err);
   }
 }
 
-export async function DELETE(req: NextRequest) {
+export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const id = getIdFromRequest(req);
+    const userId = requireUserId(req);
+    const { isPublic } = await req.json();
 
-    const authHeader = req.headers.get("authorization");
-    if (!authHeader) {
-      return NextResponse.json({ error: "Token mancante" }, { status: 401 });
+    const existing = await prisma.experience.findUnique({ where: { id: params.id } });
+    if (!existing || existing.userId !== userId) {
+      return NextResponse.json({ error: "Non trovato" }, { status: 404 });
     }
 
-    const token = authHeader.replace(/^Bearer\s+/, "");
-    const decoded = jwt.verify(token, JWT_SECRET) as { id: string };
-    const userId = decoded.id;
-
-    const deleted = await prisma.experience.deleteMany({
-      where: { id, userId },
+    const updated = await prisma.experience.update({
+      where: { id: params.id },
+      data: { isPublic: Boolean(isPublic) },
     });
 
-    if (deleted.count === 0) {
-      return NextResponse.json({ error: "Esperienza non trovata" }, { status: 404 });
-    }
-
-    return NextResponse.json({ message: "Esperienza eliminata" });
+    return NextResponse.json(updated, { status: 200 });
   } catch (err) {
-    console.error("DELETE /api/experience/[id]:", err);
-    return NextResponse.json({ error: "Errore interno" }, { status: 500 });
+    return handleError(err);
   }
 }
 
-export async function PATCH(req: NextRequest) {
+export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const id = getIdFromRequest(req);
+    const userId = requireUserId(req);
 
-    const authHeader = req.headers.get("authorization");
-    if (!authHeader) {
-      return NextResponse.json({ error: "Token mancante" }, { status: 401 });
+    const existing = await prisma.experience.findUnique({ where: { id: params.id } });
+    if (!existing || existing.userId !== userId) {
+      return NextResponse.json({ error: "Non trovato" }, { status: 404 });
     }
 
-    const token = authHeader.replace(/^Bearer\s+/, "");
-    const decoded = jwt.verify(token, JWT_SECRET) as { id: string };
-    const userId = decoded.id;
-
-    const body = await req.json();
-    const { isPublic } = body;
-
-    const updated = await prisma.experience.updateMany({
-      where: { id, userId },
-      data: { isPublic },
-    });
-
-    if (updated.count === 0) {
-      return NextResponse.json({ error: "Esperienza non trovata" }, { status: 404 });
-    }
-
-    return NextResponse.json({ message: "Stato visibilità aggiornato" });
+    await prisma.experience.delete({ where: { id: params.id } });
+    return NextResponse.json({ ok: true }, { status: 200 });
   } catch (err) {
-    console.error("PATCH /api/experience/[id]:", err);
-    return NextResponse.json({ error: "Errore interno" }, { status: 500 });
-  }
-}
-
-export async function GET(req: NextRequest): Promise<NextResponse> {
-  try {
-    const url = new URL(req.url);
-    const parts = url.pathname.split("/");
-    const userId = parts[parts.length - 2]; // estrae l'ID da /publicData/[id]/experience
-
-    if (!userId) {
-      return NextResponse.json({ error: "ID mancante" }, { status: 400 });
-    }
-
-    const experiences = await prisma.experience.findMany({
-      where: {
-        userId,
-        isPublic: true,
-      },
-      orderBy: {
-        startDate: "desc",
-      },
-    });
-
-    return NextResponse.json(experiences);
-  } catch (error) {
-    console.error("Errore nella GET /publicData/[id]/experience:", error);
-    return NextResponse.json({ error: "Errore interno" }, { status: 500 });
+    return handleError(err);
   }
 }

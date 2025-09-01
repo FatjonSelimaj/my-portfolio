@@ -1,67 +1,64 @@
-// src/app/api/experience/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient } from "@/generated/prisma-client";
-import jwt from "jsonwebtoken";
+import { prisma } from "@/lib/prisma";
+import { requireUserId } from "@/lib/auth";
 
-const prisma = new PrismaClient();
-const JWT_SECRET = process.env.JWT_SECRET!;
+export const runtime = "nodejs"; // ✅ evita Edge con Prisma
 
-export async function GET(req: NextRequest): Promise<NextResponse> {
+function handleError(err: unknown) {
+  console.error("API /api/experience error:", err);
+  const anyErr = err as any;
+  const status = typeof anyErr?.status === "number" ? anyErr.status : 500;
+  const msg =
+    status === 401
+      ? "Non autorizzato"
+      : process.env.NODE_ENV === "development"
+      ? (anyErr?.message ?? "Errore interno")
+      : "Errore interno";
+  return NextResponse.json({ error: msg }, { status });
+}
+
+export async function GET(req: NextRequest) {
   try {
-    const authHeader = req.headers.get("authorization");
-    if (!authHeader) {
-      return NextResponse.json({ error: "Token mancante" }, { status: 401 });
-    }
-
-    const token = authHeader.replace(/^Bearer\s+/, "");
-    const decoded = jwt.verify(token, JWT_SECRET) as { id: string };
-    const userId = decoded.id;
+    const userId = requireUserId(req);
 
     const experiences = await prisma.experience.findMany({
       where: { userId },
       orderBy: { startDate: "desc" },
     });
 
-    return NextResponse.json(experiences);
+    return NextResponse.json(experiences, { status: 200 });
   } catch (err) {
-    console.error("GET /api/experience:", err);
-    return NextResponse.json({ error: "Errore interno" }, { status: 500 });
+    return handleError(err);
   }
 }
 
-export async function POST(req: NextRequest): Promise<NextResponse> {
+export async function POST(req: NextRequest) {
   try {
-    const authHeader = req.headers.get("authorization");
-    if (!authHeader) {
-      return NextResponse.json({ error: "Token mancante" }, { status: 401 });
-    }
-
-    const token = authHeader.replace(/^Bearer\s+/, "");
-    const decoded = jwt.verify(token, JWT_SECRET) as { id: string };
-    const userId = decoded.id;
-
+    const userId = requireUserId(req);
     const body = await req.json();
-    const { company, role, description, startDate, endDate, isPublic = true } = body;
+    const { company, role, description = "", startDate, endDate, isPublic = true } = body ?? {};
 
     if (!company || !role || !startDate) {
-      return NextResponse.json({ error: "Campi obbligatori mancanti" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Campi obbligatori mancanti (company, role, startDate)" },
+        { status: 400 }
+      );
     }
 
-    const newExperience = await prisma.experience.create({
+    const created = await prisma.experience.create({
       data: {
         userId,
-        company,
-        role,
-        description,
+        company: String(company).trim(),
+        role: String(role).trim(),
+        description: String(description ?? ""),
         startDate: new Date(startDate),
-        endDate: endDate?.trim() ? new Date(endDate) : null,
-        isPublic, // ✅ salva anche lo stato
-      }
+        endDate: endDate?.toString().trim() ? new Date(endDate) : null,
+        isPublic: Boolean(isPublic),
+      },
     });
 
-    return NextResponse.json(newExperience, { status: 201 });
+    return NextResponse.json(created, { status: 201 });
   } catch (err) {
-    console.error("POST /api/experience:", err);
-    return NextResponse.json({ error: "Errore interno" }, { status: 500 });
+    return handleError(err);
   }
 }

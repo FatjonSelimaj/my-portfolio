@@ -1,3 +1,4 @@
+// app/api/userDetails/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 import prisma from "@/lib/prisma";
@@ -28,7 +29,6 @@ interface CertificationInput {
   logoUrl?: string;
   description?: string;
 }
-
 
 function getUserIdFromRequest(req: NextRequest): string | null {
   const authHeader = req.headers.get("authorization");
@@ -91,6 +91,11 @@ async function buildUserResponse(userId: string) {
     bio: details.bio || "",
     phone: details.phone || "",
     imageUrl: details.imageUrl || "",
+    facebookUrl: details.facebookUrl || "",
+    instagramUrl: details.instagramUrl || "",
+    twitterUrl: details.twitterUrl || "",
+    linkedinUrl: details.linkedinUrl || "",
+    githubUrl: details.githubUrl || "",
     paintings,
     projects: unifiedProjects,
     certifications: details.certifications,
@@ -128,10 +133,15 @@ export async function PUT(req: NextRequest) {
     paintings: PaintingInput[];
     projects?: ProjectInput[];
     certifications?: CertificationInput[];
+    facebookUrl?: string;
+    instagramUrl?: string;
+    twitterUrl?: string;
+    linkedinUrl?: string;
+    githubUrl?: string;
   };
 
   try {
-    // upsert userDetails
+    // Upsert userDetails
     const details = await prisma.userDetails.upsert({
       where: { userId },
       create: {
@@ -141,6 +151,11 @@ export async function PUT(req: NextRequest) {
         bio: body.bio,
         phone: body.phone,
         imageUrl: body.imageUrl,
+        facebookUrl: body.facebookUrl || null,
+        instagramUrl: body.instagramUrl || null,
+        twitterUrl: body.twitterUrl || null,
+        linkedinUrl: body.linkedinUrl || null,
+        githubUrl: body.githubUrl || null,
       },
       update: {
         firstName: body.firstName,
@@ -148,6 +163,11 @@ export async function PUT(req: NextRequest) {
         bio: body.bio,
         phone: body.phone,
         imageUrl: body.imageUrl,
+        facebookUrl: body.facebookUrl || null,
+        instagramUrl: body.instagramUrl || null,
+        twitterUrl: body.twitterUrl || null,
+        linkedinUrl: body.linkedinUrl || null,
+        githubUrl: body.githubUrl || null,
       },
     });
 
@@ -181,12 +201,12 @@ export async function PUT(req: NextRequest) {
       );
     }
 
-    // Certifications: filtro prima le date valide
+    // Certifications
     await prisma.certification.deleteMany({ where: { userDetailsId: details.id } });
     if (Array.isArray(body.certifications)) {
       const validCerts = body.certifications.filter(c =>
-        Boolean(c.title.trim()) &&
-        Boolean(c.dateAwarded.trim()) &&
+        Boolean(c.title?.trim()) &&
+        Boolean(c.dateAwarded?.trim()) &&
         !isNaN(Date.parse(c.dateAwarded))
       );
       await Promise.all(
@@ -197,7 +217,7 @@ export async function PUT(req: NextRequest) {
               institution: c.institution,
               dateAwarded: new Date(c.dateAwarded),
               userDetailsId: details.id,
-              description: c.description ?? '',
+              description: c.description ?? "",
             },
           })
         )
@@ -216,5 +236,5 @@ export async function PUT(req: NextRequest) {
   }
 }
 
-export const runtime = 'nodejs';        // forza Node.js runtime
-export const dynamic = 'force-dynamic'; // evita l'ISR su questa API
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';

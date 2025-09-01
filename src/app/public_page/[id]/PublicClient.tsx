@@ -183,9 +183,23 @@ interface Project { id: string; title?: string; content?: string; url: string; l
 interface Certification { id: string; title: string; institution: string; dateAwarded: string; extractedText?: string; logoUrl?: string; description?: string; }
 interface Diploma { id: string; degree: string; fieldOfStudy: string; institution: string; dateAwarded: string; diplomaUrl: string; fileType: "image" | "pdf"; }
 interface ApiData {
-  firstName: string; lastName: string; about: string; imageUrl?: string;
-  paintings?: Painting[]; projects?: Project[]; certifications?: Certification[];
-  diplomas?: Diploma[]; contact: { phone?: string; email?: string; };
+  firstName: string;
+  lastName: string;
+  about: string;
+  imageUrl?: string;
+  paintings?: Painting[];
+  projects?: Project[];
+  certifications?: Certification[];
+  diplomas?: Diploma[];
+  contact: {
+    phone?: string;
+    email?: string;
+    facebookUrl?: string;
+    instagramUrl?: string;
+    twitterUrl?: string;
+    linkedinUrl?: string;
+    githubUrl?: string;
+  };
   experiences?: Experience[];
 }
 interface Experience { id: string; company: string; role: string; description: string; startDate: string; endDate?: string | null; }
@@ -240,7 +254,7 @@ export default function PublicClient() {
   // About: 1° paragrafo in HERO, resto in “Bio”
   const aboutParas = useMemo(() => (data?.about || "").split(/\n\s*\n/).map(s => s.trim()).filter(Boolean), [data?.about]);
   const aboutFirst = aboutParas[0] || "";
-  
+
   // menu (senza contatti)
   const navItems = useMemo(
     () =>
@@ -662,12 +676,53 @@ export default function PublicClient() {
       </main>
 
       {/* ---------- FOOTER ---------- */}
-      <footer className="bg-gray-100 py-10">
-        <div className="container mx-auto px-4 text-sm text-gray-500 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <span>© {new Date().getFullYear()} Portfolio Creator</span>
-          <div className="flex items-center gap-4">
-            {data.contact?.phone && <a className="hover:text-gray-700" href={`tel:${data.contact.phone}`}>{data.contact.phone}</a>}
-            {data.contact?.email && <a className="hover:text-gray-700" href={`mailto:${data.contact.email}`}>{data.contact.email}</a>}
+      <footer className="bg-gray-100 py-10 relative">
+        <div className="container mx-auto px-4 text-sm text-gray-500 flex flex-col sm:flex-row items-center justify-between gap-3 flex-wrap relative">
+
+          {/* © Copyright a sinistra */}
+          <span className="order-1 sm:order-none">© {new Date().getFullYear()} Portfolio Creator</span>
+
+          {/* Social al centro */}
+          <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-4 flex-wrap">
+            {data.contact?.facebookUrl && (
+              <a href={data.contact.facebookUrl} target="_blank" rel="noopener noreferrer" title="Facebook">
+                <Image src="https://img.icons8.com/color/48/facebook-new.png" alt="Facebook" width={28} height={28} />
+              </a>
+            )}
+            {data.contact?.instagramUrl && (
+              <a href={data.contact.instagramUrl} target="_blank" rel="noopener noreferrer" title="Instagram">
+                <Image src="https://img.icons8.com/color/48/instagram-new.png" alt="Instagram" width={28} height={28} />
+              </a>
+            )}
+            {data.contact?.twitterUrl && (
+              <a href={data.contact.twitterUrl} target="_blank" rel="noopener noreferrer" title="X / Twitter">
+                <Image src="https://img.icons8.com/color/48/twitterx--v1.png" alt="X / Twitter" width={28} height={28} />
+              </a>
+            )}
+            {data.contact?.linkedinUrl && (
+              <a href={data.contact.linkedinUrl} target="_blank" rel="noopener noreferrer" title="LinkedIn">
+                <Image src="https://img.icons8.com/color/48/linkedin-circled--v1.png" alt="LinkedIn" width={28} height={28} />
+              </a>
+            )}
+            {data.contact?.githubUrl && (
+              <a href={data.contact.githubUrl} target="_blank" rel="noopener noreferrer" title="GitHub">
+                <Image src="https://img.icons8.com/ios-glyphs/30/github.png" alt="GitHub" width={28} height={28} />
+              </a>
+            )}
+          </div>
+
+          {/* Contatti a destra */}
+          <div className="order-2 sm:order-none flex items-center gap-4 flex-wrap ml-auto">
+            {data.contact?.phone && (
+              <a className="hover:text-gray-700" href={`tel:${data.contact.phone}`}>
+                {data.contact.phone}
+              </a>
+            )}
+            {data.contact?.email && (
+              <a className="hover:text-gray-700" href={`mailto:${data.contact.email}`}>
+                {data.contact.email}
+              </a>
+            )}
           </div>
         </div>
       </footer>

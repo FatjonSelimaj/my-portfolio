@@ -40,6 +40,11 @@ export async function GET(_req: Request, context: any) {
         bio: true,
         phone: true,
         imageUrl: true,
+        facebookUrl: true,
+        instagramUrl: true,
+        twitterUrl: true,
+        linkedinUrl: true,
+        githubUrl: true,
       },
     });
 
@@ -48,43 +53,43 @@ export async function GET(_req: Request, context: any) {
     const [paintings, projects, certifications, diplomas] = await Promise.all([
       userDetailsId
         ? client.painting.findMany({
-            where: { userDetailsId },
-            select: { title: true, content: true },
-          })
+          where: { userDetailsId },
+          select: { title: true, content: true },
+        })
         : Promise.resolve([]),
       userDetailsId
         ? client.project.findMany({
-            where: { userDetailsId },
-            select: { id: true, title: true, content: true, url: true, logoUrl: true },
-          })
+          where: { userDetailsId },
+          select: { id: true, title: true, content: true, url: true, logoUrl: true },
+        })
         : Promise.resolve([]),
       userDetailsId
         ? client.certification.findMany({
-            where: { userDetailsId },
-            select: {
-              id: true,
-              title: true,
-              institution: true,
-              dateAwarded: true,
-              extractedText: true,
-              logoUrl: true,
-              description: true,
-            },
-          })
+          where: { userDetailsId },
+          select: {
+            id: true,
+            title: true,
+            institution: true,
+            dateAwarded: true,
+            extractedText: true,
+            logoUrl: true,
+            description: true,
+          },
+        })
         : Promise.resolve([]),
       userDetailsId
         ? client.diploma.findMany({
-            where: { userDetailsId },
-            select: {
-              id: true,
-              degree: true,
-              fieldOfStudy: true,
-              institution: true,
-              dateAwarded: true,
-              diplomaUrl: true,
-              fileType: true, // "IMAGE" | "PDF"
-            },
-          })
+          where: { userDetailsId },
+          select: {
+            id: true,
+            degree: true,
+            fieldOfStudy: true,
+            institution: true,
+            dateAwarded: true,
+            diplomaUrl: true,
+            fileType: true, // "IMAGE" | "PDF"
+          },
+        })
         : Promise.resolve([]),
     ]);
 
@@ -115,7 +120,16 @@ export async function GET(_req: Request, context: any) {
       projects,
       certifications,
       diplomas: diplomasForUi,
-      contact: { phone: details?.phone ?? "", email: user.email },
+      contact: {
+        phone: details?.phone ?? "",
+        email: user.email,
+        facebookUrl: details?.facebookUrl ?? "",
+        instagramUrl: details?.instagramUrl ?? "",
+        twitterUrl: details?.twitterUrl ?? "",
+        linkedinUrl: details?.linkedinUrl ?? "",
+        githubUrl: details?.githubUrl ?? "",
+      },
+
       experiences,
     });
   } catch (err) {
