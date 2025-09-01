@@ -240,8 +240,7 @@ export default function PublicClient() {
   // About: 1° paragrafo in HERO, resto in “Bio”
   const aboutParas = useMemo(() => (data?.about || "").split(/\n\s*\n/).map(s => s.trim()).filter(Boolean), [data?.about]);
   const aboutFirst = aboutParas[0] || "";
-  const aboutRest = aboutParas.slice(1);
-
+  
   // menu (senza contatti)
   const navItems = useMemo(
     () =>
