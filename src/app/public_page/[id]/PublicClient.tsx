@@ -247,13 +247,14 @@ export default function PublicClient() {
     () =>
       [
         { id: "about", label: "Chi sono", ref: aboutRef, show: true },
-        { id: "bio", label: "Bio", ref: bioRef, show: aboutRest.length > 0 },
+        { id: "bio", label: "Bio", ref: bioRef, show: true }, // 👈 sempre visibile
         { id: "paintings", label: "Opere", ref: paintingsRef, show: paintings.length > 0 },
         { id: "projects", label: "Progetti", ref: projectsRef, show: projects.length > 0 },
         { id: "experiences", label: "Esperienze", ref: experiencesRef, show: hasExp },
       ].filter(i => i.show),
-    [aboutRest.length, paintings.length, projects.length, hasExp]
+    [paintings.length, projects.length, hasExp]
   );
+
 
   const scrollToRef = (el: HTMLElement | null) => {
     if (!el) return;
@@ -384,24 +385,35 @@ export default function PublicClient() {
         </div>
       </section>
 
-      {/* ---------- BIO (resto del “Chi sono”) ---------- */}
-      {/* ---------- MINI-CARD "CHI SONO" ---------- */}
+      {/* ---------- BIO (le mini-card) ---------- */}
       {aboutCards.length > 0 && (
-        <section id="section-about-cards" className="bg-white scroll-mt-24">
+        <section
+          id="section-bio"
+          data-section-id="bio"
+          ref={bioRef}
+          className="bg-white scroll-mt-24"
+        >
           <div className="container mx-auto px-4 py-12">
-            <div className="grid gap-6 md:grid-cols-2">
-              {aboutCards.map((card) => (
-                <article
-                  key={card.key}
-                  className="bg-white p-6 rounded-xl shadow hover:shadow-lg transition border border-indigo-100"
-                >
-                  <h3 className="text-lg font-semibold text-indigo-700 mb-2">{card.title}</h3>
-                  <p className="text-gray-700 whitespace-pre-line text-sm leading-relaxed">
-                    {card.content}
-                  </p>
-                </article>
-              ))}
-            </div>
+            <article className="max-w-[980px] mx-auto">
+              <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-gray-900 mb-6">
+                Bio
+              </h2>
+              <div className="grid gap-6 md:grid-cols-2">
+                {aboutCards.map((card) => (
+                  <div
+                    key={card.key}
+                    className="bg-white p-6 rounded-xl shadow hover:shadow-lg transition border border-indigo-100"
+                  >
+                    <h3 className="text-lg font-semibold text-indigo-700 mb-2">
+                      {card.title}
+                    </h3>
+                    <p className="text-gray-700 whitespace-pre-line text-sm leading-relaxed">
+                      {card.content}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </article>
           </div>
         </section>
       )}
