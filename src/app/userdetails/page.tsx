@@ -254,7 +254,13 @@ export default function UserDetails() {
         <input type="url" placeholder="LinkedIn (opzionale)" value={user.linkedinUrl || ''} onChange={e => setUser({ ...user, linkedinUrl: e.target.value })} className="p-2 border rounded" />
         <input type="url" placeholder="GitHub (opzionale)" value={user.githubUrl || ''} onChange={e => setUser({ ...user, githubUrl: e.target.value })} className="p-2 border rounded" />
         {user.imageUrl && <div className="md:col-span-2 text-center"><Image src={user.imageUrl} alt="Foto profilo" width={120} height={120} className="rounded-full mx-auto" unoptimized /></div>}
-        <input type="file" accept="image/*" onChange={() => { }} className="md:col-span-2 p-2 border rounded" />
+        <input
+          type="file"
+          accept="image/*"
+          onChange={handleImageUpload}   // ✅ prima era una callback vuota
+          className="md:col-span-2 p-2 border rounded"
+        />
+
       </div>
     </section>
   );
