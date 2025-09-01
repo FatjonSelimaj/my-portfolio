@@ -5,7 +5,6 @@ import { useParams } from "next/navigation";
 import { FaPhone, FaEnvelope, FaBars, FaTimes } from "react-icons/fa";
 import Link from "next/link";
 import Image from "next/image";
-import MultiCarousel from "../../components/MultiCarousel";
 import Carousel from "@/app/components/Carousel";
 
 /*----type----*/
