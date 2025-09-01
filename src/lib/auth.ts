@@ -22,7 +22,7 @@ export function requireUserId(req: NextRequest): string {
             throw e;
         }
         return decoded.id;
-    } catch (_err) {                // ✅ prima era 'err' inutilizzato
+    } catch {   // ✅ niente variabile non usata
         const e: any = new Error("Token non valido");
         e.status = 401;
         throw e;
