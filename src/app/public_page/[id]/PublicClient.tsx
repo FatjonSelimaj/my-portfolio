@@ -5,6 +5,13 @@ import { useParams } from "next/navigation";
 import { FaPhone, FaEnvelope, FaBars, FaTimes } from "react-icons/fa";
 import Link from "next/link";
 import Image from "next/image";
+import MultiCarousel from "../../components/MultiCarousel";
+import Carousel from "@/app/components/Carousel";
+
+/*----type----*/
+type CertOrDip =
+  | { kind: "cert"; c: Certification }
+  | { kind: "dip"; d: Diploma };
 
 /* ---------- utils ---------- */
 function formatDate(dateString: string) {
@@ -41,6 +48,74 @@ function getPaintingIcon(title: string) {
 
 function getHost(u: string): string | null {
   try { return new URL(u).hostname; } catch { return null; }
+}
+
+/* ---------- parser 'Chi sono' -> mini-card ---------- */
+type AboutCard = { key: "profilo" | "approccio" | "esperienze" | "competenze"; title: string; content: string };
+
+function extractAboutCards(raw: string): AboutCard[] {
+  const text = (raw || "").replace(/\r/g, "").trim();
+  if (!text) return [];
+
+  // normalizza righe e spazi
+  const norm = text
+    // mettI un \n prima dei titoli noti, con o senza numero puntato
+    .replace(/\n?\s*\d*\.\s*Profilo professionale/i, "\n### Profilo professionale")
+    .replace(/\n?\s*Profilo professionale/i, "\n### Profilo professionale")
+    .replace(/\n?\s*\d*\.\s*Esperienze professionali/i, "\n### Esperienze professionali")
+    .replace(/\n?\s*Esperienze professionali/i, "\n### Esperienze professionali")
+    .replace(/\n?\s*\d*\.\s*Competenze tecniche/i, "\n### Competenze tecniche")
+    .replace(/\n?\s*Competenze tecniche/i, "\n### Competenze tecniche")
+    .replace(/\n?\s*Approccio/i, "\n### Approccio");
+
+  // split per sezioni "### Titolo"
+  const parts = norm.split(/\n###\s+/).map(s => s.trim()).filter(Boolean);
+
+  const map: Record<string, AboutCard> = {
+    "profilo professionale": { key: "profilo", title: "🎯 Profilo professionale", content: "" },
+    "approccio": { key: "approccio", title: "🤝 Approccio", content: "" },
+    "esperienze professionali": { key: "esperienze", title: "💼 Esperienze professionali", content: "" },
+    "competenze tecniche": { key: "competenze", title: "🛠️ Competenze tecniche", content: "" },
+  };
+
+  for (const block of parts) {
+    const [titleLine, ...rest] = block.split("\n");
+    const titleKey = (titleLine || "").trim().toLowerCase();
+    const content = rest.join("\n").trim() || "";
+    const k =
+      titleKey.includes("profilo professionale") ? "profilo" :
+        titleKey.includes("approccio") ? "approccio" :
+          titleKey.includes("esperienze professionali") ? "esperienze" :
+            titleKey.includes("competenze tecniche") ? "competenze" :
+              null;
+
+    if (!k) continue;
+
+    // piccole pulizie: compatta elenchi, preserva a capo
+    const cleaned = content
+      .replace(/\n{3,}/g, "\n\n")
+      .replace(/[ \t]+\n/g, "\n")
+      .trim();
+
+    map[
+      k === "profilo" ? "profilo professionale" :
+        k === "approccio" ? "approccio" :
+          k === "esperienze" ? "esperienze professionali" :
+            "competenze tecniche"
+    ].content = cleaned;
+  }
+
+  // ritorna solo le sezioni presenti e non vuote, nell’ordine desiderato
+  const orderedKeys: Array<keyof typeof map> = [
+    "profilo professionale",
+    "approccio",
+    "esperienze professionali",
+    "competenze tecniche",
+  ];
+
+  return orderedKeys
+    .map(k => map[k])
+    .filter(card => card && card.content);
 }
 
 /* ---------- small components ---------- */
@@ -145,7 +220,7 @@ export default function PublicClient() {
   // visits
   useEffect(() => {
     if (!id) return;
-    fetch(`/api/publicData/${id}/visits`, { method: "POST" }).catch(() => {});
+    fetch(`/api/publicData/${id}/visits`, { method: "POST" }).catch(() => { });
   }, [id]);
 
   // data
@@ -158,24 +233,24 @@ export default function PublicClient() {
   }, [id]);
 
   const paintings = useMemo(() => (data?.paintings ?? []).filter(p => (p.title || p.content)), [data?.paintings]);
-  const projects  = useMemo(() => (data?.projects ?? []).filter(p => p.url), [data?.projects]);
-  const certs     = useMemo(() => data?.certifications ?? [], [data?.certifications]);
-  const diplomas  = useMemo(() => data?.diplomas ?? [], [data?.diplomas]);
-  const hasExp    = (data?.experiences?.length ?? 0) > 0;
+  const projects = useMemo(() => (data?.projects ?? []).filter(p => p.url), [data?.projects]);
+  const certs = useMemo(() => data?.certifications ?? [], [data?.certifications]);
+  const diplomas = useMemo(() => data?.diplomas ?? [], [data?.diplomas]);
+  const hasExp = (data?.experiences?.length ?? 0) > 0;
 
   // About: 1° paragrafo in HERO, resto in “Bio”
   const aboutParas = useMemo(() => (data?.about || "").split(/\n\s*\n/).map(s => s.trim()).filter(Boolean), [data?.about]);
   const aboutFirst = aboutParas[0] || "";
-  const aboutRest  = aboutParas.slice(1);
+  const aboutRest = aboutParas.slice(1);
 
   // menu (senza contatti)
   const navItems = useMemo(
     () =>
       [
-        { id: "about", label: "Chi sono",  ref: aboutRef,       show: true },
-        { id: "bio",   label: "Bio",       ref: bioRef,         show: aboutRest.length > 0 },
-        { id: "paintings", label: "Opere", ref: paintingsRef,   show: paintings.length > 0 },
-        { id: "projects",  label: "Progetti", ref: projectsRef, show: projects.length > 0 },
+        { id: "about", label: "Chi sono", ref: aboutRef, show: true },
+        { id: "bio", label: "Bio", ref: bioRef, show: aboutRest.length > 0 },
+        { id: "paintings", label: "Opere", ref: paintingsRef, show: paintings.length > 0 },
+        { id: "projects", label: "Progetti", ref: projectsRef, show: projects.length > 0 },
         { id: "experiences", label: "Esperienze", ref: experiencesRef, show: hasExp },
       ].filter(i => i.show),
     [aboutRest.length, paintings.length, projects.length, hasExp]
@@ -209,8 +284,10 @@ export default function PublicClient() {
     return () => obs.disconnect();
   }, [navItems.length, active]);
 
+  const aboutCards = useMemo(() => extractAboutCards(data?.about || ""), [data?.about]);
+
   if (error) return <div className="min-h-screen flex items-center justify-center text-red-600 p-6">{error}</div>;
-  if (!data)  return <div className="min-h-screen flex items-center justify-center text-gray-500">Caricamento…</div>;
+  if (!data) return <div className="min-h-screen flex items-center justify-center text-gray-500">Caricamento…</div>;
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
@@ -309,11 +386,22 @@ export default function PublicClient() {
       </section>
 
       {/* ---------- BIO (resto del “Chi sono”) ---------- */}
-      {aboutRest.length > 0 && (
-        <section id="section-bio" data-section-id="bio" ref={bioRef} className="bg-white scroll-mt-24">
+      {/* ---------- MINI-CARD "CHI SONO" ---------- */}
+      {aboutCards.length > 0 && (
+        <section id="section-about-cards" className="bg-white scroll-mt-24">
           <div className="container mx-auto px-4 py-12">
-            <div className="max-w-[760px] mx-auto text-gray-700 leading-relaxed space-y-4">
-              {aboutRest.map((para, i) => (<p key={i}>{para}</p>))}
+            <div className="grid gap-6 md:grid-cols-2">
+              {aboutCards.map((card) => (
+                <article
+                  key={card.key}
+                  className="bg-white p-6 rounded-xl shadow hover:shadow-lg transition border border-indigo-100"
+                >
+                  <h3 className="text-lg font-semibold text-indigo-700 mb-2">{card.title}</h3>
+                  <p className="text-gray-700 whitespace-pre-line text-sm leading-relaxed">
+                    {card.content}
+                  </p>
+                </article>
+              ))}
             </div>
           </div>
         </section>
@@ -324,80 +412,89 @@ export default function PublicClient() {
         {/* Diplomi & Certificazioni (card quadrate con scroll) */}
         <section className="bg-white">
           <div className="container mx-auto px-4 py-16">
-            <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-gray-900 mb-8">Diplomi & Certificazioni</h2>
+            <Carousel<CertOrDip>
+              title="Diplomi & Certificazioni"
+              items={[
+                ...certs.map((c) => ({ kind: "cert" as const, c })),
+                ...diplomas.map((d) => ({ kind: "dip" as const, d })),
+              ]}
+              renderItemAction={(item) => {
+                if (item.kind === "cert") {
+                  const cert = item.c;
+                  return (
+                    <article className={`${CARD_SQUARE} ${CARD_WRAPPER}`}>
+                      <div className={CARD_TOP}>
+                        <div className="flex items-center gap-3">
+                          <FallbackLogo text={cert.institution} type="institution" />
+                          <div className="text-gray-700">
+                            <div className="text-sm">{cert.institution}</div>
+                            <div className="text-[11px] opacity-70">{formatDate(cert.dateAwarded)}</div>
+                          </div>
+                        </div>
+                      </div>
+                      <div className={CARD_BOTTOM}>
+                        <h3 className={TITLE}>{cert.title}</h3>
+                        <p className={META}>{new Date(cert.dateAwarded).getFullYear()}</p>
+                        <div className={SCROLLER}>
+                          {cert.description && <p>{cert.description}</p>}
+                          {cert.extractedText && (
+                            <blockquote className="pl-3 border-l-2 border-indigo-200 italic">
+                              {cert.extractedText}
+                            </blockquote>
+                          )}
+                          {!cert.description && !cert.extractedText && (
+                            <p className="italic text-gray-500">Nessuna descrizione disponibile.</p>
+                          )}
+                        </div>
+                      </div>
+                    </article>
+                  );
+                }
 
-            <div className="flex flex-col gap-10">
-              {certs.map((cert) => (
-                <article key={cert.id} className={`${CARD_WRAPPER} ${CARD_SQUARE}`}>
-                  <div className={CARD_TOP}>
-                    <div className="flex items-center gap-3">
-                      <FallbackLogo text={cert.institution} type="institution" />
-                      <div className="text-gray-700">
-                        <div className="text-sm">{cert.institution}</div>
-                        <div className="text-[11px] opacity-70">{formatDate(cert.dateAwarded)}</div>
+                const d = item.d;
+                return (
+                  <article className={`${CARD_SQUARE} ${CARD_WRAPPER}`}>
+                    <div className={CARD_TOP}>
+                      <div className="flex items-center gap-3">
+                        <FallbackLogo text={d.institution} type="institution" />
+                        <div className="text-gray-700">
+                          <div className="text-sm">{d.institution}</div>
+                          <div className="text-[11px] opacity-70">{formatDate(d.dateAwarded)}</div>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <div className={CARD_BOTTOM}>
-                    <h3 className={TITLE}>{cert.title}</h3>
-                    <p className={META}>{new Date(cert.dateAwarded).getFullYear()}</p>
-
-                    <div className={SCROLLER}>
-                      {cert.description && <p>{cert.description}</p>}
-                      {cert.extractedText && (
-                        <blockquote className="pl-3 border-l-2 border-indigo-200 italic">
-                          {cert.extractedText}
-                        </blockquote>
-                      )}
-                      {!cert.description && !cert.extractedText && (
-                        <p className="italic text-gray-500">Nessuna descrizione disponibile.</p>
-                      )}
-                    </div>
-                  </div>
-                </article>
-              ))}
-
-              {diplomas.map((d) => (
-                <article key={d.id} className={`${CARD_WRAPPER} ${CARD_SQUARE}`}>
-                  <div className={CARD_TOP}>
-                    <div className="flex items-center gap-3">
-                      <FallbackLogo text={d.institution} type="institution" />
-                      <div className="text-gray-700">
-                        <div className="text-sm">{d.institution}</div>
-                        <div className="text-[11px] opacity-70">{formatDate(d.dateAwarded)}</div>
+                    <div className={CARD_BOTTOM}>
+                      <h3 className={TITLE}>
+                        {d.degree} in {d.fieldOfStudy}
+                      </h3>
+                      <p className={META}>{new Date(d.dateAwarded).getFullYear()}</p>
+                      <div className={SCROLLER}>
+                        {d.fileType === "pdf" ? (
+                          <a
+                            href={d.diplomaUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex w-fit items-center gap-2 rounded-full border px-3 py-1.5 text-sm text-indigo-700 hover:bg-indigo-50"
+                          >
+                            Visualizza Diploma (PDF)
+                          </a>
+                        ) : (
+                          <Image
+                            src={d.diplomaUrl}
+                            alt="Diploma"
+                            width={800}
+                            height={800}
+                            className="w-full rounded-xl border object-cover"
+                            style={{ maxHeight: 220 }}
+                            unoptimized
+                          />
+                        )}
                       </div>
                     </div>
-                  </div>
-                  <div className={CARD_BOTTOM}>
-                    <h3 className={TITLE}>{d.degree} in {d.fieldOfStudy}</h3>
-                    <p className={META}>{new Date(d.dateAwarded).getFullYear()}</p>
-
-                    <div className={SCROLLER}>
-                      {d.fileType === "pdf" ? (
-                        <a
-                          href={d.diplomaUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex w-fit items-center gap-2 rounded-full border px-3 py-1.5 text-sm text-indigo-700 hover:bg-indigo-50"
-                        >
-                          Visualizza Diploma (PDF)
-                        </a>
-                      ) : (
-                        <Image
-                          src={d.diplomaUrl}
-                          alt="Diploma"
-                          width={800}
-                          height={800}
-                          className="w-full rounded-xl border object-cover"
-                          style={{ maxHeight: 220 }}
-                          unoptimized
-                        />
-                      )}
-                    </div>
-                  </div>
-                </article>
-              ))}
-            </div>
+                  </article>
+                );
+              }}
+            />
           </div>
         </section>
 
@@ -405,11 +502,11 @@ export default function PublicClient() {
         {paintings.length > 0 && (
           <section id="section-paintings" data-section-id="paintings" ref={paintingsRef} className="bg-gray-50 scroll-mt-24">
             <div className="container mx-auto px-4 py-16">
-              <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-gray-900 mb-8">Opere</h2>
-
-              <div className="flex flex-col gap-10">
-                {paintings.map((p, i) => (
-                  <article key={i} className={`${CARD_WRAPPER} ${CARD_SQUARE}`}>
+              <Carousel<Painting>
+                title="Opere"
+                items={paintings}
+                renderItemAction={(p) => (
+                  <article className={`${CARD_SQUARE} ${CARD_WRAPPER}`}>
                     <div className={CARD_TOP}>
                       <div className="flex items-center gap-3">
                         <PaintingIcon title={p.title || "Opera"} />
@@ -422,15 +519,18 @@ export default function PublicClient() {
                     <div className={CARD_BOTTOM}>
                       {p.title && <h3 className={TITLE}>{p.title}</h3>}
                       <div className={SCROLLER}>
-                        {(p.content || "").split(/\n\s*\n/).filter(Boolean).map((para, idx) => (
-                          <p key={idx}>{para}</p>
-                        ))}
+                        {(p.content || "")
+                          .split(/\n\s*\n/)
+                          .filter(Boolean)
+                          .map((para, idx) => (
+                            <p key={idx}>{para}</p>
+                          ))}
                         {!p.content && <p className="italic text-gray-500">Nessun testo disponibile.</p>}
                       </div>
                     </div>
                   </article>
-                ))}
-              </div>
+                )}
+              />
             </div>
           </section>
         )}
@@ -440,15 +540,14 @@ export default function PublicClient() {
           <section id="section-projects" data-section-id="projects" ref={projectsRef} className="bg-white scroll-mt-24">
             <div className="container mx-auto px-4 py-16">
               <div className="flex items-end justify-between gap-4 mb-2">
-                <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-gray-900">
-                  Progetti Realizzati
-                </h2>
+                <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-gray-900">Progetti Realizzati</h2>
                 <span className="text-sm text-gray-500">{projects.length} progetti</span>
               </div>
 
-              <div className="flex flex-col gap-10">
-                {projects.map((pr) => (
-                  <Link key={pr.id} href={pr.url} className={`${CARD_WRAPPER} ${CARD_SQUARE} hover:-translate-y-0.5`}>
+              <Carousel<Project>
+                items={projects}
+                renderItemAction={(pr) => (
+                  <Link href={pr.url} className={`${CARD_SQUARE} ${CARD_WRAPPER} hover:-translate-y-0.5`}>
                     <div className={CARD_TOP}>
                       <div className="flex items-center gap-3">
                         <div className="shrink-0 flex items-center justify-center rounded-2xl border bg-gray-50 w-16 h-16">
@@ -467,8 +566,8 @@ export default function PublicClient() {
                       </div>
                     </div>
                   </Link>
-                ))}
-              </div>
+                )}
+              />
             </div>
           </section>
         )}

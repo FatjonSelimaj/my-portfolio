@@ -153,7 +153,7 @@ export default function Dashboard() {
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
-      setModalMessage("Sessione scaduta. Effettua nuovamente il login.");
+      setModalMessage("Sessione scaduta, fai il logout, ed effettua nuovamente il login.");
       router.replace("/page");
       return;
     }
@@ -235,7 +235,7 @@ export default function Dashboard() {
         JSON.stringify({ name: data.name, email: data.email, gender: data.gender, id: prevSafe(prev => prev?.id) })
       );
     } catch {
-      setModalMessage("Sessione scaduta. Effettua nuovamente il login.");
+      setModalMessage("Sessione scaduta. Fai il logout, ed effettua nuovamente il login.");
       localStorage.removeItem("token");
       localStorage.removeItem("userData");
       setTimeout(() => router.replace("/auth/login"), 1200);

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { FaSignOutAlt, FaSave, FaPhone, FaArrowLeft } from 'react-icons/fa';
 import Link from 'next/link';
 import Image from 'next/image';
+import Carousel from '../components/Carousel';
 
 interface Painting {
   title: string;
@@ -22,10 +23,10 @@ interface Certification {
   institution: string;
   dateAwarded: string;       // YYYY-MM-DD
   credentialUrl: string;     // sempre stringa
-  fileType: 'image' | 'pdf';  // sempre definito
-  extractedText: string;      // testo estratto
-  logoUrl?: string;           // logo associato (opzionale)
-  description: string;        // nuova descrizione
+  fileType: 'image' | 'pdf'; // sempre definito
+  extractedText: string;     // testo estratto
+  logoUrl?: string;          // logo associato (opzionale)
+  description: string;       // nuova descrizione
 }
 
 interface UserDetailsState {
@@ -68,7 +69,7 @@ export default function UserDetails() {
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) {
-      setModalMessage('Sessione scaduta, effettua il login.');
+      setModalMessage('Sessione scaduta, fai il logout, ed effettua il login.');
       router.replace('/auth/login');
       return;
     }
@@ -113,8 +114,8 @@ export default function UserDetails() {
       .catch(() => setModalMessage('Errore nel recupero dei dati.'));
   }, [router]);
 
-  // Upload immagine profilo
-  const handleImageUpload = async (e: ChangeEvent<HTMLInputElement>) => {
+  // ===== Handlers (dichiarate prima dell'uso nelle sezioni) =====
+  async function handleImageUpload(e: ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
     const token = localStorage.getItem('token');
@@ -132,23 +133,19 @@ export default function UserDetails() {
       setUser(prev => ({ ...prev, imageUrl }));
       setModalMessage('Immagine profilo aggiornata.');
     } catch {
-      setModalMessage('Errore durante l\'upload dell\'immagine.');
+      setModalMessage("Errore durante l'upload dell'immagine.");
     }
-  };
+  }
 
-
-
-  // Cambia descrizione
-  const handleDescriptionChange = (idx: number, value: string) => {
+  function handleDescriptionChange(idx: number, value: string) {
     setUser(prev => {
       const certs = [...prev.certifications];
       certs[idx].description = value;
       return { ...prev, certifications: certs };
     });
-  };
+  }
 
-  // Salvataggio dati
-  const handleSaveDetails = async () => {
+  async function handleSaveDetails() {
     const token = localStorage.getItem('token');
     if (!token) return;
     try {
@@ -166,7 +163,207 @@ export default function UserDetails() {
       localStorage.removeItem('token');
       router.replace('/auth/login');
     }
-  };
+  }
+  // ===============================================================
+
+  // ===== Sezioni da usare nel carosello =====
+  const SectionPersonal = (
+    <section className="bg-white text-gray-900 p-6 rounded">
+      <h2 className="text-xl mb-4">Dati Personali</h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <input
+          type="text"
+          placeholder="Nome"
+          value={user.firstName}
+          onChange={e => setUser({ ...user, firstName: e.target.value })}
+          className="p-2 border rounded"
+        />
+        <input
+          type="text"
+          placeholder="Cognome"
+          value={user.lastName}
+          onChange={e => setUser({ ...user, lastName: e.target.value })}
+          className="p-2 border rounded"
+        />
+        <textarea
+          placeholder="Bio"
+          value={user.bio}
+          onChange={e => setUser({ ...user, bio: e.target.value })}
+          className="p-2 border rounded md:col-span-2"
+          rows={3}
+        />
+        <div className="relative md:col-span-2">
+          <FaPhone className="absolute left-2 top-2 text-gray-400" />
+          <input
+            type="text"
+            placeholder="Telefono"
+            value={user.phone}
+            onChange={e => setUser({ ...user, phone: e.target.value })}
+            className="p-2 pl-8 border rounded w-full"
+          />
+        </div>
+        {user.imageUrl && (
+          <div className="md:col-span-2 text-center">
+            <Image
+              src={user.imageUrl}
+              alt="Foto profilo"
+              width={120}
+              height={120}
+              className="rounded-full mx-auto"
+              unoptimized
+            />
+          </div>
+        )}
+        <input
+          type="file"
+          accept="image/*"
+          onChange={handleImageUpload}
+          className="md:col-span-2 p-2 border rounded"
+        />
+      </div>
+    </section>
+  );
+
+  const SectionProjects = (
+    <section className="bg-white text-gray-900 p-6 rounded">
+      <h2 className="text-xl mb-4">Progetti</h2>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {user.projects.map((pr, i) => (
+          <div key={i} className="border p-4 rounded">
+            <input
+              type="text"
+              placeholder="Titolo"
+              value={pr.title}
+              onChange={e => {
+                const a = [...user.projects];
+                a[i].title = e.target.value;
+                setUser({ ...user, projects: a });
+              }}
+              className="w-full p-2 border rounded mb-2"
+            />
+            <textarea
+              placeholder="Descrizione"
+              value={pr.content}
+              onChange={e => {
+                const a = [...user.projects];
+                a[i].content = e.target.value;
+                setUser({ ...user, projects: a });
+              }}
+              className="w-full p-2 border rounded mb-2"
+              rows={2}
+            />
+            <input
+              type="url"
+              placeholder="Link"
+              value={pr.url}
+              onChange={e => {
+                const a = [...user.projects];
+                a[i].url = e.target.value;
+                setUser({ ...user, projects: a });
+              }}
+              className="w-full p-2 border rounded"
+            />
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+
+  const SectionAdditional = (
+    <section className="bg-white text-gray-900 p-6 rounded">
+      <h2 className="text-xl mb-4">Informazioni Aggiuntive</h2>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-0">
+        {user.paintings.map((p, i) => (
+          <div key={i} className="border p-4 rounded">
+            <input
+              type="text"
+              placeholder="Titolo"
+              value={p.title}
+              onChange={e => {
+                const a = [...user.paintings];
+                a[i].title = e.target.value;
+                setUser({ ...user, paintings: a });
+              }}
+              className="w-full p-2 border rounded mb-2"
+            />
+            <textarea
+              placeholder="Contenuto"
+              value={p.content}
+              onChange={e => {
+                const a = [...user.paintings];
+                a[i].content = e.target.value;
+                setUser({ ...user, paintings: a });
+              }}
+              className="w-full p-2 border rounded"
+              rows={2}
+            />
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+
+  const SectionCerts = (
+    <section className="bg-white text-gray-900 p-6 rounded">
+      <h2 className="text-xl mb-4">Certificazioni/Diplomi</h2>
+      {user.certifications.map((c, i) => (
+        <div key={i} className="border p-4 rounded mb-4">
+          {c.logoUrl && (
+            <div className="mb-2">
+              <Image
+                src={c.logoUrl}
+                alt={`Logo ${c.title}`}
+                width={80}
+                height={80}
+                className="object-contain"
+                unoptimized
+              />
+            </div>
+          )}
+          <input
+            type="text"
+            placeholder="Titolo"
+            value={c.title}
+            onChange={e => {
+              const a = [...user.certifications];
+              a[i].title = e.target.value;
+              setUser({ ...user, certifications: a });
+            }}
+            className="w-full p-2 border rounded mb-2"
+          />
+          <input
+            type="text"
+            placeholder="Istituto"
+            value={c.institution}
+            onChange={e => {
+              const a = [...user.certifications];
+              a[i].institution = e.target.value;
+              setUser({ ...user, certifications: a });
+            }}
+            className="w-full p-2 border rounded mb-2"
+          />
+          <input
+            type="date"
+            value={c.dateAwarded}
+            onChange={e => {
+              const a = [...user.certifications];
+              a[i].dateAwarded = e.target.value;
+              setUser({ ...user, certifications: a });
+            }}
+            className="w-full p-2 border rounded mb-2"
+          />
+          <textarea
+            placeholder="Descrizione del certificato"
+            value={c.description}
+            onChange={e => handleDescriptionChange(i, e.target.value)}
+            className="w-full p-2 border rounded mt-2"
+            rows={3}
+          />
+        </div>
+      ))}
+    </section>
+  );
+  // ==========================================
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-indigo-500 to-purple-700 text-white">
@@ -196,214 +393,25 @@ export default function UserDetails() {
             <FaSignOutAlt /> Logout
           </button>
         </div>
-
       </header>
 
       {/* Main */}
       <main className="flex-grow overflow-auto p-6">
-        {/* Dati personali */}
-        <section className="bg-white text-gray-900 p-6 rounded mb-6">
-          <h2 className="text-xl mb-4">Dati Personali</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <input
-              type="text"
-              placeholder="Nome"
-              value={user.firstName}
-              onChange={e => setUser({ ...user, firstName: e.target.value })}
-              className="p-2 border rounded"
-            />
-            <input
-              type="text"
-              placeholder="Cognome"
-              value={user.lastName}
-              onChange={e => setUser({ ...user, lastName: e.target.value })}
-              className="p-2 border rounded"
-            />
-            <textarea
-              placeholder="Bio"
-              value={user.bio}
-              onChange={e => setUser({ ...user, bio: e.target.value })}
-              className="p-2 border rounded md:col-span-2"
-              rows={3}
-            />
-            <div className="relative md:col-span-2">
-              <FaPhone className="absolute left-2 top-2 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Telefono"
-                value={user.phone}
-                onChange={e => setUser({ ...user, phone: e.target.value })}
-                className="p-2 pl-8 border rounded w-full"
-              />
-            </div>
-            {user.imageUrl && (
-              <div className="md:col-span-2 text-center">
-                <Image
-                  src={user.imageUrl}
-                  alt="Foto profilo"
-                  width={120}
-                  height={120}
-                  className="rounded-full mx-auto"
-                  unoptimized
-                />
-              </div>
-            )}
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleImageUpload}
-              className="md:col-span-2 p-2 border rounded"
-            />
-          </div>
-        </section>
+        <Carousel<React.ReactNode>
+          title="Profilo"
+          items={[SectionPersonal, SectionProjects, SectionAdditional, SectionCerts]}
+          renderItemAction={(node) => node}
+        />
 
-        {/* Quadri e Progetti */}
-        <section className="bg-white text-gray-900 p-6 rounded mb-6">
-          <h2 className="text-xl mb-4">Informazioni Aggiuntive</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-            {user.paintings.map((p, i) => (
-              <div key={i} className="border p-4 rounded">
-                <input
-                  type="text"
-                  placeholder="Titolo"
-                  value={p.title}
-                  onChange={e => {
-                    const a = [...user.paintings];
-                    a[i].title = e.target.value;
-                    setUser({ ...user, paintings: a });
-                  }}
-                  className="w-full p-2 border rounded mb-2"
-                />
-                <textarea
-                  placeholder="Contenuto"
-                  value={p.content}
-                  onChange={e => {
-                    const a = [...user.paintings];
-                    a[i].content = e.target.value;
-                    setUser({ ...user, paintings: a });
-                  }}
-                  className="w-full p-2 border rounded"
-                  rows={2}
-                />
-              </div>
-            ))}
-          </div>
-
-          <h2 className="text-xl mb-4">Progetti</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {user.projects.map((pr, i) => (
-              <div key={i} className="border p-4 rounded">
-                <input
-                  type="text"
-                  placeholder="Titolo"
-                  value={pr.title}
-                  onChange={e => {
-                    const a = [...user.projects];
-                    a[i].title = e.target.value;
-                    setUser({ ...user, projects: a });
-                  }}
-                  className="w-full p-2 border rounded mb-2"
-                />
-                <textarea
-                  placeholder="Descrizione"
-                  value={pr.content}
-                  onChange={e => {
-                    const a = [...user.projects];
-                    a[i].content = e.target.value;
-                    setUser({ ...user, projects: a });
-                  }}
-                  className="w-full p-2 border rounded mb-2"
-                  rows={2}
-                />
-                <input
-                  type="url"
-                  placeholder="Link"
-                  value={pr.url}
-                  onChange={e => {
-                    const a = [...user.projects];
-                    a[i].url = e.target.value;
-                    setUser({ ...user, projects: a });
-                  }}
-                  className="w-full p-2 border rounded"
-                />
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* Certificazioni */}
-        <section className="bg-white text-gray-900 p-6 rounded mb-6">
-          <h2 className="text-xl mb-4">Certificazioni/Diplomi</h2>
-          {user.certifications.map((c, i) => (
-            <div key={i} className="border p-4 rounded mb-4">
-              {/* Logo */}
-              {c.logoUrl && (
-                <div className="mb-2">
-                  <Image
-                    src={c.logoUrl}
-                    alt={`Logo ${c.title}`}
-                    width={80}
-                    height={80}
-                    className="object-contain"
-                    unoptimized
-                  />
-                </div>
-              )}
-
-              {/* Titolo */}
-              <input
-                type="text"
-                placeholder="Titolo"
-                value={c.title}
-                onChange={e => {
-                  const a = [...user.certifications];
-                  a[i].title = e.target.value;
-                  setUser({ ...user, certifications: a });
-                }}
-                className="w-full p-2 border rounded mb-2"
-              />
-              {/* Istituto */}
-              <input
-                type="text"
-                placeholder="Istituto"
-                value={c.institution}
-                onChange={e => {
-                  const a = [...user.certifications];
-                  a[i].institution = e.target.value;
-                  setUser({ ...user, certifications: a });
-                }}
-                className="w-full p-2 border rounded mb-2"
-              />
-              {/* Data */}
-              <input
-                type="date"
-                value={c.dateAwarded}
-                onChange={e => {
-                  const a = [...user.certifications];
-                  a[i].dateAwarded = e.target.value;
-                  setUser({ ...user, certifications: a });
-                }}
-                className="w-full p-2 border rounded mb-2"
-              />
-
-              {/* Descrizione */}
-              <textarea
-                placeholder="Descrizione del certificato"
-                value={c.description}
-                onChange={e => handleDescriptionChange(i, e.target.value)}
-                className="w-full p-2 border rounded mt-2"
-                rows={3}
-              />
-            </div>
-          ))}
-
+        {/* Pulsante Salva fisso, valido da qualsiasi slide */}
+        <div className="mt-6 flex justify-end">
           <button
             onClick={handleSaveDetails}
-            className="cursor-pointer mt-4 bg-blue-600 text-white px-4 py-2 rounded flex items-center gap-2"
+            className="cursor-pointer bg-blue-600 text-white px-4 py-2 rounded flex items-center gap-2"
           >
             <FaSave /> Salva tutto
           </button>
-        </section>
+        </div>
       </main>
 
       {/* Modale */}

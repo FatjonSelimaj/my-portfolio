@@ -131,7 +131,7 @@ export default function AddExperiencePage() {
     const token = localStorage.getItem("token");
     if (!token) {
       setLoading(false);
-      setMessage("Sessione scaduta.");
+      setMessage("Sessione scaduta ,fai il logout, ed effettua nuovamente il login");
       router.replace("/auth/login");
       return;
     }
@@ -173,7 +173,7 @@ export default function AddExperiencePage() {
   const handleSubmit = async () => {
     const token = localStorage.getItem("token");
     if (!token) {
-      setMessage("Sessione scaduta.");
+      setMessage("Sessione scaduta ,fai il logout, ed effettua nuovamente il login");
       router.replace("/auth/login");
       return;
     }
@@ -223,7 +223,7 @@ export default function AddExperiencePage() {
     if (!selectedIdToDelete) return;
     const token = localStorage.getItem("token");
     if (!token) {
-      setMessage("Sessione scaduta.");
+      setMessage("Sessione scaduta ,fai il logout, ed effettua nuovamente il login");
       router.replace("/auth/login");
       return;
     }
@@ -248,7 +248,7 @@ export default function AddExperiencePage() {
   const updateExperienceVisibility = async (id: string, isPublic: boolean) => {
     const token = localStorage.getItem("token");
     if (!token) {
-      setMessage("Sessione scaduta.");
+      setMessage("Sessione scaduta ,fai il logout, ed effettua nuovamente il login.");
       router.replace("/auth/login");
       return;
     }
