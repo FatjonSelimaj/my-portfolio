@@ -1,30 +1,30 @@
 // src/lib/auth.ts
-import { NextRequest } from "next/server";
+// ❌ rimuovi: import { NextRequest } from "next/server";
 import jwt from "jsonwebtoken";
 
-export function requireUserId(req: NextRequest): string {
-    const secret = process.env.JWT_SECRET;
-    if (!secret) throw new Error("JWT_SECRET non configurato");
+export function requireUserId(req: Request): string {  // ✅ usa Request
+  const secret = process.env.JWT_SECRET;
+  if (!secret) throw new Error("JWT_SECRET non configurato");
 
-    const header = req.headers.get("authorization") ?? "";
-    const m = header.match(/^Bearer\s+(.+)$/i);
-    if (!m) {
-        const e: any = new Error("Token mancante o malformato");
-        e.status = 401;
-        throw e;
-    }
+  const header = req.headers.get("authorization") ?? "";
+  const m = header.match(/^Bearer\s+(.+)$/i);
+  if (!m) {
+    const e: any = new Error("Token mancante o malformato");
+    e.status = 401;
+    throw e;
+  }
 
-    try {
-        const decoded = jwt.verify(m[1], secret) as { id: string };
-        if (!decoded?.id) {
-            const e: any = new Error("Token non valido");
-            e.status = 401;
-            throw e;
-        }
-        return decoded.id;
-    } catch {   // ✅ niente variabile non usata
-        const e: any = new Error("Token non valido");
-        e.status = 401;
-        throw e;
+  try {
+    const decoded = jwt.verify(m[1], secret) as { id: string };
+    if (!decoded?.id) {
+      const e: any = new Error("Token non valido");
+      e.status = 401;
+      throw e;
     }
+    return decoded.id;
+  } catch {  // ✅ nessuna variabile inutilizzata
+    const e: any = new Error("Token non valido");
+    e.status = 401;
+    throw e;
+  }
 }

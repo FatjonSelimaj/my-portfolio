@@ -1,8 +1,10 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireUserId } from "@/lib/auth";
 
 export const runtime = "nodejs";
+
+type RouteParams = { params: { id: string } };
 
 function handleError(err: unknown) {
   console.error("API /api/experience/[id] error:", err);
@@ -17,7 +19,7 @@ function handleError(err: unknown) {
   return NextResponse.json({ error: msg }, { status });
 }
 
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(req: Request, { params }: RouteParams) {   // ✅ Request + RouteParams
   try {
     const userId = requireUserId(req);
     const body = await req.json();
@@ -30,7 +32,6 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
       );
     }
 
-    // assicurati che l'elemento sia dell'utente
     const existing = await prisma.experience.findUnique({ where: { id: params.id } });
     if (!existing || existing.userId !== userId) {
       return NextResponse.json({ error: "Non trovato" }, { status: 404 });
@@ -54,7 +55,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   }
 }
 
-export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(req: Request, { params }: RouteParams) { // ✅
   try {
     const userId = requireUserId(req);
     const { isPublic } = await req.json();
@@ -75,7 +76,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   }
 }
 
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(req: Request, { params }: RouteParams) { // ✅
   try {
     const userId = requireUserId(req);
 
