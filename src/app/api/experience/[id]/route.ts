@@ -4,8 +4,6 @@ import { requireUserId } from "@/lib/auth";
 
 export const runtime = "nodejs";
 
-type RouteParams = { params: { id: string } };
-
 function handleError(err: unknown) {
   console.error("API /api/experience/[id] error:", err);
   const anyErr = err as any;
@@ -19,7 +17,7 @@ function handleError(err: unknown) {
   return NextResponse.json({ error: msg }, { status });
 }
 
-export async function PUT(req: Request, { params }: RouteParams) {   // ✅ Request + RouteParams
+export async function PUT(req: Request, { params }: { params: { id: string } }) {
   try {
     const userId = requireUserId(req);
     const body = await req.json();
@@ -55,7 +53,7 @@ export async function PUT(req: Request, { params }: RouteParams) {   // ✅ Requ
   }
 }
 
-export async function PATCH(req: Request, { params }: RouteParams) { // ✅
+export async function PATCH(req: Request, { params }: { params: { id: string } }) {
   try {
     const userId = requireUserId(req);
     const { isPublic } = await req.json();
@@ -76,7 +74,7 @@ export async function PATCH(req: Request, { params }: RouteParams) { // ✅
   }
 }
 
-export async function DELETE(req: Request, { params }: RouteParams) { // ✅
+export async function DELETE(req: Request, { params }: { params: { id: string } }) {
   try {
     const userId = requireUserId(req);
 
