@@ -3,7 +3,6 @@ import type { Metadata } from "next";
 import type { JSX } from "react";
 import Link from "next/link";
 import SiteNav from "../components/SiteNav";
-import Image from "next/image";
 
 export const metadata: Metadata = {
     title: "About",

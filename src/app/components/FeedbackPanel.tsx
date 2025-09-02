@@ -2,7 +2,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { FaSignOutAlt, FaCog, FaTimes, FaSave, FaUser } from "react-icons/fa";
+import { FaTimes } from "react-icons/fa";
 import FeedbackResultsModal from "../components/FeedbackResultsModal";
 
 type FeedbackRange = "7d" | "30d" | "90d" | "all";
@@ -58,14 +58,14 @@ export default function Dashboard() {
 
     /** ✅ Tutti gli HOOK al top, nessuno dentro condizioni */
     const [userData, setUserData] = useState<UserData>({ id: "", name: "", email: "", password: "", gender: "male" });
-    const [loadingUser, setLoadingUser] = useState(true);
+    const [ , setLoadingUser] = useState(true);
 
-    const [visitCount, setVisitCount] = useState<number | null>(null);
-    const [loadingVisits, setLoadingVisits] = useState(false);
+    const [, setVisitCount] = useState<number | null>(null);
+    const [, setLoadingVisits] = useState(false);
 
-    const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-    const [settingsSaving, setSettingsSaving] = useState(false);
-    const [errors, setErrors] = useState<Partial<Record<"name" | "email", string>>>({});
+    const [, setIsSettingsOpen] = useState(false);
+    const [, setSettingsSaving] = useState(false);
+    const [, setErrors] = useState<Partial<Record<"name" | "email", string>>>({});
 
     const [toast, setToast] = useState<string | null>(null);
     const [modalMessage, setModalMessage] = useState<string | null>(null);

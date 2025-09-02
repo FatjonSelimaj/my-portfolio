@@ -17,12 +17,6 @@ function getHidePlaceholder(key: string): boolean {
   if (typeof window === "undefined") return false;
   return localStorage.getItem(key) === "1";
 }
-function setHidePlaceholder(key: string, value: boolean) {
-  if (typeof window === "undefined") return;
-  if (value) localStorage.setItem(key, "1");
-  else localStorage.removeItem(key);
-}
-
 
 interface Painting {
   title: string;
@@ -169,19 +163,6 @@ export default function UserDetails() {
               description: c?.description || '',
             }))
             : [emptyCert()];
-
-        // Diplomas (sempre almeno 1 placeholder)
-        const diplomas: Diploma[] =
-          Array.isArray(data.diplomas) && data.diplomas.length
-            ? data.diplomas.map((d: any) => ({
-              degree: d?.degree || '',
-              fieldOfStudy: d?.fieldOfStudy || '',
-              institution: d?.institution || '',
-              dateAwarded: (d?.dateAwarded || '').substring(0, 10),
-              diplomaUrl: d?.diplomaUrl || '',
-              fileType: d?.fileType === 'PDF' ? 'PDF' : 'IMAGE',
-            }))
-            : [emptyDiploma()];
 
 
         setUser({
