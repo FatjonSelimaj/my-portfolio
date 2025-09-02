@@ -102,16 +102,7 @@ export default function UserDetails() {
     description: '',
   });
 
-  const emptyDiploma = (): Diploma => ({
-    degree: '',
-    fieldOfStudy: '',
-    institution: '',
-    dateAwarded: '',
-    diplomaUrl: '',
-    fileType: 'IMAGE',
-  });
-
-
+  
   // Caricamento iniziale
   useEffect(() => {
     const token = localStorage.getItem('token');
