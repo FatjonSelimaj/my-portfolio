@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import type { JSX } from "react";
 import Link from "next/link";
 import SiteNav from "../components/SiteNav";
+import Image from "next/image";
 
 export const metadata: Metadata = {
     title: "About",
@@ -33,9 +34,9 @@ export default function AboutPage(): JSX.Element {
             <section className="relative isolate overflow-hidden">
                 <img
                     src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=1600&auto=format&fit=crop"
-                    alt="Team al lavoro su laptop e taccuini"
-                    className="absolute inset-0 -z-10 h-full w-full object-cover"
-                    loading="lazy"
+                    width={800}                         // imposta larghezza reale o desiderata
+                    height={500}                        // imposta altezza reale o desiderata
+                    className="rounded-lg object-cover" // mantieni le classi che ti servono
                 />
                 <div className="absolute inset-0 -z-10 bg-gradient-to-t from-gray-900/70 via-gray-900/40 to-gray-900/10" />
 
@@ -94,9 +95,9 @@ export default function AboutPage(): JSX.Element {
                     <div className="order-first lg:order-none">
                         <img
                             src="https://images.unsplash.com/photo-1519389950473-47ba0277781c?q=80&w=1400&auto=format&fit=crop"
-                            alt="Collaborazione e progettazione"
-                            className="h-full w-full rounded-2xl object-cover shadow-sm ring-1 ring-gray-200"
-                            loading="lazy"
+                            width={800}                         // imposta larghezza reale o desiderata
+                            height={500}                        // imposta altezza reale o desiderata
+                            className="rounded-lg object-cover" // mantieni le classi che ti servono
                         />
                     </div>
                 </section>
@@ -106,9 +107,9 @@ export default function AboutPage(): JSX.Element {
                     <div className="lg:order-first">
                         <img
                             src="https://images.unsplash.com/photo-1492724441997-5dc865305da7?q=80&w=1400&auto=format&fit=crop"
-                            alt="Anteprima di pagine portfolio"
-                            className="h-full w-full rounded-2xl object-cover shadow-sm ring-1 ring-gray-200"
-                            loading="lazy"
+                            width={800}                         // imposta larghezza reale o desiderata
+                            height={500}                        // imposta altezza reale o desiderata
+                            className="rounded-lg object-cover" // mantieni le classi che ti servono
                         />
                     </div>
                     <div>
@@ -174,9 +175,9 @@ export default function AboutPage(): JSX.Element {
                     <div>
                         <img
                             src="https://images.unsplash.com/photo-1518779578993-ec3579fee39f?q=80&w=1400&auto=format&fit=crop"
-                            alt="Presentazione professionale"
-                            className="h-full w-full rounded-2xl object-cover shadow-sm ring-1 ring-gray-200"
-                            loading="lazy"
+                            width={800}                         // imposta larghezza reale o desiderata
+                            height={500}                        // imposta altezza reale o desiderata
+                            className="rounded-lg object-cover" // mantieni le classi che ti servono
                         />
                     </div>
                 </section>
