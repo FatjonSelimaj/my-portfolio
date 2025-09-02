@@ -1,67 +1,73 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 
 export default function Home() {
   return (
-    <div className="grid grid-rows-[auto_1fr_auto] items-center justify-items-center min-h-screen p-8 sm:p-20 gap-16 bg-gray-50 dark:bg-gray-900 font-[family-name:var(--font-geist-sans)]">
-      <header className="w-full max-w-4xl flex justify-between items-center">
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-gray-200">Portfolio Creator</h1>
-        <nav>
-          <ul className="flex gap-4">
-            <li><a href="#features" className="text-blue-600 hover:underline cursor-pointer">Features</a></li>
-            <li><a href="#about" className="text-blue-600 hover:underline cursor-pointer">About</a></li>
-            <li><a href="#contact" className="text-blue-600 hover:underline cursor-pointer">Contact</a></li>
-          </ul>
-        </nav>
+    <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
+      {/* HEADER */}
+      <header className="sticky top-0 z-40 w-full bg-white/80 dark:bg-gray-950/80 backdrop-blur border-b border-gray-200 dark:border-gray-800">
+        <div className="mx-auto max-w-6xl px-6 py-4 flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-2">
+            <Image src="/logo.png" alt="Portfolio Creator" width={40} height={40} />
+            <span className="text-xl font-bold">Portfolio Creator</span>
+          </Link>
+          <nav className="hidden md:block">
+            <ul className="flex items-center gap-6 text-sm font-medium">
+              <li><Link href="/features" className="hover:text-blue-600">Features</Link></li>
+              <li><Link href="/about" className="hover:text-blue-600">About</Link></li>
+              <li><Link href="#contact" className="hover:text-blue-600">Contact</Link></li>
+            </ul>
+          </nav>
+        </div>
       </header>
 
-      <main className="flex flex-col items-center text-center gap-8">
-        <Image
-          className="dark:invert"
-          src="/logo.png"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          style={{ width: "auto", height: "auto" }} // Mantiene il rapporto d'aspetto
-          priority
-        />
-
-        <h2 className="text-lg sm:text-xl text-gray-700 dark:text-gray-300">Start building your professional portfolio today!</h2>
-
-        <div className="grid gap-6 sm:grid-cols-3 w-full max-w-4xl">
-          <div className="p-4 bg-white dark:bg-gray-800 shadow rounded-lg">
-            <h3 className="text-lg font-bold text-gray-900 dark:text-white">Customize</h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400">Choose templates and personalize your portfolio to fit your style.</p>
-          </div>
-          <div className="p-4 bg-white dark:bg-gray-800 shadow rounded-lg">
-            <h3 className="text-lg font-bold text-gray-900 dark:text-white">Showcase</h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400">Add your projects, skills, and achievements in one place.</p>
-          </div>
-          <div className="p-4 bg-white dark:bg-gray-800 shadow rounded-lg">
-            <h3 className="text-lg font-bold text-gray-900 dark:text-white">Deploy</h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400">Publish your portfolio with a single click on a custom domain.</p>
-          </div>
-        </div>
-
+      {/* HERO */}
+      <section className="flex-1 flex flex-col justify-center items-center text-center bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-20">
+        <h1 className="text-4xl sm:text-6xl font-extrabold mb-6">
+          Costruisci il tuo Portfolio Professionale
+        </h1>
+        <p className="text-lg sm:text-xl max-w-2xl mb-8">
+          Inizia oggi stesso a creare un sito personale unico, moderno e pronto da condividere con il mondo.
+        </p>
         <div className="flex gap-4">
-          <a
-            href="auth/register"
-            className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            Register
-          </a>
-          <a
-            href="auth/login"
-            className="bg-gray-300 text-gray-900 px-6 py-2 rounded-lg hover:bg-gray-400 transition-colors dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
-          >
-            Login
-          </a>
+          <Link href="/auth/register" className="px-6 py-3 rounded-lg bg-white text-indigo-700 font-semibold shadow hover:scale-105 transition">
+            🚀 Inizia Gratis
+          </Link>
+          <Link href="/auth/login" className="px-6 py-3 rounded-lg border border-white text-white font-semibold hover:bg-white hover:text-indigo-700 transition">
+            Accedi
+          </Link>
         </div>
-      </main>
+      </section>
 
-      <footer className="w-full max-w-4xl text-center py-4 text-sm text-gray-500 dark:text-gray-400">
-        © 2025 Portfolio Creator. All rights reserved.
+      {/* FEATURES */}
+      <section className="py-16 bg-gray-100 dark:bg-gray-800">
+        <div className="max-w-6xl mx-auto px-6 grid sm:grid-cols-3 gap-8">
+          {[
+            { title: "Personalizza", desc: "Scegli template moderni e adatta lo stile al tuo brand.", icon: "🎨" },
+            { title: "Mostra", desc: "Aggiungi progetti, competenze e certificazioni in un unico posto.", icon: "💼" },
+            { title: "Pubblica", desc: "Metti online il tuo portfolio su dominio personalizzato.", icon: "🌍" },
+          ].map((f, i) => (
+            <div key={i} className="p-6 bg-white dark:bg-gray-900 rounded-xl shadow-lg hover:shadow-2xl transition transform hover:scale-[1.02] text-center">
+              <div className="text-4xl mb-4">{f.icon}</div>
+              <h3 className="text-xl font-bold mb-2">{f.title}</h3>
+              <p className="text-gray-600 dark:text-gray-400">{f.desc}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* FOOTER */}
+      <footer className="bg-gray-900 text-gray-400 text-sm py-6 mt-10">
+        <div className="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p>© 2025 Portfolio Creator. Tutti i diritti riservati.</p>
+          <div className="flex gap-4">
+            <a href="#" className="hover:text-white">Facebook</a>
+            <a href="#" className="hover:text-white">Instagram</a>
+            <a href="#" className="hover:text-white">LinkedIn</a>
+          </div>
+        </div>
       </footer>
     </div>
   );

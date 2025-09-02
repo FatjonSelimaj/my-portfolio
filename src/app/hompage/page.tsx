@@ -1,17 +1,13 @@
 "use client";
 
+import ClientBoot from "@/app/ClientBoot";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import {
-  FaSignOutAlt,
-  FaCog,
-  FaTimes,
-  FaSave,
-  FaUser,
-} from "react-icons/fa";
+import { FaSignOutAlt, FaCog, FaTimes, FaSave, FaUser } from "react-icons/fa";
+import FeedbackResultsModal from "../components/FeedbackResultsModal";
 
-// Interfaccia con id
+/* ---------- Tipi ---------- */
 interface UserData {
   id: string;
   name: string;
@@ -19,18 +15,21 @@ interface UserData {
   password: string;
   gender: string;
 }
-
 type FieldError = Partial<Record<"name" | "email", string>>;
+type FeedbackRange = "7d" | "30d" | "90d" | "all";
 
+/* ---------- UI atoms ---------- */
 function Toast({ message }: { message: string }) {
   return (
-    <div className="bg-gray-900 text-white px-4 py-2 rounded shadow">
+    <div className="rounded-xl border border-gray-200 bg-white px-4 py-2 text-gray-900 shadow-sm">
       {message}
     </div>
   );
 }
 
-/** Modale accessibile con ESC, focus trap e chiusura su backdrop */
+const SUPER_ADMIN_EMAIL = (process.env.NEXT_PUBLIC_SUPER_ADMIN_EMAIL ?? "").toLowerCase();
+
+/** Modal generico */
 function Modal({
   title,
   children,
@@ -71,7 +70,6 @@ function Modal({
       }
     };
     document.addEventListener("keydown", onKey);
-    // focus iniziale
     const first = ref.current?.querySelector<HTMLElement>("[data-autofocus]");
     first?.focus();
     return () => document.removeEventListener("keydown", onKey);
@@ -84,31 +82,35 @@ function Modal({
   return (
     <div
       onMouseDown={onBackdrop}
-      className="fixed inset-0 flex items-center justify-center bg-black/50 z-50"
+      className="fixed inset-0 z-50 grid place-items-center bg-black/40 p-4"
       role="dialog"
       aria-modal="true"
       aria-labelledby={labelledById}
     >
-      <div ref={ref} className="bg-white p-4 sm:p-6 rounded-lg shadow-lg text-gray-900 w-[92%] max-w-md">
-        <div className="flex items-start justify-between mb-4">
-          <h2 id={labelledById} className="text-xl font-semibold">
+      <div
+        ref={ref}
+        className="w-full max-w-lg rounded-2xl border border-gray-200 bg-white p-6 shadow-xl"
+      >
+        <div className="mb-4 flex items-start justify-between">
+          <h2 id={labelledById} className="text-xl font-semibold text-gray-900">
             {title}
           </h2>
           <button
             aria-label="Chiudi"
             onClick={onClose}
-            className="p-2 rounded hover:bg-gray-100"
+            className="rounded-lg p-2 text-gray-500 hover:bg-gray-100"
           >
             <FaTimes />
           </button>
         </div>
         <div>{children}</div>
-        {footer && <div className="mt-4 flex justify-end gap-2">{footer}</div>}
+        {footer && <div className="mt-6 flex justify-end gap-2">{footer}</div>}
       </div>
     </div>
   );
 }
 
+/* ---------- Pagina ---------- */
 export default function Dashboard() {
   const router = useRouter();
 
@@ -119,6 +121,10 @@ export default function Dashboard() {
     password: "",
     gender: "male",
   });
+
+  // ← visibilità admin
+  const isSuperAdmin =
+    !!userData.email && userData.email.toLowerCase() === SUPER_ADMIN_EMAIL;
 
   const [loadingUser, setLoadingUser] = useState(true);
   const [visitCount, setVisitCount] = useState<number | null>(null);
@@ -131,12 +137,16 @@ export default function Dashboard() {
   const [toast, setToast] = useState<string | null>(null);
   const [modalMessage, setModalMessage] = useState<string | null>(null);
 
-  // titolo pagina
+  // Feedback (solo admin)
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
+  const [feedbackRange, setFeedbackRange] = useState<FeedbackRange>("7d");
+  const [feedbackCount, setFeedbackCount] = useState<number | null>(null);
+  const [loadingFeedbackCount, setLoadingFeedbackCount] = useState(false);
+
   useEffect(() => {
     document.title = "Dashboard Admin";
   }, []);
 
-  // Toast auto-hide
   useEffect(() => {
     if (!toast) return;
     const t = setTimeout(() => setToast(null), 3000);
@@ -149,11 +159,11 @@ export default function Dashboard() {
     router.push("/");
   };
 
-  // Caricamento iniziale dati utente (con AbortController)
+  // Caricamento user
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
-      setModalMessage("Sessione scaduta, fai il logout, ed effettua nuovamente il login.");
+      setModalMessage("Sessione scaduta, fai il logout ed effettua nuovamente il login.");
       router.replace("/page");
       return;
     }
@@ -170,8 +180,8 @@ export default function Dashboard() {
         const user: UserData = await res.json();
         setUserData({ ...user, password: "" });
         localStorage.setItem("userData", JSON.stringify(user));
-      } catch (e) {
-        if ((e as any).name !== "AbortError") {
+      } catch (e: any) {
+        if (e?.name !== "AbortError") {
           setModalMessage("Impossibile caricare i dati. Esegui di nuovo il login.");
         }
       } finally {
@@ -182,7 +192,7 @@ export default function Dashboard() {
     return () => controller.abort();
   }, [router]);
 
-  // Fetch conteggio visite pagina pubblica
+  // Visite
   const fetchVisits = async () => {
     if (!userData.id) return;
     try {
@@ -204,14 +214,26 @@ export default function Dashboard() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userData.id]);
 
+  // Copia link pubblico
+  const copyPublicLink = async () => {
+    if (!publicUrl) return;
+    try {
+      await navigator.clipboard.writeText(publicUrl);
+      setToast("Link pubblico copiato!");
+    } catch {
+      setToast("Impossibile copiare il link.");
+    }
+  };
+
+  // URL pubblico
   const publicUrl = useMemo(() => {
     if (!userData.id) return "";
     if (typeof window === "undefined") return "";
     return `${window.location.origin}/public_page/${userData.id}`;
   }, [userData.id]);
 
+  // Impostazioni
   const openSettings = async () => {
-    // Ricarico i dati per avere lo stato più recente (senza timeouts aggressivi)
     const token = localStorage.getItem("token");
     if (!token) {
       setModalMessage("Token mancante. Effettua nuovamente il login.");
@@ -230,12 +252,18 @@ export default function Dashboard() {
         gender: data.gender ?? prev.gender,
         password: "",
       }));
+      const prevId = userData?.id;
       localStorage.setItem(
         "userData",
-        JSON.stringify({ name: data.name, email: data.email, gender: data.gender, id: prevSafe(prev => prev?.id) })
+        JSON.stringify({
+          name: data.name,
+          email: data.email,
+          gender: data.gender,
+          id: prevId,
+        })
       );
     } catch {
-      setModalMessage("Sessione scaduta. Fai il logout, ed effettua nuovamente il login.");
+      setModalMessage("Sessione scaduta. Fai il logout ed effettua nuovamente il login.");
       localStorage.removeItem("token");
       localStorage.removeItem("userData");
       setTimeout(() => router.replace("/auth/login"), 1200);
@@ -244,15 +272,6 @@ export default function Dashboard() {
     setErrors({});
     setIsSettingsOpen(true);
   };
-
-  // helper per salvare id anche nel localStorage update precedente
-  function prevSafe<T>(fn: (v: UserData) => T) {
-    try {
-      return fn(userData as any);
-    } catch {
-      return undefined as unknown as T;
-    }
-  }
 
   const validateSettings = () => {
     const e: FieldError = {};
@@ -294,155 +313,284 @@ export default function Dashboard() {
     }
   };
 
-  const copyPublicLink = async () => {
-    if (!publicUrl) return;
+  // ===== Feedback: conteggio per range (SOLO admin) =====
+  async function fetchFeedbackCount(range: FeedbackRange) {
     try {
-      await navigator.clipboard.writeText(publicUrl);
-      setToast("Link pubblico copiato!");
+      setLoadingFeedbackCount(true);
+      const token = localStorage.getItem("token");
+      const res = await fetch(`/api/feedback/count?range=${range}`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+      });
+      if (!res.ok) {
+        if (res.status === 403) {
+          // non admin: non mostrare nulla
+          setFeedbackCount(null);
+          return;
+        }
+        throw new Error("Errore conteggio feedback");
+      }
+      const data = await res.json();
+      setFeedbackCount(data.total ?? 0);
     } catch {
-      setToast("Impossibile copiare il link.");
+      setFeedbackCount(null);
+      setToast("Errore nel conteggio feedback.");
+    } finally {
+      setLoadingFeedbackCount(false);
     }
-  };
+  }
+
+  useEffect(() => {
+    if (isSuperAdmin) {
+      fetchFeedbackCount(feedbackRange);
+    } else {
+      // se non admin: non toccare nulla e nascondi UI
+      setFeedbackCount(null);
+      setFeedbackOpen(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [feedbackRange, isSuperAdmin]);
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-indigo-500 to-purple-700 text-white">
+    <div className="min-h-screen bg-gray-50 text-gray-900">
       {/* Header */}
-      <header className="w-full p-4 sm:p-6 flex flex-col sm:flex-row justify-between items-center gap-4 bg-white shadow-lg">
-        <h1 className="text-2xl font-bold text-gray-900">Dashboard Admin</h1>
-        <div className="flex gap-4">
-          <button
-            onClick={openSettings}
-            className="cursor-pointer flex items-center gap-2 bg-gray-500 text-white px-4 py-2 rounded-lg shadow hover:bg-gray-600 transition-all"
-          >
-            <FaCog /> Impostazioni
-          </button>
-          <button
-            onClick={handleLogout}
-            className="cursor-pointer  flex items-center gap-2 bg-red-500 text-white px-4 py-2 rounded-lg shadow hover:bg-red-600 transition-all"
-          >
-            <FaSignOutAlt /> Logout
-          </button>
+      <header className="sticky top-0 z-30 w-full border-b border-gray-200 bg-white/90 backdrop-blur">
+        <div className="mx-auto grid max-w-6xl grid-cols-2 items-center gap-4 px-4 py-4 md:grid-cols-3">
+          <h1 className="text-lg font-semibold md:col-span-1">Portfolio Creator • Admin</h1>
+          <nav className="hidden justify-center md:flex">
+            <ul className="flex items-center gap-6 text-sm text-gray-600">
+              <li>
+                <Link href="/userdetails" className="hover:text-gray-900">
+                  Profilo
+                </Link>
+              </li>
+              <li>
+                <button onClick={() => router.push("/experience-list")} className="hover:text-gray-900">
+                  Esperienze
+                </button>
+              </li>
+              <li>
+                <Link href="/public" className="hover:text-gray-900">
+                  Pubblico
+                </Link>
+              </li>
+              {isSuperAdmin && (
+                <li>
+                  <Link href="/feedback" className="hover:text-gray-900">
+                    Feedback
+                  </Link>
+                </li>
+              )}
+            </ul>
+          </nav>
+          <div className="flex justify-end gap-2">
+            <button
+              onClick={openSettings}
+              className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm font-medium shadow-sm hover:bg-gray-50"
+            >
+              <FaCog /> Impostazioni
+            </button>
+            <button
+              onClick={handleLogout}
+              className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow hover:bg-blue-700"
+            >
+              <FaSignOutAlt /> Logout
+            </button>
+          </div>
         </div>
       </header>
 
-      {/* Main */}
-      <main className="flex flex-col items-center justify-start flex-grow text-center px-4 sm:px-6 md:px-12 py-8">
-        {/* Card Area Pubblica + Visite */}
-        <section className="w-full max-w-3xl">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Area Pubblica */}
-            <div className="bg-white text-gray-900 rounded-lg shadow p-5">
-              <h3 className="text-lg font-semibold mb-2">Area Pubblica</h3>
+      {/* Hero */}
+      <section className="border-b border-gray-200 bg-white">
+        <div className="mx-auto max-w-6xl px-4 py-8">
+          {loadingUser ? (
+            <div className="h-7 w-64 animate-pulse rounded bg-gray-100" />
+          ) : (
+            <>
+              <h2 className="text-2xl font-semibold">
+                {userData.name},{" "}
+                {userData.gender === "female" ? "benvenuta" : "benvenuto"} nella tua dashboard
+              </h2>
+              <p className="mt-1 text-sm text-gray-600">Gestisci profilo, contenuti pubblici e statistiche.</p>
+            </>
+          )}
+        </div>
+      </section>
 
+      {/* Contenuto */}
+      <main className="mx-auto max-w-6xl px-4 py-8">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+          {/* Colonna sinistra */}
+          <div className="space-y-6 md:col-span-2">
+            {/* Area Pubblica */}
+            <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+              <h3 className="mb-4 text-lg font-semibold">Area Pubblica</h3>
               {loadingUser ? (
-                <div className="animate-pulse h-10 bg-gray-100 rounded mb-3" />
+                <div className="h-10 w-full animate-pulse rounded bg-gray-100" />
               ) : userData.id ? (
                 <>
-                  <div className="flex flex-col sm:flex-row gap-2">
+                  <div className="flex flex-col gap-2 sm:flex-row">
                     <Link
                       href={`/public_page/${userData.id}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex-1 inline-flex items-center justify-center gap-2 px-3 py-2 rounded bg-indigo-600 hover:bg-indigo-500 text-white transition"
+                      className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-blue-600 px-3 py-2 text-white shadow hover:bg-blue-700"
                       title="Apri in una nuova scheda"
                     >
                       Apri profilo
                     </Link>
                     <button
                       onClick={copyPublicLink}
-                      className="cursor-pointer flex-1 inline-flex items-center justify-center gap-2 px-3 py-2 rounded bg-gray-200 text-gray-900 hover:bg-gray-300 transition"
+                      className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2 text-gray-900 shadow-sm hover:bg-gray-50"
                       title="Copia link pubblico"
                     >
                       Copia link
                     </button>
                   </div>
-                  {publicUrl && (
-                    <p className="text-xs text-gray-500 mt-2 break-all">{publicUrl}</p>
-                  )}
+                  {publicUrl && <p className="mt-2 break-all text-xs text-gray-500">{publicUrl}</p>}
                 </>
               ) : (
-                <p className="text-sm text-gray-600">
-                  Dati utente non disponibili.
-                </p>
+                <p className="text-sm text-gray-600">Dati utente non disponibili.</p>
               )}
             </div>
 
-            {/* Visite */}
-            <div className="bg-white text-gray-900 rounded-lg shadow p-5">
-              <h3 className="text-lg font-semibold mb-2">Statistiche Visite</h3>
+            {/* Statistiche Visite */}
+            <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+              <h3 className="mb-4 text-lg font-semibold">Statistiche Visite</h3>
               {loadingVisits ? (
-                <div className="animate-pulse h-10 bg-gray-100 rounded mb-3" />
+                <div className="h-10 w-full animate-pulse rounded bg-gray-100" />
               ) : visitCount !== null ? (
                 <>
-                  <p className="text-3xl font-bold">{visitCount}</p>
+                  <p className="text-4xl font-bold text-gray-900">{visitCount}</p>
                   <p className="text-sm text-gray-600">Visite totali alla pagina pubblica</p>
                 </>
               ) : (
                 <p className="text-sm text-gray-600">Nessun dato visite disponibile.</p>
               )}
-
-              <div className="mt-3 flex gap-2">
+              <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-3">
                 <button
                   onClick={fetchVisits}
-                  className="cursor-pointer flex-1 px-3 py-2 rounded bg-indigo-600 hover:bg-indigo-500 text-white transition"
+                  className="inline-flex items-center justify-center rounded-xl bg-blue-600 px-3 py-2 font-semibold text-white shadow hover:bg-blue-700"
                 >
                   Aggiorna
                 </button>
+
                 <Link
                   href="/userdetails"
-                  className="flex-1 inline-flex items-center justify-center gap-2 px-3 py-2 rounded bg-white border text-gray-900 hover:bg-gray-50 transition"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2 text-gray-900 shadow-sm hover:bg-gray-50"
                 >
                   <FaUser /> Modifica Profilo
                 </Link>
+
+                {isSuperAdmin && (
+                  <button
+                    onClick={() => setFeedbackOpen(true)}
+                    className="inline-flex items-center justify-center rounded-xl bg-orange-500 px-3 py-2 font-semibold text-white shadow hover:bg-orange-600"
+                  >
+                    Apri feedback
+                  </button>
+                )}
               </div>
             </div>
+
+            {/* Feedback (SOLO admin) */}
+            {isSuperAdmin && (
+              <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+                <div className="mb-4 flex items-center justify-between">
+                  <h3 className="text-lg font-semibold">Feedback</h3>
+                  <select
+                    value={feedbackRange}
+                    onChange={(e) => setFeedbackRange(e.target.value as FeedbackRange)}
+                    className="rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600"
+                    aria-label="Seleziona intervallo di tempo"
+                  >
+                    <option value="7d">Ultimi 7 giorni</option>
+                    <option value="30d">Ultimi 30 giorni</option>
+                    <option value="90d">Ultimi 90 giorni</option>
+                    <option value="all">Tutto</option>
+                  </select>
+                </div>
+
+                <div className="flex items-baseline gap-3">
+                  {loadingFeedbackCount ? (
+                    <div className="h-8 w-24 animate-pulse rounded bg-gray-100" />
+                  ) : (
+                    <p className="text-4xl font-bold text-gray-900">{feedbackCount ?? 0}</p>
+                  )}
+                  <span className="text-sm text-gray-600">feedback totali</span>
+                </div>
+
+                <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                  <button
+                    onClick={() => setFeedbackOpen(true)}
+                    className="inline-flex items-center justify-center rounded-xl bg-orange-500 px-3 py-2 font-semibold text-white shadow hover:bg-orange-600"
+                  >
+                    Apri modale
+                  </button>
+                  <Link
+                    href="/feedback"
+                    className="inline-flex items-center justify-center rounded-xl border border-gray-200 bg-white px-3 py-2 text-gray-900 shadow-sm hover:bg-gray-50"
+                  >
+                    Vai alla pagina
+                  </Link>
+                </div>
+              </div>
+            )}
+
+            {/* CTA */}
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <Link
+                href="/userdetails"
+                className="rounded-2xl border border-gray-200 bg-white p-6 text-center shadow-sm transition hover:shadow"
+              >
+                <FaUser className="mx-auto mb-2 text-3xl" />
+                <span className="text-base font-semibold">Gestisci il tuo Profilo</span>
+              </Link>
+              <button
+                onClick={() => router.push("/experience-list")}
+                className="rounded-2xl bg-orange-500 px-4 py-3 font-semibold text-white shadow transition hover:bg-orange-600"
+              >
+                ➕ Aggiungi Esperienza
+              </button>
+            </div>
           </div>
-        </section>
 
-        {/* Benvenuto + CTA */}
-        <section className="mt-8 w-full max-w-3xl">
-          {loadingUser ? (
-            <div className="animate-pulse h-10 bg-white/40 rounded mb-3" />
-          ) : (
-            <>
-              <h2 className="text-3xl font-semibold mb-2">
-                {userData.name},{" "}
-                {userData.gender === "female" ? "Benvenuta" : "Benvenuto"} nella tua
-                Dashboard! 🎉
-              </h2>
-              <p className="text-lg text-white/80">
-                Modifica le sezioni del sito e gestisci le impostazioni amministrative.
-              </p>
-            </>
-          )}
-
-          <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Link
-              href="/userdetails"
-              className="cursor-pointer flex flex-col items-center p-6 bg-white text-gray-900 shadow-lg rounded-lg hover:bg-gray-100 transition"
-            >
-              <FaUser className="text-3xl sm:text-4xl text-blue-600 mb-2" />
-              <span className="text-md sm:text-lg font-semibold">
-                Gestisci il tuo Profilo
-              </span>
-            </Link>
-
-            <button
-              onClick={() => router.push("/experience-list")}
-              className="cursor-pointer bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg shadow transition"
-            >
-              ➕ Aggiungi Esperienza
-            </button>
+          {/* Colonna destra */}
+          <div className="space-y-6">
+            <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+              <ClientBoot />
+            </div>
           </div>
-        </section>
+        </div>
       </main>
 
-      {/* Toast area */}
-      <div role="status" aria-live="polite" className="cursor-pointer fixed bottom-4 right-4">
+      {/* Footer */}
+      <footer className="border-t border-gray-200 bg-white">
+        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 px-4 py-6 text-sm text-gray-500 md:flex-row">
+          <span>© {new Date().getFullYear()} Portfolio Creator</span>
+          <div className="flex items-center gap-4">
+            <a className="hover:text-gray-700" href="mailto:hello@spazio010.com">
+              hello@spazio010.com
+            </a>
+            <a className="hover:text-gray-700" href="https://www.facebook.com" target="_blank" rel="noreferrer">
+              Facebook
+            </a>
+            <a className="hover:text-gray-700" href="https://www.instagram.com" target="_blank" rel="noreferrer">
+              Instagram
+            </a>
+          </div>
+        </div>
+      </footer>
+
+      {/* Toast */}
+      <div role="status" aria-live="polite" className="fixed bottom-4 right-4">
         {toast && <Toast message={toast} />}
       </div>
 
-      {/* Modale Impostazioni */}
+      {/* Modali */}
+      {isSuperAdmin && (
+        <FeedbackResultsModal open={feedbackOpen} onClose={() => setFeedbackOpen(false)} />
+      )}
+
       {isSettingsOpen && (
         <Modal
           title="Modifica Impostazioni"
@@ -452,76 +600,66 @@ export default function Dashboard() {
             <>
               <button
                 onClick={() => setIsSettingsOpen(false)}
-                className="cursor-pointer px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+                className="rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-medium shadow-sm hover:bg-gray-50"
               >
                 <FaTimes />
               </button>
               <button
                 onClick={handleSaveSettings}
                 disabled={settingsSaving}
-                className={`cursor-pointer px-4 py-2 text-white rounded ${
-                  settingsSaving
-                    ? "cursor-pointer bg-blue-300"
-                    : " bg-blue-600 hover:bg-blue-700"
-                }`}
+                className={`rounded-xl px-4 py-2 text-sm font-semibold text-white shadow ${settingsSaving ? "bg-blue-300" : "bg-blue-600 hover:bg-blue-700"
+                  }`}
               >
                 <FaSave /> {settingsSaving ? "Salvataggio…" : "Salva"}
               </button>
             </>
           }
         >
-          <div className="space-y-3">
+          {/* ✅ CHILDREN OBBLIGATORI */}
+          <div className="space-y-4">
             <div>
-              <label className="block mb-1 text-sm font-medium">Nome</label>
+              <label className="mb-1 block text-sm font-medium text-gray-700">Nome</label>
               <input
                 type="text"
                 value={userData.name}
-                onChange={(e) =>
-                  setUserData({ ...userData, name: e.target.value })
-                }
-                className={`w-full p-2 border rounded ${
-                  errors.name ? "border-red-500" : ""
-                }`}
+                onChange={(e) => setUserData({ ...userData, name: e.target.value })}
+                className={`w-full rounded-xl border px-3 py-2 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-600 ${errors.name ? "border-red-500" : "border-gray-300"
+                  }`}
                 aria-invalid={!!errors.name}
                 aria-describedby={errors.name ? "err-name" : undefined}
                 data-autofocus
               />
               {errors.name && (
-                <p id="err-name" className="text-xs text-red-600 mt-1">
+                <p id="err-name" className="mt-1 text-xs text-red-600">
                   {errors.name}
                 </p>
               )}
             </div>
 
             <div>
-              <label className="block mb-1 text-sm font-medium">Email</label>
+              <label className="mb-1 block text-sm font-medium text-gray-700">Email</label>
               <input
                 type="email"
                 value={userData.email}
-                onChange={(e) =>
-                  setUserData({ ...userData, email: e.target.value })
-                }
-                className={`w-full p-2 border rounded ${
-                  errors.email ? "border-red-500" : ""
-                }`}
+                onChange={(e) => setUserData({ ...userData, email: e.target.value })}
+                className={`w-full rounded-xl border px-3 py-2 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-600 ${errors.email ? "border-red-500" : "border-gray-300"
+                  }`}
                 aria-invalid={!!errors.email}
                 aria-describedby={errors.email ? "err-email" : undefined}
               />
               {errors.email && (
-                <p id="err-email" className="text-xs text-red-600 mt-1">
+                <p id="err-email" className="mt-1 text-xs text-red-600">
                   {errors.email}
                 </p>
               )}
             </div>
 
             <div>
-              <label className="block mb-1 text-sm font-medium">Genere</label>
+              <label className="mb-1 block text-sm font-medium text-gray-700">Genere</label>
               <select
                 value={userData.gender}
-                onChange={(e) =>
-                  setUserData({ ...userData, gender: e.target.value })
-                }
-                className="w-full p-2 border rounded"
+                onChange={(e) => setUserData({ ...userData, gender: e.target.value })}
+                className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-600"
               >
                 <option value="male">Maschio</option>
                 <option value="female">Femmina</option>
@@ -531,7 +669,6 @@ export default function Dashboard() {
         </Modal>
       )}
 
-      {/* Modale messaggi bloccanti */}
       {modalMessage && (
         <Modal
           title="Messaggio"
@@ -540,7 +677,7 @@ export default function Dashboard() {
           footer={
             <button
               onClick={() => setModalMessage(null)}
-              className="cursor-pointer bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+              className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-blue-700"
             >
               OK
             </button>

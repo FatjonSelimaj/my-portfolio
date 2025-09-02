@@ -12,6 +12,11 @@ enum FileType {
   PDF
 }
 
+enum UserRole {
+  USER
+  ADMIN
+}
+
 model User {
   id                  String               @id @default(auto()) @map("_id") @db.ObjectId
   email               String               @unique
@@ -22,8 +27,9 @@ model User {
   details             UserDetails?         @relation("UserToDetails")
   articles            Article[]            @relation("UserArticles")
   passwordResetTokens PasswordResetToken[] @relation("UserResetTokens")
-
-  Experience Experience[]
+  role                UserRole             @default(USER) 
+  Experience          Experience[]
+  Feedback            Feedback[]
 }
 
 model UserDetails {
@@ -119,11 +125,6 @@ model Diploma {
   userDetails   UserDetails @relation("UserDiplomas", fields: [userDetailsId], references: [id])
 }
 
-model PageVisit {
-  userId String @id @map("_id")
-  count  Int    @default(0)
-}
-
 model Experience {
   id          String    @id @default(auto()) @map("_id") @db.ObjectId
   userId      String    @db.ObjectId
@@ -135,5 +136,40 @@ model Experience {
   createdAt   DateTime  @default(now())
   isPublic    Boolean   @default(true)
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id]) // ← niente onDelete con Mongo
+}
+
+model Feedback {
+  id     String  @id @default(auto()) @map("_id") @db.ObjectId
+  userId String? @db.ObjectId
+  user   User?   @relation(fields: [userId], references: [id])
+
+  email      String?
+  type       FeedbackType
+  severity   FeedbackSeverity
+  message    String
+  pageUrl    String?
+  userAgent  String?
+  stacktrace String?
+  imageUrl   String?
+  createdAt  DateTime         @default(now())
+}
+
+enum FeedbackType {
+  BUG
+  IDEA
+  UX
+  OTHER
+}
+
+enum FeedbackSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+model PageVisit {
+  userId String @id @map("_id") @db.ObjectId
+  count  Int    @default(0)
 }

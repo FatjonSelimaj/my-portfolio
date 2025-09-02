@@ -7,9 +7,35 @@ import Link from 'next/link';
 import Image from 'next/image';
 import Carousel from '../components/Carousel';
 
+const LS_HIDE_PLACEHOLDER = {
+  paintings: "ud_hide_placeholder_paintings",
+  projects: "ud_hide_placeholder_projects",
+  certs: "ud_hide_placeholder_certs",
+} as const;
+
+function getHidePlaceholder(key: string): boolean {
+  if (typeof window === "undefined") return false;
+  return localStorage.getItem(key) === "1";
+}
+function setHidePlaceholder(key: string, value: boolean) {
+  if (typeof window === "undefined") return;
+  if (value) localStorage.setItem(key, "1");
+  else localStorage.removeItem(key);
+}
+
+
 interface Painting {
   title: string;
   content: string;
+}
+
+interface Diploma {
+  degree: string;
+  fieldOfStudy: string;
+  institution: string;
+  dateAwarded: string;   // YYYY-MM-DD
+  diplomaUrl: string;
+  fileType?: 'IMAGE' | 'PDF';
 }
 
 interface Project {
@@ -43,6 +69,7 @@ interface UserDetailsState {
   twitterUrl?: string;
   linkedinUrl?: string;
   githubUrl?: string;
+  diplomas: Diploma[];
 }
 
 export default function UserDetails() {
@@ -64,6 +91,7 @@ export default function UserDetails() {
     twitterUrl: '',
     linkedinUrl: '',
     githubUrl: '',
+    diplomas: [], // ✅
   });
 
   // Factory per aggiunte vuote
@@ -79,6 +107,16 @@ export default function UserDetails() {
     logoUrl: '',
     description: '',
   });
+
+  const emptyDiploma = (): Diploma => ({
+    degree: '',
+    fieldOfStudy: '',
+    institution: '',
+    dateAwarded: '',
+    diplomaUrl: '',
+    fileType: 'IMAGE',
+  });
+
 
   // Caricamento iniziale
   useEffect(() => {
@@ -97,33 +135,54 @@ export default function UserDetails() {
         return res.json();
       })
       .then(data => {
-        const paintings: Painting[] = Array.isArray(data.paintings) && data.paintings.length
-          ? data.paintings.map((p: any) => ({
-            title: p?.title || '',
-            content: p?.content || '',
-          }))
-          : [emptyPainting()];
+        // Paintings
+        const paintings: Painting[] =
+          Array.isArray(data.paintings) && data.paintings.length
+            ? data.paintings.map((p: any) => ({
+              title: p?.title || "",
+              content: p?.content || "",
+            }))
+            : (getHidePlaceholder(LS_HIDE_PLACEHOLDER.paintings) ? [] : [emptyPainting()]);
 
-        const projects: Project[] = Array.isArray(data.projects) && data.projects.length
-          ? data.projects.map((p: any) => ({
-            title: p?.title || '',
-            content: p?.content || '',
-            url: p?.url || '',
-          }))
-          : [emptyProject()];
+        // Projects
+        const projects: Project[] =
+          Array.isArray(data.projects) && data.projects.length
+            ? data.projects.map((p: any) => ({
+              title: p?.title || "",
+              content: p?.content || "",
+              url: p?.url || "",
+            }))
+            : (getHidePlaceholder(LS_HIDE_PLACEHOLDER.projects) ? [] : [emptyProject()]);
 
-        const certifications: Certification[] = Array.isArray(data.certifications) && data.certifications.length
-          ? data.certifications.map((c: any) => ({
-            title: c?.title || '',
-            institution: c?.institution || '',
-            dateAwarded: (c?.dateAwarded || '').substring(0, 10),
-            credentialUrl: c?.credentialUrl || '',
-            fileType: c?.fileType === 'pdf' ? 'pdf' : 'image',
-            extractedText: c?.extractedText || '',
-            logoUrl: c?.logoUrl || '',
-            description: c?.description || '',
-          }))
-          : [emptyCert()];
+        // Certifications
+        // Certifications (sempre almeno 1 placeholder)
+        const certifications: Certification[] =
+          Array.isArray(data.certifications) && data.certifications.length
+            ? data.certifications.map((c: any) => ({
+              title: c?.title || '',
+              institution: c?.institution || '',
+              dateAwarded: (c?.dateAwarded || '').substring(0, 10),
+              credentialUrl: c?.credentialUrl || '',
+              fileType: c?.fileType === 'pdf' || c?.fileType === 'PDF' ? 'pdf' : 'image',
+              extractedText: c?.extractedText || '',
+              logoUrl: c?.logoUrl || '',
+              description: c?.description || '',
+            }))
+            : [emptyCert()];
+
+        // Diplomas (sempre almeno 1 placeholder)
+        const diplomas: Diploma[] =
+          Array.isArray(data.diplomas) && data.diplomas.length
+            ? data.diplomas.map((d: any) => ({
+              degree: d?.degree || '',
+              fieldOfStudy: d?.fieldOfStudy || '',
+              institution: d?.institution || '',
+              dateAwarded: (d?.dateAwarded || '').substring(0, 10),
+              diplomaUrl: d?.diplomaUrl || '',
+              fileType: d?.fileType === 'PDF' ? 'PDF' : 'IMAGE',
+            }))
+            : [emptyDiploma()];
+
 
         setUser({
           firstName: data.firstName || '',
@@ -139,6 +198,7 @@ export default function UserDetails() {
           twitterUrl: data.twitterUrl || '',
           linkedinUrl: data.linkedinUrl || '',
           githubUrl: data.githubUrl || '',
+          diplomas: data.diplomas || [], // ✅
         });
       })
       .catch(() =>

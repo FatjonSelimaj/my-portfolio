@@ -1,3 +1,4 @@
+// src/app/api/auth/login/route.ts
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
@@ -12,7 +13,7 @@ export async function POST(request: Request) {
 
     if (!email || !password) {
       return NextResponse.json(
-        { message: "Email e password sono obbligatori." },
+        { message: "Email e password sono obbligatorie." },
         { status: 400 }
       );
     }
@@ -25,10 +26,15 @@ export async function POST(request: Request) {
       );
     }
 
+    // 🔹 Includi role nel payload del token
     const token = jwt.sign(
-      { id: user.id, email: user.email },
+      {
+        userId: user.id,              // coerente con requireUser
+        email: user.email,
+        role: user.role.toLowerCase() // "user" | "admin"
+      },
       JWT_SECRET,
-      { expiresIn: "1h" }
+      { expiresIn: "7d" }             // più comodo di 1h
     );
 
     return NextResponse.json(
@@ -36,14 +42,16 @@ export async function POST(request: Request) {
         token,
         message: "Login effettuato con successo!",
         user: {
+          id: user.id,
           name: user.name,
           email: user.email,
           gender: user.gender || "male",
+          role: user.role,
         }
       },
       { status: 200 }
     );
-    
+
   } catch (error) {
     console.error("Errore nel login:", error);
     return NextResponse.json(
