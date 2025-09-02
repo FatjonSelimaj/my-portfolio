@@ -1,3 +1,4 @@
+// src/app/hompage/page.tsx
 "use client";
 
 import ClientBoot from "@/app/ClientBoot";
@@ -122,7 +123,7 @@ export default function Dashboard() {
     gender: "male",
   });
 
-  // ← visibilità admin
+  // visibilità admin (calcolata SEMPRE, mai in modo condizionale rispetto agli hooks)
   const isSuperAdmin =
     !!userData.email && userData.email.toLowerCase() === SUPER_ADMIN_EMAIL;
 
@@ -214,6 +215,13 @@ export default function Dashboard() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userData.id]);
 
+  // URL pubblico
+  const publicUrl = useMemo((): string => {
+    if (!userData.id) return "";
+    if (typeof window === "undefined") return "";
+    return `${window.location.origin}/public_page/${userData.id}`;
+  }, [userData.id]);
+
   // Copia link pubblico
   const copyPublicLink = async () => {
     if (!publicUrl) return;
@@ -224,13 +232,6 @@ export default function Dashboard() {
       setToast("Impossibile copiare il link.");
     }
   };
-
-  // URL pubblico
-  const publicUrl = useMemo(() => {
-    if (!userData.id) return "";
-    if (typeof window === "undefined") return "";
-    return `${window.location.origin}/public_page/${userData.id}`;
-  }, [userData.id]);
 
   // Impostazioni
   const openSettings = async () => {
@@ -343,7 +344,7 @@ export default function Dashboard() {
     if (isSuperAdmin) {
       fetchFeedbackCount(feedbackRange);
     } else {
-      // se non admin: non toccare nulla e nascondi UI
+      // se non admin: nascondi UI feedback/modale
       setFeedbackCount(null);
       setFeedbackOpen(false);
     }
@@ -586,7 +587,7 @@ export default function Dashboard() {
         {toast && <Toast message={toast} />}
       </div>
 
-      {/* Modali */}
+      {/* Modali (solo admin) */}
       {isSuperAdmin && (
         <FeedbackResultsModal open={feedbackOpen} onClose={() => setFeedbackOpen(false)} />
       )}
@@ -615,7 +616,7 @@ export default function Dashboard() {
             </>
           }
         >
-          {/* ✅ CHILDREN OBBLIGATORI */}
+          {/* campi impostazioni */}
           <div className="space-y-4">
             <div>
               <label className="mb-1 block text-sm font-medium text-gray-700">Nome</label>
