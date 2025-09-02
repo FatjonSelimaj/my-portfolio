@@ -1,176 +1,235 @@
-// components/FeedbackPanel.tsx
 "use client";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { FaSignOutAlt, FaCog, FaTimes, FaSave, FaUser } from "react-icons/fa";
+import FeedbackResultsModal from "../components/FeedbackResultsModal";
 
-type Row = {
+type FeedbackRange = "7d" | "30d" | "90d" | "all";
+
+interface UserData {
     id: string;
-    type: "BUG" | "IDEA" | "UX" | "OTHER";
-    severity: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
-    message: string;
-    email?: string | null;
-    pageUrl?: string | null;
-    createdAt: string;
-};
-
-const LS_INTERVAL = "fb_auto_refresh_interval_minutes"; // salva i minuti
-
-function loadIntervalMinutes(): number {
-    if (typeof window === "undefined") return 5;
-    const raw = localStorage.getItem(LS_INTERVAL);
-    const n = Number(raw);
-    return [1, 5, 10, 30].includes(n) ? n : 5;
-}
-function saveIntervalMinutes(mins: number) {
-    if (typeof window === "undefined") return;
-    localStorage.setItem(LS_INTERVAL, String(mins));
+    name: string;
+    email: string;
+    password: string;
+    gender: string;
 }
 
-export default function FeedbackPanel() {
-    // nascondi il pannello completo in homepage
-    if (typeof window !== "undefined" && window.location.pathname === "/") {
-        return null;
-    }
+const SUPER_ADMIN_EMAIL = (process.env.NEXT_PUBLIC_SUPER_ADMIN_EMAIL ?? "").toLowerCase();
 
-    const [rows, setRows] = useState<Row[]>([]);
-    const [title, setTitle] = useState("I miei feedback");
-    const [err, setErr] = useState<string | null>(null);
-    const [loading, setLoading] = useState(true);
+function Toast({ message }: { message: string }) {
+    return <div className="rounded-xl border border-gray-200 bg-white px-4 py-2 text-gray-900 shadow-sm">{message}</div>;
+}
 
-    // unica preferenza: intervallo in minuti
-    const [intervalMin, setIntervalMin] = useState<number>(() => loadIntervalMinutes());
-
-    const abortRef = useRef<AbortController | null>(null);
-
-    const fetchFeedbacks = useCallback(async () => {
-        abortRef.current?.abort();
-        const ac = new AbortController();
-        abortRef.current = ac;
-
-        const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
-
-        try {
-            const r = await fetch("/api/admin/feedback", {
-                headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-                signal: ac.signal,
-            });
-            if (r.ok) {
-                setTitle("Tutti i feedback (admin)");
-                const data = (await r.json()) as Row[];
-                setRows(data);
-                setErr(null);
-                return;
-            }
-            if (r.status === 401) {
-                const r2 = await fetch("/api/feedback/mine", {
-                    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-                    signal: ac.signal,
-                });
-                if (!r2.ok) throw new Error("401 fallback");
-                setTitle("I miei feedback");
-                const data = (await r2.json()) as Row[];
-                setRows(data);
-                setErr(null);
-                return;
-            }
-            throw new Error(`http ${r.status}`);
-        } catch (e) {
-            if ((e as any)?.name === "AbortError") return;
-            setErr("Impossibile caricare i feedback");
-        } finally {
-            setLoading(false);
-        }
-    }, []);
-
-    // primo caricamento
+function Modal({
+    title, children, onClose, footer, labelledById,
+}: {
+    title: string; children: React.ReactNode; onClose: () => void; footer?: React.ReactNode; labelledById: string;
+}) {
+    const ref = useRef<HTMLDivElement>(null);
     useEffect(() => {
-        setLoading(true);
-        fetchFeedbacks();
-        return () => abortRef.current?.abort();
-    }, [fetchFeedbacks]);
-
-    // salva intervallo scelto
-    useEffect(() => {
-        saveIntervalMinutes(intervalMin);
-    }, [intervalMin]);
-
-    // polling automatico sempre attivo (rispetta visibilità tab per non sprecare)
-    useEffect(() => {
-        const ms = intervalMin * 60_000;
-        const tick = () => {
-            if (typeof document !== "undefined" && document.hidden) return;
-            fetchFeedbacks();
+        const onKey = (e: KeyboardEvent) => {
+            if (e.key === "Escape") onClose();
         };
-        const id = setInterval(tick, ms);
-        return () => clearInterval(id);
-    }, [intervalMin, fetchFeedbacks]);
-
-    // refresh immediato quando la tab torna visibile
-    useEffect(() => {
-        const onVis = () => {
-            if (!document.hidden) fetchFeedbacks();
-        };
-        document.addEventListener("visibilitychange", onVis);
-        return () => document.removeEventListener("visibilitychange", onVis);
-    }, [fetchFeedbacks]);
-
-    const visibleRows = useMemo(() => rows, [rows]);
-
-    if (
-        typeof window !== "undefined" &&
-        window.location.pathname === "/" &&
-        (localStorage.getItem("userData")
-            ? JSON.parse(localStorage.getItem("userData")!).email?.toLowerCase() !==
-            (process.env.NEXT_PUBLIC_SUPER_ADMIN_EMAIL || "").toLowerCase()
-            : true)
-    ) {
-        return null;
-    }
+        document.addEventListener("keydown", onKey);
+        return () => document.removeEventListener("keydown", onKey);
+    }, [onClose]);
 
     return (
-        <section className="w-full max-w-3xl mt-8">
-            <div className="bg-white text-gray-900 rounded-lg shadow p-5 space-y-4">
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-                    <div>
-                        <h3 className="text-lg font-semibold">{title}</h3>
-                        {loading && <p className="text-gray-600">Caricamento…</p>}
-                        {err && <p className="text-red-600">{err}</p>}
+        <div role="dialog" aria-modal="true" aria-labelledby={labelledById}
+            className="fixed inset-0 z-50 grid place-items-center bg-black/40 p-4"
+            onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+            <div ref={ref} className="w-full max-w-lg rounded-2xl border border-gray-200 bg-white p-6 shadow-xl">
+                <div className="mb-4 flex items-start justify-between">
+                    <h2 id={labelledById} className="text-xl font-semibold text-gray-900">{title}</h2>
+                    <button aria-label="Chiudi" onClick={onClose} className="rounded-lg p-2 text-gray-500 hover:bg-gray-100">
+                        <FaTimes />
+                    </button>
+                </div>
+                <div>{children}</div>
+                {footer && <div className="mt-6 flex justify-end gap-2">{footer}</div>}
+            </div>
+        </div>
+    );
+}
+
+export default function Dashboard() {
+    const router = useRouter();
+
+    /** ✅ Tutti gli HOOK al top, nessuno dentro condizioni */
+    const [userData, setUserData] = useState<UserData>({ id: "", name: "", email: "", password: "", gender: "male" });
+    const [loadingUser, setLoadingUser] = useState(true);
+
+    const [visitCount, setVisitCount] = useState<number | null>(null);
+    const [loadingVisits, setLoadingVisits] = useState(false);
+
+    const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+    const [settingsSaving, setSettingsSaving] = useState(false);
+    const [errors, setErrors] = useState<Partial<Record<"name" | "email", string>>>({});
+
+    const [toast, setToast] = useState<string | null>(null);
+    const [modalMessage, setModalMessage] = useState<string | null>(null);
+
+    // Feedback (gli state esistono sempre, la UI deciderà se mostrarli)
+    const [feedbackOpen, setFeedbackOpen] = useState(false);
+    const [feedbackRange, setFeedbackRange] = useState<FeedbackRange>("7d");
+    const [feedbackCount, setFeedbackCount] = useState<number | null>(null);
+    const [loadingFeedbackCount, setLoadingFeedbackCount] = useState(false);
+
+    // ✅ calcolo admin basato su userData
+    const isSuperAdmin = !!userData.email && userData.email.toLowerCase() === SUPER_ADMIN_EMAIL;
+
+    useEffect(() => { document.title = "Dashboard Admin"; }, []);
+    useEffect(() => { if (!toast) return; const t = setTimeout(() => setToast(null), 3000); return () => clearTimeout(t); }, [toast]);
+
+    // carica utente
+    useEffect(() => {
+        const token = localStorage.getItem("token");
+        if (!token) {
+            setModalMessage("Sessione scaduta, fai il logout ed effettua nuovamente il login.");
+            router.replace("/page");
+            return;
+        }
+        const ac = new AbortController();
+        (async () => {
+            try {
+                setLoadingUser(true);
+                const res = await fetch("/api/userData", { headers: { Authorization: `Bearer ${token}` }, signal: ac.signal });
+                if (!res.ok) throw new Error("Errore recupero dati utente.");
+                const user: UserData = await res.json();
+                setUserData({ ...user, password: "" });
+                localStorage.setItem("userData", JSON.stringify(user));
+            } catch {
+                setModalMessage("Impossibile caricare i dati. Esegui di nuovo il login.");
+            } finally {
+                setLoadingUser(false);
+            }
+        })();
+        return () => ac.abort();
+    }, [router]);
+
+    // visite
+    useEffect(() => {
+        if (!userData.id) return;
+        (async () => {
+            try {
+                setLoadingVisits(true);
+                const res = await fetch(`/api/publicData/${userData.id}/visits`);
+                if (!res.ok) throw new Error("Errore fetch visite");
+                const data: { visits: number } = await res.json();
+                setVisitCount(data.visits);
+            } catch {
+                setToast("Errore nel recupero delle visite.");
+            } finally {
+                setLoadingVisits(false);
+            }
+        })();
+    }, [userData.id]);
+
+    // link pubblico
+    const publicUrl = useMemo(() => {
+        if (!userData.id || typeof window === "undefined") return "";
+        return `${window.location.origin}/public_page/${userData.id}`;
+    }, [userData.id]);
+
+    // ✅ fetch feedback COUNT solo se admin (condizione DENTRO l’effetto, non attorno all’hook)
+    useEffect(() => {
+        if (!isSuperAdmin) {
+            setFeedbackCount(null);
+            setFeedbackOpen(false);
+            return;
+        }
+        let ac = new AbortController();
+        (async () => {
+            try {
+                setLoadingFeedbackCount(true);
+                const res = await fetch(`/api/feedback/count?range=${feedbackRange}`, { signal: ac.signal });
+                if (!res.ok) throw new Error("Errore conteggio feedback");
+                const data = await res.json();
+                setFeedbackCount(data.total ?? 0);
+            } catch {
+                setFeedbackCount(null);
+            } finally {
+                setLoadingFeedbackCount(false);
+            }
+        })();
+        return () => ac.abort();
+    }, [feedbackRange, isSuperAdmin]);
+
+    // helpers
+    const copyPublicLink = async () => {
+        if (!publicUrl) return;
+        try {
+            await navigator.clipboard.writeText(publicUrl);
+            setToast("Link pubblico copiato!");
+        } catch {
+            setToast("Impossibile copiare il link.");
+        }
+    };
+
+    // --- RENDER ---
+    return (
+        <div className="min-h-screen bg-gray-50 text-gray-900">
+            {/* ... header e hero invariati ... */}
+
+            <main className="mx-auto max-w-6xl px-4 py-8">
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+                    <div className="space-y-6 md:col-span-2">
+                        {/* Area Pubblica (uguale) */}
+                        {/* Statistiche Visite (uguale, ma il bottone “Apri feedback” solo se admin) */}
+
+                        {/* ✅ BLOCCO FEEDBACK visibile SOLO all’admin */}
+                        {isSuperAdmin && (
+                            <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+                                <div className="mb-4 flex items-center justify-between">
+                                    <h3 className="text-lg font-semibold">Feedback</h3>
+                                    <select
+                                        value={feedbackRange}
+                                        onChange={(e) => setFeedbackRange(e.target.value as FeedbackRange)}
+                                        className="rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600"
+                                    >
+                                        <option value="7d">Ultimi 7 giorni</option>
+                                        <option value="30d">Ultimi 30 giorni</option>
+                                        <option value="90d">Ultimi 90 giorni</option>
+                                        <option value="all">Tutto</option>
+                                    </select>
+                                </div>
+
+                                <div className="flex items-baseline gap-3">
+                                    {loadingFeedbackCount ? (
+                                        <div className="h-8 w-24 animate-pulse rounded bg-gray-100" />
+                                    ) : (
+                                        <p className="text-4xl font-bold text-gray-900">{feedbackCount ?? 0}</p>
+                                    )}
+                                    <span className="text-sm text-gray-600">feedback totali</span>
+                                </div>
+
+                                <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                                    <button
+                                        onClick={() => setFeedbackOpen(true)}
+                                        className="inline-flex items-center justify-center rounded-xl bg-orange-500 px-3 py-2 font-semibold text-white shadow hover:bg-orange-600"
+                                    >
+                                        Apri modale
+                                    </button>
+                                    <Link
+                                        href="/feedback"
+                                        className="inline-flex items-center justify-center rounded-xl border border-gray-200 bg-white px-3 py-2 text-gray-900 shadow-sm hover:bg-gray-50"
+                                    >
+                                        Vai alla pagina
+                                    </Link>
+                                </div>
+                            </div>
+                        )}
                     </div>
 
-                    {/* Unica scelta: intervallo */}
-                    <label className="text-sm text-gray-600">
-                        Aggiorna automaticamente ogni:&nbsp;
-                        <select
-                            className="border rounded px-2 py-1"
-                            value={String(intervalMin)}
-                            onChange={(e) => setIntervalMin(Number(e.target.value))}
-                        >
-                            <option value="1">1 minuto</option>
-                            <option value="5">5 minuti</option>
-                            <option value="10">10 minuti</option>
-                            <option value="30">30 minuti</option>
-                        </select>
-                    </label>
+                    {/* Colonna destra, ecc. */}
                 </div>
+            </main>
 
-                {/* Lista */}
-                <ul className="space-y-3">
-                    {!loading && !err && visibleRows.length === 0 && (
-                        <li className="text-gray-600">Nessun feedback.</li>
-                    )}
-                    {visibleRows.map((r) => (
-                        <li key={r.id} className="rounded border p-4">
-                            <div className="text-sm text-gray-500">
-                                <b>{r.type}</b> · {r.severity} · {new Date(r.createdAt).toLocaleString()}
-                            </div>
-                            <p className="mt-2 text-gray-800 whitespace-pre-wrap">{r.message}</p>
-                            <div className="mt-2 text-xs text-gray-500">
-                                {r.email && <span>Email: {r.email} · </span>}
-                                {r.pageUrl && <span>Pagina: {r.pageUrl}</span>}
-                            </div>
-                        </li>
-                    ))}
-                </ul>
-            </div>
-        </section>
+            {/* ✅ Modale dei feedback SOLO se admin */}
+            {isSuperAdmin && (
+                <FeedbackResultsModal open={feedbackOpen} onClose={() => setFeedbackOpen(false)} />
+            )}
+        </div>
     );
 }
