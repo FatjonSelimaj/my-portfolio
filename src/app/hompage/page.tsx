@@ -370,7 +370,7 @@ export default function Dashboard() {
                 </button>
               </li>
               <li>
-                <Link href="/public" className="hover:text-gray-900">
+                <Link href="/public_page" className="hover:text-gray-900">
                   Pubblico
                 </Link>
               </li>
