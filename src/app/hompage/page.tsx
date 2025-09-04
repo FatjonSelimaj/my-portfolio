@@ -26,8 +26,6 @@ function Toast({ message }: { message: string }) {
   );
 }
 
-const SUPER_ADMIN_EMAIL = (process.env.NEXT_PUBLIC_SUPER_ADMIN_EMAIL ?? "").toLowerCase();
-
 /** Modal generico */
 function Modal({
   title,
@@ -121,10 +119,6 @@ export default function Dashboard() {
     gender: "male",
   });
 
-  // visibilità admin (manteniamo la logica, anche se non usiamo il feedback)
-  const isSuperAdmin =
-    !!userData.email && userData.email.toLowerCase() === SUPER_ADMIN_EMAIL;
-
   const [loadingUser, setLoadingUser] = useState(true);
   const [visitCount, setVisitCount] = useState<number | null>(null);
   const [loadingVisits, setLoadingVisits] = useState(false);
@@ -137,7 +131,7 @@ export default function Dashboard() {
   const [modalMessage, setModalMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    document.title = "Dashboard Admin";
+    document.title = "Dashboard";
   }, []);
 
   useEffect(() => {
