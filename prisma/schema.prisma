@@ -1,5 +1,6 @@
 generator client {
   provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
 }
 
 datasource db {
@@ -27,7 +28,7 @@ model User {
   details             UserDetails?         @relation("UserToDetails")
   articles            Article[]            @relation("UserArticles")
   passwordResetTokens PasswordResetToken[] @relation("UserResetTokens")
-  role                UserRole             @default(USER) 
+  role                UserRole             @default(USER)
   Experience          Experience[]
   Feedback            Feedback[]
 }
