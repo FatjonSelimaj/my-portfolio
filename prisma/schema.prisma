@@ -1,6 +1,5 @@
 generator client {
   provider = "prisma-client-js"
-  output   = "../node_modules/.prisma/client"
 }
 
 datasource db {
@@ -28,9 +27,8 @@ model User {
   details             UserDetails?         @relation("UserToDetails")
   articles            Article[]            @relation("UserArticles")
   passwordResetTokens PasswordResetToken[] @relation("UserResetTokens")
-  role                UserRole             @default(USER)
+  role                UserRole             @default(USER) 
   Experience          Experience[]
-  Feedback            Feedback[]
 }
 
 model UserDetails {
@@ -138,36 +136,6 @@ model Experience {
   isPublic    Boolean   @default(true)
 
   user User @relation(fields: [userId], references: [id]) // ← niente onDelete con Mongo
-}
-
-model Feedback {
-  id     String  @id @default(auto()) @map("_id") @db.ObjectId
-  userId String? @db.ObjectId
-  user   User?   @relation(fields: [userId], references: [id])
-
-  email      String?
-  type       FeedbackType
-  severity   FeedbackSeverity
-  message    String
-  pageUrl    String?
-  userAgent  String?
-  stacktrace String?
-  imageUrl   String?
-  createdAt  DateTime         @default(now())
-}
-
-enum FeedbackType {
-  BUG
-  IDEA
-  UX
-  OTHER
-}
-
-enum FeedbackSeverity {
-  LOW
-  MEDIUM
-  HIGH
-  CRITICAL
 }
 
 model PageVisit {

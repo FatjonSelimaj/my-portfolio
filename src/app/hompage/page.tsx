@@ -6,7 +6,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { FaSignOutAlt, FaCog, FaTimes, FaSave, FaUser } from "react-icons/fa";
-import FeedbackResultsModal from "../components/FeedbackResultsModal";
 
 /* ---------- Tipi ---------- */
 interface UserData {
@@ -17,7 +16,6 @@ interface UserData {
   gender: string;
 }
 type FieldError = Partial<Record<"name" | "email", string>>;
-type FeedbackRange = "7d" | "30d" | "90d" | "all";
 
 /* ---------- UI atoms ---------- */
 function Toast({ message }: { message: string }) {
@@ -123,7 +121,7 @@ export default function Dashboard() {
     gender: "male",
   });
 
-  // visibilità admin (calcolata SEMPRE, mai in modo condizionale rispetto agli hooks)
+  // visibilità admin (manteniamo la logica, anche se non usiamo il feedback)
   const isSuperAdmin =
     !!userData.email && userData.email.toLowerCase() === SUPER_ADMIN_EMAIL;
 
@@ -137,12 +135,6 @@ export default function Dashboard() {
 
   const [toast, setToast] = useState<string | null>(null);
   const [modalMessage, setModalMessage] = useState<string | null>(null);
-
-  // Feedback (solo admin)
-  const [feedbackOpen, setFeedbackOpen] = useState(false);
-  const [feedbackRange, setFeedbackRange] = useState<FeedbackRange>("7d");
-  const [feedbackCount, setFeedbackCount] = useState<number | null>(null);
-  const [loadingFeedbackCount, setLoadingFeedbackCount] = useState(false);
 
   useEffect(() => {
     document.title = "Dashboard Admin";
@@ -267,7 +259,7 @@ export default function Dashboard() {
       setModalMessage("Sessione scaduta. Fai il logout ed effettua nuovamente il login.");
       localStorage.removeItem("token");
       localStorage.removeItem("userData");
-      setTimeout(() => router.replace("/auth/login"), 1200);
+      setTimeout(() => router.replace("../auth/login"), 1200);
       return;
     }
     setErrors({});
@@ -314,43 +306,6 @@ export default function Dashboard() {
     }
   };
 
-  // ===== Feedback: conteggio per range (SOLO admin) =====
-  async function fetchFeedbackCount(range: FeedbackRange) {
-    try {
-      setLoadingFeedbackCount(true);
-      const token = localStorage.getItem("token");
-      const res = await fetch(`/api/feedback/count?range=${range}`, {
-        headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-      });
-      if (!res.ok) {
-        if (res.status === 403) {
-          // non admin: non mostrare nulla
-          setFeedbackCount(null);
-          return;
-        }
-        throw new Error("Errore conteggio feedback");
-      }
-      const data = await res.json();
-      setFeedbackCount(data.total ?? 0);
-    } catch {
-      setFeedbackCount(null);
-      setToast("Errore nel conteggio feedback.");
-    } finally {
-      setLoadingFeedbackCount(false);
-    }
-  }
-
-  useEffect(() => {
-    if (isSuperAdmin) {
-      fetchFeedbackCount(feedbackRange);
-    } else {
-      // se non admin: nascondi UI feedback/modale
-      setFeedbackCount(null);
-      setFeedbackOpen(false);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [feedbackRange, isSuperAdmin]);
-
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900">
       {/* Header */}
@@ -374,13 +329,7 @@ export default function Dashboard() {
                   Pubblico
                 </Link>
               </li>
-              {isSuperAdmin && (
-                <li>
-                  <Link href="/feedback" className="hover:text-gray-900">
-                    Feedback
-                  </Link>
-                </li>
-              )}
+              {/* (Feedback rimosso) */}
             </ul>
           </nav>
           <div className="flex justify-end gap-2">
@@ -482,60 +431,10 @@ export default function Dashboard() {
                   <FaUser /> Modifica Profilo
                 </Link>
 
-                {isSuperAdmin && (
-                  <button
-                    onClick={() => setFeedbackOpen(true)}
-                    className="inline-flex items-center justify-center rounded-xl bg-orange-500 px-3 py-2 font-semibold text-white shadow hover:bg-orange-600"
-                  >
-                    Apri feedback
-                  </button>
-                )}
+                {/* (Bottone feedback rimosso) */}
+                <span className="hidden sm:block" />
               </div>
             </div>
-
-            {/* Feedback (SOLO admin) */}
-            {isSuperAdmin && (
-              <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-                <div className="mb-4 flex items-center justify-between">
-                  <h3 className="text-lg font-semibold">Feedback</h3>
-                  <select
-                    value={feedbackRange}
-                    onChange={(e) => setFeedbackRange(e.target.value as FeedbackRange)}
-                    className="rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600"
-                    aria-label="Seleziona intervallo di tempo"
-                  >
-                    <option value="7d">Ultimi 7 giorni</option>
-                    <option value="30d">Ultimi 30 giorni</option>
-                    <option value="90d">Ultimi 90 giorni</option>
-                    <option value="all">Tutto</option>
-                  </select>
-                </div>
-
-                <div className="flex items-baseline gap-3">
-                  {loadingFeedbackCount ? (
-                    <div className="h-8 w-24 animate-pulse rounded bg-gray-100" />
-                  ) : (
-                    <p className="text-4xl font-bold text-gray-900">{feedbackCount ?? 0}</p>
-                  )}
-                  <span className="text-sm text-gray-600">feedback totali</span>
-                </div>
-
-                <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
-                  <button
-                    onClick={() => setFeedbackOpen(true)}
-                    className="inline-flex items-center justify-center rounded-xl bg-orange-500 px-3 py-2 font-semibold text-white shadow hover:bg-orange-600"
-                  >
-                    Apri modale
-                  </button>
-                  <Link
-                    href="/feedback"
-                    className="inline-flex items-center justify-center rounded-xl border border-gray-200 bg-white px-3 py-2 text-gray-900 shadow-sm hover:bg-gray-50"
-                  >
-                    Vai alla pagina
-                  </Link>
-                </div>
-              </div>
-            )}
 
             {/* CTA */}
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -587,11 +486,7 @@ export default function Dashboard() {
         {toast && <Toast message={toast} />}
       </div>
 
-      {/* Modali (solo admin) */}
-      {isSuperAdmin && (
-        <FeedbackResultsModal open={feedbackOpen} onClose={() => setFeedbackOpen(false)} />
-      )}
-
+      {/* Modale impostazioni */}
       {isSettingsOpen && (
         <Modal
           title="Modifica Impostazioni"
@@ -608,8 +503,9 @@ export default function Dashboard() {
               <button
                 onClick={handleSaveSettings}
                 disabled={settingsSaving}
-                className={`rounded-xl px-4 py-2 text-sm font-semibold text-white shadow ${settingsSaving ? "bg-blue-300" : "bg-blue-600 hover:bg-blue-700"
-                  }`}
+                className={`rounded-xl px-4 py-2 text-sm font-semibold text-white shadow ${
+                  settingsSaving ? "bg-blue-300" : "bg-blue-600 hover:bg-blue-700"
+                }`}
               >
                 <FaSave /> {settingsSaving ? "Salvataggio…" : "Salva"}
               </button>
@@ -624,8 +520,9 @@ export default function Dashboard() {
                 type="text"
                 value={userData.name}
                 onChange={(e) => setUserData({ ...userData, name: e.target.value })}
-                className={`w-full rounded-xl border px-3 py-2 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-600 ${errors.name ? "border-red-500" : "border-gray-300"
-                  }`}
+                className={`w-full rounded-xl border px-3 py-2 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-600 ${
+                  errors.name ? "border-red-500" : "border-gray-300"
+                }`}
                 aria-invalid={!!errors.name}
                 aria-describedby={errors.name ? "err-name" : undefined}
                 data-autofocus
@@ -643,8 +540,9 @@ export default function Dashboard() {
                 type="email"
                 value={userData.email}
                 onChange={(e) => setUserData({ ...userData, email: e.target.value })}
-                className={`w-full rounded-xl border px-3 py-2 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-600 ${errors.email ? "border-red-500" : "border-gray-300"
-                  }`}
+                className={`w-full rounded-xl border px-3 py-2 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-600 ${
+                  errors.email ? "border-red-500" : "border-gray-300"
+                }`}
                 aria-invalid={!!errors.email}
                 aria-describedby={errors.email ? "err-email" : undefined}
               />
@@ -670,6 +568,7 @@ export default function Dashboard() {
         </Modal>
       )}
 
+      {/* Modale messaggi */}
       {modalMessage && (
         <Modal
           title="Messaggio"
