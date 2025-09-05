@@ -1,24 +1,34 @@
 "use client";
+
 import { useEffect, useState } from "react";
+
+/** Tipizza window.gtag per evitare ts-ignore */
+declare global {
+  interface Window {
+    gtag?: (...args: any[]) => void;
+    openCookieBanner?: () => void;
+  }
+}
 
 export default function CookieBanner() {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    // mostra al primo accesso
-    const saved = localStorage.getItem("cookie_consent_v2");
+    const saved = typeof window !== "undefined" ? localStorage.getItem("cookie_consent_v2") : "all";
     if (!saved) setOpen(true);
 
-    // espone un metodo globale per riaprire il banner
-    (window as any).openCookieBanner = () => setOpen(true);
+    // espone una funzione globale per riaprire il banner
+    window.openCookieBanner = () => setOpen(true);
 
-    // cleanup opzionale
-    return () => { delete (window as any).openCookieBanner; };
+    return () => {
+      delete window.openCookieBanner;
+    };
   }, []);
 
   function updateConsent(values: Record<string, "granted" | "denied">) {
-    // @ts-ignore
-    window.gtag && window.gtag("consent", "update", values);
+    if (typeof window !== "undefined" && typeof window.gtag === "function") {
+      window.gtag("consent", "update", values);
+    }
   }
 
   function acceptAll() {
