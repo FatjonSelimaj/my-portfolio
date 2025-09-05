@@ -305,7 +305,7 @@ export default function Dashboard() {
       {/* Header */}
       <header className="sticky top-0 z-30 w-full border-b border-gray-200 bg-white/90 backdrop-blur">
         <div className="mx-auto grid max-w-6xl grid-cols-2 items-center gap-4 px-4 py-4 md:grid-cols-3">
-          <h1 className="text-lg font-semibold md:col-span-1">Portfolio Creator • Admin</h1>
+          <h1 className="text-lg font-semibold md:col-span-1">Portfolio Creator {userData.name}</h1>
           <nav className="hidden justify-center md:flex">
             <ul className="flex items-center gap-6 text-sm text-gray-600">
               <li>
@@ -317,11 +317,6 @@ export default function Dashboard() {
                 <button onClick={() => router.push("/experience-list")} className="hover:text-gray-900">
                   Esperienze
                 </button>
-              </li>
-              <li>
-                <Link href="/public_page" className="hover:text-gray-900">
-                  Pubblico
-                </Link>
               </li>
               {/* (Feedback rimosso) */}
             </ul>
@@ -462,9 +457,6 @@ export default function Dashboard() {
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 px-4 py-6 text-sm text-gray-500 md:flex-row">
           <span>© {new Date().getFullYear()} Portfolio Creator</span>
           <div className="flex items-center gap-4">
-            <a className="hover:text-gray-700" href="mailto:hello@spazio010.com">
-              hello@spazio010.com
-            </a>
             <a className="hover:text-gray-700" href="https://www.facebook.com" target="_blank" rel="noreferrer">
               Facebook
             </a>
