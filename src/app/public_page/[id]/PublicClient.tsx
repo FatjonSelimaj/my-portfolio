@@ -312,8 +312,6 @@ export default function PublicClient() {
     return () => obs.disconnect();
   }, [navItems.length, active]);
 
-  const aboutCards = useMemo(() => extractAboutCards(data?.about || ""), [data?.about]);
-
   if (error) return <div className="min-h-screen flex items-center justify-center text-red-600 p-6">{error}</div>;
   if (!data) return <div className="min-h-screen flex items-center justify-center text-gray-500">Caricamento…</div>;
 
