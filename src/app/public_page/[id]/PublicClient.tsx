@@ -6,15 +6,68 @@ import { FaPhone, FaEnvelope, FaBars, FaTimes } from "react-icons/fa";
 import Link from "next/link";
 import Image from "next/image";
 import Carousel from "@/app/components/Carousel";
+import type { Experience } from "@prisma/client";
 
-/*----type----*/
+/* ---------- tipi FE ---------- */
+type CertificationFE = {
+  id: string;
+  title: string;
+  institution: string;
+  dateAwarded: string; // ISO string
+  extractedText?: string | null;
+  logoUrl?: string | null;
+  description?: string | null;
+};
+
+type DiplomaFE = {
+  id: string;
+  degree: string;
+  fieldOfStudy: string;
+  institution: string;
+  dateAwarded: string;            // ISO
+  diplomaUrl?: string | null;
+  fileType: "image" | "pdf" | null;
+};
+
+type ProjectFE = {
+  id: string;
+  title?: string | null;
+  content?: string | null;
+  url: string;
+  logoUrl?: string | null;
+  host?: string | null; // lo valorizziamo da API
+};
+
+type PaintingFE = { title?: string; content?: string };
+
 type CertOrDip =
-  | { kind: "cert"; c: Certification }
-  | { kind: "dip"; d: Diploma };
+  | { kind: "cert"; c: CertificationFE }
+  | { kind: "dip"; d: DiplomaFE };
+
+type ApiData = {
+  firstName: string;
+  lastName: string;
+  about: string;
+  imageUrl?: string;
+  paintings?: PaintingFE[];
+  projects?: ProjectFE[];
+  certifications?: CertificationFE[];
+  diplomas?: DiplomaFE[];
+  contact: {
+    phone?: string;
+    email?: string;
+    facebookUrl?: string;
+    instagramUrl?: string;
+    twitterUrl?: string;
+    linkedinUrl?: string;
+    githubUrl?: string;
+  };
+  experiences?: Experience[];
+};
 
 /* ---------- utils ---------- */
-function formatDate(dateString: string) {
-  const d = new Date(dateString);
+function formatDate(value: string | Date) {
+  const d = value instanceof Date ? value : new Date(value);
   const day = String(d.getDate()).padStart(2, "0");
   const month = String(d.getMonth() + 1).padStart(2, "0");
   const year = d.getFullYear();
@@ -55,10 +108,7 @@ type AboutCard = { key: "profilo" | "approccio" | "esperienze" | "competenze"; t
 function extractAboutCards(raw: string): AboutCard[] {
   const text = (raw || "").replace(/\r/g, "").trim();
   if (!text) return [];
-
-  // normalizza righe e spazi
   const norm = text
-    // mettI un \n prima dei titoli noti, con o senza numero puntato
     .replace(/\n?\s*\d*\.\s*Profilo professionale/i, "\n### Profilo professionale")
     .replace(/\n?\s*Profilo professionale/i, "\n### Profilo professionale")
     .replace(/\n?\s*\d*\.\s*Esperienze professionali/i, "\n### Esperienze professionali")
@@ -67,7 +117,6 @@ function extractAboutCards(raw: string): AboutCard[] {
     .replace(/\n?\s*Competenze tecniche/i, "\n### Competenze tecniche")
     .replace(/\n?\s*Approccio/i, "\n### Approccio");
 
-  // split per sezioni "### Titolo"
   const parts = norm.split(/\n###\s+/).map(s => s.trim()).filter(Boolean);
 
   const map: Record<string, AboutCard> = {
@@ -83,28 +132,19 @@ function extractAboutCards(raw: string): AboutCard[] {
     const content = rest.join("\n").trim() || "";
     const k =
       titleKey.includes("profilo professionale") ? "profilo" :
-        titleKey.includes("approccio") ? "approccio" :
-          titleKey.includes("esperienze professionali") ? "esperienze" :
-            titleKey.includes("competenze tecniche") ? "competenze" :
-              null;
-
+      titleKey.includes("approccio") ? "approccio" :
+      titleKey.includes("esperienze professionali") ? "esperienze" :
+      titleKey.includes("competenze tecniche") ? "competenze" : null;
     if (!k) continue;
 
-    // piccole pulizie: compatta elenchi, preserva a capo
-    const cleaned = content
-      .replace(/\n{3,}/g, "\n\n")
-      .replace(/[ \t]+\n/g, "\n")
-      .trim();
-
+    const cleaned = content.replace(/\n{3,}/g, "\n\n").replace(/[ \t]+\n/g, "\n").trim();
     map[
       k === "profilo" ? "profilo professionale" :
-        k === "approccio" ? "approccio" :
-          k === "esperienze" ? "esperienze professionali" :
-            "competenze tecniche"
+      k === "approccio" ? "approccio" :
+      k === "esperienze" ? "esperienze professionali" : "competenze tecniche"
     ].content = cleaned;
   }
 
-  // ritorna solo le sezioni presenti e non vuote, nell’ordine desiderato
   const orderedKeys: Array<keyof typeof map> = [
     "profilo professionale",
     "approccio",
@@ -112,9 +152,7 @@ function extractAboutCards(raw: string): AboutCard[] {
     "competenze tecniche",
   ];
 
-  return orderedKeys
-    .map(k => map[k])
-    .filter(card => card && card.content);
+  return orderedKeys.map(k => map[k]).filter(card => card && card.content);
 }
 
 /* ---------- small components ---------- */
@@ -140,33 +178,39 @@ function PaintingIcon({ title }: { title: string }) {
   return <Image src={src} alt={title} width={56} height={56} className="w-14 h-14 object-contain" unoptimized />;
 }
 
-/** Logo Progetti: logoUrl → clearbit → favicon → fallback */
-function ProjectLogo({ url, title, logoUrl }: { url: string; title: string; logoUrl?: string }) {
-  const host = getHost(url);
-  const [attempt, setAttempt] = useState(0);
-  const srcs = useMemo(() => {
-    const list: string[] = [];
-    if (logoUrl) list.push(logoUrl);
-    if (host) list.push(`https://logo.clearbit.com/${host}`);
-    if (host) list.push(`https://${host}/favicon.ico`);
-    list.push("https://img.icons8.com/ios-filled/100/external-link.png");
-    return list;
+/** Logo Progetti con chain di fallback */
+function ProjectLogo({
+  url,
+  title,
+  logoUrl,
+  host: hostFromApi,
+}: { url: string; title: string; logoUrl?: string | null; host?: string | null }) {
+  const host = (hostFromApi ?? getHost(url)?.replace(/^www\./, "") ?? "").trim();
+  const [i, setI] = useState(0);
+
+  const sources = useMemo(() => {
+    if (!host) {
+      return [logoUrl].filter(Boolean).concat("https://img.icons8.com/ios-filled/100/external-link.png") as string[];
+    }
+    return [
+      ...(logoUrl ? [logoUrl] : []),
+      `https://unavatar.io/${host}`,
+      `https://logo.clearbit.com/${host}`,
+      `https://icons.duckduckgo.com/ip3/${host}.ico`,
+      `https://www.google.com/s2/favicons?sz=128&domain=${host}`,
+      `https://${host}/apple-touch-icon.png`,
+      `https://${host}/android-chrome-192x192.png`,
+      `https://${host}/favicon.ico`,
+      "https://img.icons8.com/ios-filled/100/external-link.png",
+    ];
   }, [host, logoUrl]);
 
-  const [src, setSrc] = useState(srcs[0]);
-  useEffect(() => { setSrc(srcs[0]); setAttempt(0); }, [srcs]);
-
-  const handleError = () => {
-    const next = attempt + 1;
-    if (next < srcs.length) {
-      setAttempt(next);
-      setSrc(srcs[next]);
-    }
-  };
+  useEffect(() => setI(0), [sources]);
+  const handleError = () => setI(prev => (prev + 1 < sources.length ? prev + 1 : prev));
 
   return (
     <Image
-      src={src}
+      src={sources[i]!}
       alt={title}
       width={64}
       height={64}
@@ -177,34 +221,7 @@ function ProjectLogo({ url, title, logoUrl }: { url: string; title: string; logo
   );
 }
 
-/* ---------- types ---------- */
-interface Painting { title?: string; content?: string; }
-interface Project { id: string; title?: string; content?: string; url: string; logoUrl?: string; }
-interface Certification { id: string; title: string; institution: string; dateAwarded: string; extractedText?: string; logoUrl?: string; description?: string; }
-interface Diploma { id: string; degree: string; fieldOfStudy: string; institution: string; dateAwarded: string; diplomaUrl: string; fileType: "image" | "pdf"; }
-interface ApiData {
-  firstName: string;
-  lastName: string;
-  about: string;
-  imageUrl?: string;
-  paintings?: Painting[];
-  projects?: Project[];
-  certifications?: Certification[];
-  diplomas?: Diploma[];
-  contact: {
-    phone?: string;
-    email?: string;
-    facebookUrl?: string;
-    instagramUrl?: string;
-    twitterUrl?: string;
-    linkedinUrl?: string;
-    githubUrl?: string;
-  };
-  experiences?: Experience[];
-}
-interface Experience { id: string; company: string; role: string; description: string; startDate: string; endDate?: string | null; }
-
-/* ---------- shared styles (quadrate + scroll) ---------- */
+/* ---------- shared styles ---------- */
 const CARD_WRAPPER = "w-full max-w-[760px] mx-auto";
 const CARD_SQUARE = "aspect-square rounded-2xl border bg-white shadow-sm ring-1 ring-transparent hover:ring-indigo-100 hover:shadow-xl transition overflow-hidden";
 const CARD_TOP = "min-h-[38%] flex items-center justify-center border-b bg-gradient-to-br from-gray-50 to-white px-6";
@@ -213,30 +230,29 @@ const TITLE = "font-semibold text-gray-900";
 const META = "text-xs text-gray-500";
 const SCROLLER = "mt-3 grow overflow-auto pr-1 space-y-2 text-sm text-gray-700 leading-relaxed";
 
-/* ---------- component ---------- */
+/* ---------- componente principale ---------- */
 export default function PublicClient() {
   const { id } = useParams();
   const [data, setData] = useState<ApiData | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
-
   const [active, setActive] = useState<"about" | "bio" | "paintings" | "projects" | "experiences">("about");
 
   // refs
-  const aboutRef = useRef<HTMLElement | null>(null); // HERO
+  const aboutRef = useRef<HTMLElement | null>(null);
   const bioRef = useRef<HTMLElement | null>(null);
   const paintingsRef = useRef<HTMLElement | null>(null);
   const projectsRef = useRef<HTMLElement | null>(null);
   const experiencesRef = useRef<HTMLElement | null>(null);
   const contactsRef = useRef<HTMLElement | null>(null);
 
-  // visits
+  // track visit
   useEffect(() => {
     if (!id) return;
-    fetch(`/api/publicData/${id}/visits`, { method: "POST" }).catch(() => { });
+    fetch(`/api/publicData/${id}/visits`, { method: "POST" }).catch(() => {});
   }, [id]);
 
-  // data
+  // load data
   useEffect(() => {
     if (!id) { setError("ID utente non specificato."); return; }
     fetch(`/api/publicData/${id}`, { cache: "no-store" })
@@ -251,23 +267,22 @@ export default function PublicClient() {
   const diplomas = useMemo(() => data?.diplomas ?? [], [data?.diplomas]);
   const hasExp = (data?.experiences?.length ?? 0) > 0;
 
-  // About: 1° paragrafo in HERO, resto in “Bio”
+  // about → hero + bio
   const aboutParas = useMemo(() => (data?.about || "").split(/\n\s*\n/).map(s => s.trim()).filter(Boolean), [data?.about]);
   const aboutFirst = aboutParas[0] || "";
 
-  // menu (senza contatti)
+  // menu dinamico
   const navItems = useMemo(
     () =>
       [
         { id: "about", label: "Chi sono", ref: aboutRef, show: true },
-        { id: "bio", label: "Bio", ref: bioRef, show: true }, // 👈 sempre visibile
+        { id: "bio", label: "Bio", ref: bioRef, show: true },
         { id: "paintings", label: "Opere", ref: paintingsRef, show: paintings.length > 0 },
         { id: "projects", label: "Progetti", ref: projectsRef, show: projects.length > 0 },
         { id: "experiences", label: "Esperienze", ref: experiencesRef, show: hasExp },
       ].filter(i => i.show),
     [paintings.length, projects.length, hasExp]
   );
-
 
   const scrollToRef = (el: HTMLElement | null) => {
     if (!el) return;
@@ -304,7 +319,7 @@ export default function PublicClient() {
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
-      {/* ---------- HEADER ---------- */}
+      {/* HEADER */}
       <header className="sticky top-0 z-50 border-b bg-white/80 backdrop-blur">
         <nav className="container mx-auto flex items-center justify-between px-4 py-3">
           <div className="font-extrabold text-xl tracking-tight text-gray-900">
@@ -336,7 +351,6 @@ export default function PublicClient() {
               ))}
             </div>
 
-            {/* Contatti fuori dal menù */}
             <div className="mt-3 md:mt-0 flex items-center gap-3">
               <button
                 onClick={() => scrollToRef(contactsRef.current)}
@@ -349,7 +363,7 @@ export default function PublicClient() {
         </nav>
       </header>
 
-      {/* ---------- HERO = "CHI SONO" (foto in alto a destra) ---------- */}
+      {/* HERO */}
       <section id="section-about" data-section-id="about" ref={aboutRef} className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-indigo-500 to-purple-600" />
         <div className="absolute -top-24 -left-24 w-72 h-72 rounded-full bg-white/10 blur-3xl" />
@@ -398,42 +412,34 @@ export default function PublicClient() {
         </div>
       </section>
 
-      {/* ---------- BIO (le mini-card) ---------- */}
-      {aboutCards.length > 0 && (
-        <section
-          id="section-bio"
-          data-section-id="bio"
-          ref={bioRef}
-          className="bg-white scroll-mt-24"
-        >
-          <div className="container mx-auto px-4 py-12">
-            <article className="max-w-[980px] mx-auto">
-              <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-gray-900 mb-6">
-                Bio
-              </h2>
-              <div className="grid gap-6 md:grid-cols-2">
-                {aboutCards.map((card) => (
-                  <div
-                    key={card.key}
-                    className="bg-white p-6 rounded-xl shadow hover:shadow-lg transition border border-indigo-100"
-                  >
-                    <h3 className="text-lg font-semibold text-indigo-700 mb-2">
-                      {card.title}
-                    </h3>
-                    <p className="text-gray-700 whitespace-pre-line text-sm leading-relaxed">
-                      {card.content}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </article>
-          </div>
-        </section>
-      )}
+      {/* BIO */}
+      {(() => {
+        const aboutCards = extractAboutCards(data.about || "");
+        if (aboutCards.length === 0) return null;
+        return (
+          <section id="section-bio" data-section-id="bio" ref={bioRef} className="bg-white scroll-mt-24">
+            <div className="container mx-auto px-4 py-12">
+              <article className="max-w-[980px] mx-auto">
+                <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-gray-900 mb-6">
+                  Bio
+                </h2>
+                <div className="grid gap-6 md:grid-cols-2">
+                  {aboutCards.map((card) => (
+                    <div key={card.key} className="bg-white p-6 rounded-xl shadow hover:shadow-lg transition border border-indigo-100">
+                      <h3 className="text-lg font-semibold text-indigo-700 mb-2">{card.title}</h3>
+                      <p className="text-gray-700 whitespace-pre-line text-sm leading-relaxed">{card.content}</p>
+                    </div>
+                  ))}
+                </div>
+              </article>
+            </div>
+          </section>
+        );
+      })()}
 
-      {/* ---------- MAIN ---------- */}
+      {/* MAIN */}
       <main className="flex-grow">
-        {/* Diplomi & Certificazioni (card quadrate con scroll) */}
+        {/* Diplomi & Certificazioni */}
         <section className="bg-white">
           <div className="container mx-auto px-4 py-16">
             <Carousel<CertOrDip>
@@ -462,9 +468,7 @@ export default function PublicClient() {
                         <div className={SCROLLER}>
                           {cert.description && <p>{cert.description}</p>}
                           {cert.extractedText && (
-                            <blockquote className="pl-3 border-l-2 border-indigo-200 italic">
-                              {cert.extractedText}
-                            </blockquote>
+                            <blockquote className="pl-3 border-l-2 border-indigo-200 italic">{cert.extractedText}</blockquote>
                           )}
                           {!cert.description && !cert.extractedText && (
                             <p className="italic text-gray-500">Nessuna descrizione disponibile.</p>
@@ -488,30 +492,34 @@ export default function PublicClient() {
                       </div>
                     </div>
                     <div className={CARD_BOTTOM}>
-                      <h3 className={TITLE}>
-                        {d.degree} in {d.fieldOfStudy}
-                      </h3>
+                      <h3 className={TITLE}>{d.degree} in {d.fieldOfStudy}</h3>
                       <p className={META}>{new Date(d.dateAwarded).getFullYear()}</p>
                       <div className={SCROLLER}>
                         {d.fileType === "pdf" ? (
-                          <a
-                            href={d.diplomaUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex w-fit items-center gap-2 rounded-full border px-3 py-1.5 text-sm text-indigo-700 hover:bg-indigo-50"
-                          >
-                            Visualizza Diploma (PDF)
-                          </a>
-                        ) : (
+                          d.diplomaUrl ? (
+                            <a
+                              href={d.diplomaUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex w-fit items-center gap-2 rounded-full border px-3 py-1.5 text-sm text-indigo-700 hover:bg-indigo-50"
+                            >
+                              Visualizza Diploma (PDF)
+                            </a>
+                          ) : (
+                            <p className="italic text-gray-500">PDF non disponibile.</p>
+                          )
+                        ) : d.diplomaUrl ? (
                           <Image
                             src={d.diplomaUrl}
                             alt="Diploma"
                             width={800}
                             height={800}
-                            className="w-full rounded-xl border object-cover"
+                            className="w-full h-auto rounded-xl border object-cover"
                             style={{ maxHeight: 220 }}
                             unoptimized
                           />
+                        ) : (
+                          <p className="italic text-gray-500">Immagine non disponibile.</p>
                         )}
                       </div>
                     </div>
@@ -522,11 +530,11 @@ export default function PublicClient() {
           </div>
         </section>
 
-        {/* Opere – card quadrate con scroll */}
+        {/* Opere */}
         {paintings.length > 0 && (
           <section id="section-paintings" data-section-id="paintings" ref={paintingsRef} className="bg-gray-50 scroll-mt-24">
             <div className="container mx-auto px-4 py-16">
-              <Carousel<Painting>
+              <Carousel<PaintingFE>
                 title="Opere"
                 items={paintings}
                 renderItemAction={(p) => (
@@ -543,12 +551,9 @@ export default function PublicClient() {
                     <div className={CARD_BOTTOM}>
                       {p.title && <h3 className={TITLE}>{p.title}</h3>}
                       <div className={SCROLLER}>
-                        {(p.content || "")
-                          .split(/\n\s*\n/)
-                          .filter(Boolean)
-                          .map((para, idx) => (
-                            <p key={idx}>{para}</p>
-                          ))}
+                        {(p.content || "").split(/\n\s*\n/).filter(Boolean).map((para, idx) => (
+                          <p key={idx}>{para}</p>
+                        ))}
                         {!p.content && <p className="italic text-gray-500">Nessun testo disponibile.</p>}
                       </div>
                     </div>
@@ -559,7 +564,7 @@ export default function PublicClient() {
           </section>
         )}
 
-        {/* Progetti – card quadrate con scroll */}
+        {/* Progetti */}
         {projects.length > 0 && (
           <section id="section-projects" data-section-id="projects" ref={projectsRef} className="bg-white scroll-mt-24">
             <div className="container mx-auto px-4 py-16">
@@ -568,18 +573,18 @@ export default function PublicClient() {
                 <span className="text-sm text-gray-500">{projects.length} progetti</span>
               </div>
 
-              <Carousel<Project>
+              <Carousel<ProjectFE>
                 items={projects}
                 renderItemAction={(pr) => (
                   <Link href={pr.url} className={`${CARD_SQUARE} ${CARD_WRAPPER} hover:-translate-y-0.5`}>
                     <div className={CARD_TOP}>
                       <div className="flex items-center gap-3">
                         <div className="shrink-0 flex items-center justify-center rounded-2xl border bg-gray-50 w-16 h-16">
-                          <ProjectLogo url={pr.url} title={pr.title || "Progetto"} logoUrl={pr.logoUrl} />
+                          <ProjectLogo url={pr.url} title={pr.title || "Progetto"} logoUrl={pr.logoUrl} host={pr.host} />
                         </div>
                         <div className="text-gray-700">
                           <div className="text-sm">Visita progetto</div>
-                          <div className="text-[11px] opacity-70">{getHost(pr.url) || pr.url}</div>
+                          <div className="text-[11px] opacity-70">{pr.host || getHost(pr.url) || pr.url}</div>
                         </div>
                       </div>
                     </div>
@@ -596,7 +601,7 @@ export default function PublicClient() {
           </section>
         )}
 
-        {/* Esperienze – timeline */}
+        {/* Esperienze */}
         {hasExp && (
           <section id="section-experiences" data-section-id="experiences" ref={experiencesRef} className="bg-gray-50 scroll-mt-24">
             <div className="container mx-auto px-4 py-16">
@@ -604,7 +609,7 @@ export default function PublicClient() {
                 Esperienze Lavorative
               </h2>
               <ol className="relative border-s-2 border-indigo-100">
-                {data!.experiences!
+                {data.experiences!
                   .slice()
                   .sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime())
                   .map((exp) => (
@@ -675,14 +680,11 @@ export default function PublicClient() {
         </section>
       </main>
 
-      {/* ---------- FOOTER ---------- */}
+      {/* FOOTER */}
       <footer className="bg-gray-100 py-10 relative">
         <div className="container mx-auto px-4 text-sm text-gray-500 flex flex-col sm:flex-row items-center justify-between gap-3 flex-wrap relative">
-
-          {/* © Copyright a sinistra */}
           <span className="order-1 sm:order-none">© {new Date().getFullYear()} Portfolio Creator</span>
 
-          {/* Social al centro */}
           <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-4 flex-wrap">
             {data.contact?.facebookUrl && (
               <a href={data.contact.facebookUrl} target="_blank" rel="noopener noreferrer" title="Facebook">
@@ -711,18 +713,9 @@ export default function PublicClient() {
             )}
           </div>
 
-          {/* Contatti a destra */}
           <div className="order-2 sm:order-none flex items-center gap-4 flex-wrap ml-auto">
-            {data.contact?.phone && (
-              <a className="hover:text-gray-700" href={`tel:${data.contact.phone}`}>
-                {data.contact.phone}
-              </a>
-            )}
-            {data.contact?.email && (
-              <a className="hover:text-gray-700" href={`mailto:${data.contact.email}`}>
-                {data.contact.email}
-              </a>
-            )}
+            {data.contact?.phone && <a className="hover:text-gray-700" href={`tel:${data.contact.phone}`}>{data.contact.phone}</a>}
+            {data.contact?.email && <a className="hover:text-gray-700" href={`mailto:${data.contact.email}`}>{data.contact.email}</a>}
           </div>
         </div>
       </footer>

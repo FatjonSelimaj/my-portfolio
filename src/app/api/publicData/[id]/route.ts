@@ -93,6 +93,12 @@ export async function GET(_req: Request, context: any) {
         : Promise.resolve([]),
     ]);
 
+    const projectsWithHost = projects.map((p) => {
+      let host: string | null = null;
+      try { host = new URL(p.url).hostname.replace(/^www\./, ""); } catch { }
+      return { ...p, host };
+    });
+
     const experiences = await client.experience.findMany({
       where: { userId: user.id, isPublic: true },
       orderBy: { startDate: "desc" },
@@ -117,7 +123,7 @@ export async function GET(_req: Request, context: any) {
       about: details?.bio ?? "",
       imageUrl: details?.imageUrl ?? undefined,
       paintings,
-      projects,
+        projects: projectsWithHost,
       certifications,
       diplomas: diplomasForUi,
       contact: {

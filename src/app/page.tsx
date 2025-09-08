@@ -10,7 +10,13 @@ export default function Home() {
       <header className="sticky top-0 z-40 w-full bg-white/80 dark:bg-gray-950/80 backdrop-blur border-b border-gray-200 dark:border-gray-800">
         <div className="mx-auto max-w-6xl px-6 py-4 flex items-center justify-between">
           <a href="#top" className="flex items-center gap-2">
-            <Image src="/logo.png" alt="Portfolio Creator" width={40} height={40} />
+            <Image
+              src="/logo.png"
+              alt="Logo"
+              width={40}
+              height={40}
+              style={{ width: "100px", height: "auto" }}
+            />
             <span className="text-xl font-bold">Portfolio Creator</span>
           </a>
 
@@ -103,7 +109,7 @@ export default function Home() {
           <h2 className="text-3xl font-extrabold mb-8 text-center">Prezzi chiari</h2>
           <div className="grid md:grid-cols-3 gap-6">
             {[
-              { name: "Free", price: "0€", features: ["0 Portfolio","Preview Portfolio", "Template base"] },
+              { name: "Free", price: "0€", features: ["0 Portfolio", "Preview Portfolio", "Template base"] },
               { name: "Base", price: "1,99€", features: ["1 Portfolio", "Template base", "Sottodominio"] },
               { name: "Pro", price: "4,99€/mese", features: ["Portafogli illimitati", "Template premium", "Dominio personalizzato"] },
               { name: "Business", price: "12,99€/mese", features: ["Team", "Statistiche avanzate", "Supporto prioritario"] },
