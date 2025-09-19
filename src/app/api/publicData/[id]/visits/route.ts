@@ -3,14 +3,16 @@ import { NextRequest, NextResponse } from "next/server";
 
 const visitsStore: Record<string, number> = {};
 
-export async function GET(req: NextRequest, context: any) {
-  const id = context.params.id;
+type Ctx = { params: Promise<{ id: string }> };
+
+export async function GET(_req: NextRequest, { params }: Ctx) {
+  const { id } = await params;
   const count = visitsStore[id] ?? 0;
   return NextResponse.json({ visits: count });
 }
 
-export async function POST(req: NextRequest, context: any) {
-  const id = context.params.id;
+export async function POST(_req: NextRequest, { params }: Ctx) {
+  const { id } = await params;
   visitsStore[id] = (visitsStore[id] ?? 0) + 1;
   return NextResponse.json({ visits: visitsStore[id] });
 }

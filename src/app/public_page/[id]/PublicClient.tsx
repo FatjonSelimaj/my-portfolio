@@ -132,16 +132,16 @@ function extractAboutCards(raw: string): AboutCard[] {
     const content = rest.join("\n").trim() || "";
     const k =
       titleKey.includes("profilo professionale") ? "profilo" :
-      titleKey.includes("approccio") ? "approccio" :
-      titleKey.includes("esperienze professionali") ? "esperienze" :
-      titleKey.includes("competenze tecniche") ? "competenze" : null;
+        titleKey.includes("approccio") ? "approccio" :
+          titleKey.includes("esperienze professionali") ? "esperienze" :
+            titleKey.includes("competenze tecniche") ? "competenze" : null;
     if (!k) continue;
 
     const cleaned = content.replace(/\n{3,}/g, "\n\n").replace(/[ \t]+\n/g, "\n").trim();
     map[
       k === "profilo" ? "profilo professionale" :
-      k === "approccio" ? "approccio" :
-      k === "esperienze" ? "esperienze professionali" : "competenze tecniche"
+        k === "approccio" ? "approccio" :
+          k === "esperienze" ? "esperienze professionali" : "competenze tecniche"
     ].content = cleaned;
   }
 
@@ -232,7 +232,6 @@ const SCROLLER = "mt-3 grow overflow-auto pr-1 space-y-2 text-sm text-gray-700 l
 
 /* ---------- componente principale ---------- */
 export default function PublicClient() {
-  const { id } = useParams();
   const [data, setData] = useState<ApiData | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -245,20 +244,21 @@ export default function PublicClient() {
   const projectsRef = useRef<HTMLElement | null>(null);
   const experiencesRef = useRef<HTMLElement | null>(null);
   const contactsRef = useRef<HTMLElement | null>(null);
+  const { id: rawId } = useParams<{ id: string }>();
+  const id = Array.isArray(rawId) ? rawId[0] : rawId;
 
   // track visit
   useEffect(() => {
     if (!id) return;
-    fetch(`/api/publicData/${id}/visits`, { method: "POST" }).catch(() => {});
+    fetch(`/api/publicData/${encodeURIComponent(id)}/visits`, { method: "POST" }).catch(() => { });
   }, [id]);
 
-  // load data
   useEffect(() => {
-    if (!id) { setError("ID utente non specificato."); return; }
-    fetch(`/api/publicData/${id}`, { cache: "no-store" })
-      .then((res) => { if (!res.ok) throw new Error("Utente non trovato"); return res.json() as Promise<ApiData>; })
+    if (!id) return setError("ID utente non specificato.");
+    fetch(`/api/publicData/${encodeURIComponent(id)}`, { cache: "no-store" })
+      .then(r => { if (!r.ok) throw new Error("Utente non trovato"); return r.json(); })
       .then(setData)
-      .catch((err) => setError(err.message));
+      .catch(err => setError(err.message));
   }, [id]);
 
   const paintings = useMemo(() => (data?.paintings ?? []).filter(p => (p.title || p.content)), [data?.paintings]);
