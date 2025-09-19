@@ -250,9 +250,13 @@ export default function PublicClient() {
   // track visit
   useEffect(() => {
     if (!id) return;
-    fetch(`/api/publicData/${encodeURIComponent(id)}/visits`, { method: "POST" }).catch(() => { });
+    const token = localStorage.getItem("token");
+    fetch(`/api/publicData/${encodeURIComponent(id)}/visits`, {
+      method: "POST",
+      headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+    }).catch(() => { });
   }, [id]);
-
+  
   useEffect(() => {
     if (!id) return setError("ID utente non specificato.");
     fetch(`/api/publicData/${encodeURIComponent(id)}`, { cache: "no-store" })
