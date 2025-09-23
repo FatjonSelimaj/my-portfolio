@@ -2,17 +2,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireUserId, HttpError } from "@/lib/auth";
 
-/**
- * Store in-memory dei timestamp visita (ms).
- * NOTA: si azzera a ogni riavvio/redeploy. Per persistenza -> DB eventi.
- */
+/** In-memory: lista timestamp (ms) per utente */
 const timestampsStore: Record<string, number[]> = {};
 
 type RangeKey = "daily" | "weekly" | "15d" | "monthly";
 
 function normalizeRange(raw: string | null): RangeKey {
-  if (raw === "daily" || raw === "weekly" || raw === "15d" || raw === "monthly") return raw;
-  return "weekly";
+  return raw === "daily" || raw === "weekly" || raw === "15d" || raw === "monthly" ? raw : "weekly";
 }
 
 function getWindowStart(range: RangeKey): number {
@@ -20,8 +16,7 @@ function getWindowStart(range: RangeKey): number {
   const d = new Date();
   switch (range) {
     case "daily":
-      d.setHours(0, 0, 0, 0); // mezzanotte locale
-      return d.getTime();
+      d.setHours(0, 0, 0, 0); return d.getTime();
     case "weekly":
       return now - 7 * 24 * 60 * 60 * 1000;
     case "15d":
@@ -31,9 +26,8 @@ function getWindowStart(range: RangeKey): number {
   }
 }
 
-export async function GET(_req: NextRequest, context: { params: { id: string } }) {
-  const { id } = context.params;
-
+export async function GET(_req: NextRequest, context: any) {
+  const { id } = (context?.params ?? {}) as { id: string };
   const url = new URL(_req.url);
   const range = normalizeRange(url.searchParams.get("range"));
 
@@ -45,19 +39,18 @@ export async function GET(_req: NextRequest, context: { params: { id: string } }
   const total = list.length;
 
   return NextResponse.json({
-    visits: visitsInRange, // conteggio nel periodo
-    total,                 // totale “da sempre”
+    visits: visitsInRange,
+    total,
     range,
     from: new Date(from).toISOString(),
     to: new Date(to).toISOString(),
   });
 }
 
-export async function POST(req: NextRequest, context: { params: { id: string } }) {
-  const { id } = context.params;
+export async function POST(req: NextRequest, context: any) {
+  const { id } = (context?.params ?? {}) as { id: string };
 
   try {
-    // Se c'è JWT e l'utente è il proprietario, NON contiamo
     const userId = requireUserId(req);
     if (userId === id) {
       const list = timestampsStore[id] ?? [];
@@ -67,21 +60,19 @@ export async function POST(req: NextRequest, context: { params: { id: string } }
       });
     }
 
-    // Autenticato ma non proprietario → conta
     timestampsStore[id] = timestampsStore[id] ?? [];
     timestampsStore[id].push(Date.now());
 
     return NextResponse.json({
-      visits: timestampsStore[id].length, // totale aggiornato
+      visits: timestampsStore[id].length,
       message: "Visita conteggiata.",
     });
   } catch (err) {
-    // Ospite / token mancante o non valido → conta
     if (err instanceof HttpError && (err.status === 401 || err.status === 500)) {
       timestampsStore[id] = timestampsStore[id] ?? [];
       timestampsStore[id].push(Date.now());
       return NextResponse.json({
-        visits: timestampsStore[id].length, // totale aggiornato
+        visits: timestampsStore[id].length,
         message: "Visita conteggiata (ospite).",
       });
     }
