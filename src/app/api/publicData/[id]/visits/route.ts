@@ -1,5 +1,5 @@
 // src/app/api/publicData/[id]/visits/route.ts
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { requireUserId, HttpError } from "@/lib/auth";
 
 /**
@@ -15,29 +15,22 @@ function getWindowStart(range: string): number {
   const d = new Date();
   switch (range) {
     case "daily": {
-      // mezzanotte locale
-      d.setHours(0, 0, 0, 0);
+      d.setHours(0, 0, 0, 0); // mezzanotte locale
       return d.getTime();
     }
-    case "weekly": {
-      // ultimi 7 giorni (rolling window)
+    case "weekly":
       return now - 7 * 24 * 60 * 60 * 1000;
-    }
-    case "15d": {
+    case "15d":
       return now - 15 * 24 * 60 * 60 * 1000;
-    }
-    case "monthly": {
-      // ultimi 30 giorni (rolling)
+    case "monthly":
       return now - 30 * 24 * 60 * 60 * 1000;
-    }
-    default: {
-      // fallback = ultimi 7 giorni
-      return now - 7 * 24 * 60 * 60 * 1000;
-    }
+    default:
+      return now - 7 * 24 * 60 * 60 * 1000; // fallback
   }
 }
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+// ✅ Usa Request (web standard) e un context tipizzato inline
+export async function GET(req: Request, { params }: { params: { id: string } }) {
   const id = params.id;
   const url = new URL(req.url);
   const range = url.searchParams.get("range") ?? "weekly";
@@ -50,21 +43,22 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   const total = list.length;
 
   return NextResponse.json({
-    visits: visitsInRange, // visite nel periodo selezionato
-    total,                 // visite totali (utile a UI)
+    visits: visitsInRange,
+    total,
     range,
     from: new Date(from).toISOString(),
     to: new Date(to).toISOString(),
   });
 }
 
-export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(_req: Request, { params }: { params: { id: string } }) {
   const id = params.id;
 
   try {
-    const userId = requireUserId(req);
+    // Se hai bisogno dell'headers Authorization, passa a NextRequest,
+    // ma per compatibilità usiamo requireUserId che leggerà dall'oggetto Request se supportato.
+    const userId = requireUserId(_req as any);
 
-    // Se il proprietario apre la propria pagina pubblica, non contiamo
     if (userId === id) {
       const list = timestampsStore[id] ?? [];
       return NextResponse.json({
@@ -73,7 +67,6 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       });
     }
 
-    // Conteggio visita (timestamp)
     timestampsStore[id] = timestampsStore[id] ?? [];
     timestampsStore[id].push(Date.now());
 
@@ -82,7 +75,6 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       message: "Visita conteggiata.",
     });
   } catch (err) {
-    // Se l'utente non è autenticato o errore auth, contiamo comunque la visita
     if (err instanceof HttpError && (err.status === 401 || err.status === 500)) {
       timestampsStore[id] = timestampsStore[id] ?? [];
       timestampsStore[id].push(Date.now());
