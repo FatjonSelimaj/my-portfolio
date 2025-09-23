@@ -119,6 +119,10 @@ export default function Dashboard() {
     gender: "male",
   });
 
+  type VisitsRange = "daily" | "weekly" | "15d" | "monthly";
+
+  const [visitsRange, setVisitsRange] = useState<VisitsRange>("weekly");
+
   const [loadingUser, setLoadingUser] = useState(true);
   const [visitCount, setVisitCount] = useState<number | null>(null);
   const [loadingVisits, setLoadingVisits] = useState(false);
@@ -180,13 +184,13 @@ export default function Dashboard() {
   }, [router]);
 
   // Visite
-  const fetchVisits = async () => {
+  const fetchVisits = async (range: VisitsRange = visitsRange) => {
     if (!userData.id) return;
     try {
       setLoadingVisits(true);
-      const res = await fetch(`/api/publicData/${userData.id}/visits`);
+      const res = await fetch(`/api/publicData/${userData.id}/visits?range=${range}`);
       if (!res.ok) throw new Error("Errore fetch visite");
-      const data: { visits: number } = await res.json();
+      const data: { visits: number; total?: number; range: string } = await res.json();
       setVisitCount(data.visits);
     } catch (err) {
       setToast("Errore nel recupero delle visite.");
@@ -197,9 +201,9 @@ export default function Dashboard() {
   };
 
   useEffect(() => {
-    if (userData.id) fetchVisits();
+    if (userData.id) fetchVisits(visitsRange);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userData.id]);
+  }, [visitsRange, userData.id]);
 
   // URL pubblico
   const publicUrl = useMemo((): string => {
@@ -393,36 +397,56 @@ export default function Dashboard() {
             </div>
 
             {/* Statistiche Visite */}
-            <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-              <h3 className="mb-4 text-lg font-semibold">Statistiche Visite</h3>
-              {loadingVisits ? (
-                <div className="h-10 w-full animate-pulse rounded bg-gray-100" />
-              ) : visitCount !== null ? (
-                <>
-                  <p className="text-4xl font-bold text-gray-900">{visitCount}</p>
-                  <p className="text-sm text-gray-600">Visite totali alla pagina pubblica</p>
-                </>
-              ) : (
-                <p className="text-sm text-gray-600">Nessun dato visite disponibile.</p>
-              )}
-              <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-3">
-                <button
-                  onClick={fetchVisits}
-                  className="inline-flex items-center justify-center rounded-xl bg-blue-600 px-3 py-2 font-semibold text-white shadow hover:bg-blue-700"
-                >
-                  Aggiorna
-                </button>
+            <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <h3 className="text-lg font-semibold">Statistiche Visite</h3>
 
-                <Link
-                  href="/userdetails"
-                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2 text-gray-900 shadow-sm hover:bg-gray-50"
+              <div className="flex items-center gap-2">
+                <label htmlFor="visits-range" className="text-sm text-gray-600">
+                  Periodo:
+                </label>
+                <select
+                  id="visits-range"
+                  value={visitsRange}
+                  onChange={(e) => setVisitsRange(e.target.value as VisitsRange)}
+                  className="rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-600"
                 >
-                  <FaUser /> Modifica Profilo
-                </Link>
-
-                {/* (Bottone feedback rimosso) */}
-                <span className="hidden sm:block" />
+                  <option value="daily">Giornaliero (oggi)</option>
+                  <option value="weekly">Ultimi 7 giorni</option>
+                  <option value="15d">Ultimi 15 giorni</option>
+                  <option value="monthly">Ultimi 30 giorni</option>
+                </select>
               </div>
+            </div>
+
+            {loadingVisits ? (
+              <div className="h-10 w-full animate-pulse rounded bg-gray-100" />
+            ) : visitCount !== null ? (
+              <>
+                <p className="text-4xl font-bold text-gray-900">{visitCount}</p>
+                <p className="text-sm text-gray-600">
+                  Visite nel periodo selezionato
+                </p>
+              </>
+            ) : (
+              <p className="text-sm text-gray-600">Nessun dato visite disponibile.</p>
+            )}
+
+            <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-3">
+              <button
+                onClick={() => fetchVisits()}
+                className="inline-flex items-center justify-center rounded-xl bg-blue-600 px-3 py-2 font-semibold text-white shadow hover:bg-blue-700"
+              >
+                Aggiorna
+              </button>
+
+              <Link
+                href="/userdetails"
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2 text-gray-900 shadow-sm hover:bg-gray-50"
+              >
+                <FaUser /> Modifica Profilo
+              </Link>
+
+              <span className="hidden sm:block" />
             </div>
 
             {/* CTA */}
@@ -489,9 +513,8 @@ export default function Dashboard() {
               <button
                 onClick={handleSaveSettings}
                 disabled={settingsSaving}
-                className={`rounded-xl px-4 py-2 text-sm font-semibold text-white shadow ${
-                  settingsSaving ? "bg-blue-300" : "bg-blue-600 hover:bg-blue-700"
-                }`}
+                className={`rounded-xl px-4 py-2 text-sm font-semibold text-white shadow ${settingsSaving ? "bg-blue-300" : "bg-blue-600 hover:bg-blue-700"
+                  }`}
               >
                 <FaSave /> {settingsSaving ? "Salvataggio…" : "Salva"}
               </button>
@@ -506,9 +529,8 @@ export default function Dashboard() {
                 type="text"
                 value={userData.name}
                 onChange={(e) => setUserData({ ...userData, name: e.target.value })}
-                className={`w-full rounded-xl border px-3 py-2 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-600 ${
-                  errors.name ? "border-red-500" : "border-gray-300"
-                }`}
+                className={`w-full rounded-xl border px-3 py-2 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-600 ${errors.name ? "border-red-500" : "border-gray-300"
+                  }`}
                 aria-invalid={!!errors.name}
                 aria-describedby={errors.name ? "err-name" : undefined}
                 data-autofocus
@@ -526,9 +548,8 @@ export default function Dashboard() {
                 type="email"
                 value={userData.email}
                 onChange={(e) => setUserData({ ...userData, email: e.target.value })}
-                className={`w-full rounded-xl border px-3 py-2 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-600 ${
-                  errors.email ? "border-red-500" : "border-gray-300"
-                }`}
+                className={`w-full rounded-xl border px-3 py-2 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-600 ${errors.email ? "border-red-500" : "border-gray-300"
+                  }`}
                 aria-invalid={!!errors.email}
                 aria-describedby={errors.email ? "err-email" : undefined}
               />
